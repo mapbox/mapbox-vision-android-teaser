@@ -1,0 +1,26 @@
+buildscript {
+    ext {
+        kotlin_version = '1.2.71'
+        gradle_plugin ='3.2.1'
+    }
+
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:$gradle_plugin"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        mavenLocal()
+        google()
+        jcenter()
+        maven { url 'https://mapbox.bintray.com/mapbox' }
+        maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
+    }
+}

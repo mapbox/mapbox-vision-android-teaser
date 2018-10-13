@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:viewportWidth="80"
+    android:viewportHeight="80"
+    android:width="80dp"
+    android:height="80dp">
+    <group
+        android:translateX="-354"
+        android:translateY="-2912">
+        <group
+            android:translateX="348"
+            android:translateY="2906">
+            <group
+                android:rotation="-45"
+                android:translateX="-19.05382"
+                android:translateY="46">
+                <path
+                    android:pathData="M28 14l36 0c7.756 0 14 6.244 14 14l0 36c0 7.756 -6.244 14 -14 14L28 78C20.244 78 14 71.756 14 64l0 -36c0 -7.756 6.244 -14 14 -14z"
+                    android:fillColor="#f7d319" />
+            </group>
+            <group
+                android:rotation="-45"
+                android:translateX="-19.05382"
+                android:translateY="46">
+                <path
+                    android:pathData="M29 17l34 0c6.648 0 12 5.352 12 12l0 34c0 6.648 -5.352 12 -12 12L29 75C22.352 75 17 69.648 17 63l0 -34c0 -6.648 5.352 -12 12 -12z"
+                    android:strokeWidth="2"
+                    android:fillColor="#f7d319"
+                    android:strokeColor="#000000" />
+            </group>
+            <path
+                android:pathData="M51 31l0 7 -10 0 0 -7 -9 0 14 -14 14 14 -9 0z"
+                android:fillColor="#000000" />
+            <path
+                android:pathData="M41.122929 43l9.762751 0c0.532634 0 1.043267 0.212462 1.418698 0.590285l7.11432 7.159659C59.791026 51.124645 60 51.631427 60 52.159659l0 9.741747c0 0.531503 -0.211563 1.041147 -0.587973 1.416396l-7.12056 7.098595C51.916573 70.790134 51.408802 71 50.87944 71l-9.747674 0c-0.528915 0 -1.036295 -0.209513 -1.411113 -0.582692L32.588887 63.316715C32.211918 62.941394 32 62.431359 32 61.899408l0 -9.769286c0 -0.530083 0.210437 -1.038485 0.585073 -1.4135L39.708002 43.5865C40.083132 43.210991 40.592146 43 41.122929 43Z"
+                android:fillColor="#ff0d0d" />
+        </group>
+    </group>
+</vector>
