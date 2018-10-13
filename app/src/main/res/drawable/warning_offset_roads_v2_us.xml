@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:viewportWidth="80"
+    android:viewportHeight="80"
+    android:width="80dp"
+    android:height="80dp">
+    <group
+        android:translateX="-690"
+        android:translateY="-4349">
+        <group
+            android:translateX="684"
+            android:translateY="4343">
+            <group
+                android:rotation="-45"
+                android:translateX="-19.05382"
+                android:translateY="46">
+                <path
+                    android:pathData="M28 14l36 0c7.756 0 14 6.244 14 14l0 36c0 7.756 -6.244 14 -14 14L28 78C20.244 78 14 71.756 14 64l0 -36c0 -7.756 6.244 -14 14 -14z"
+                    android:fillColor="#f7d319" />
+            </group>
+            <group
+                android:rotation="-45"
+                android:translateX="-19.05382"
+                android:translateY="46">
+                <path
+                    android:pathData="M29 17l34 0c6.648 0 12 5.352 12 12l0 34c0 6.648 -5.352 12 -12 12L29 75C22.352 75 17 69.648 17 63l0 -34c0 -6.648 5.352 -12 12 -12z"
+                    android:strokeWidth="2"
+                    android:fillColor="#f7d319"
+                    android:strokeColor="#000000" />
+            </group>
+            <path
+                android:pathData="M51 19L51 28.5 41 38.223792 41 19Z"
+                android:fillColor="#000000" />
+            <group
+                android:scaleX="-1"
+                android:scaleY="-1"
+                android:translateX="92"
+                android:translateY="126.2238">
+                <path
+                    android:pathData="M51 54L51 62.5 41 72.223792 41 54Z"
+                    android:fillColor="#000000" />
+            </group>
+            <group
+                android:rotation="-45"
+                android:translateX="-18.55382"
+                android:translateY="46.20711">
+                <path
+                    android:pathData="M27 48l0 -5 -2 0 0 -2 2 0 0 -2 3 0 0 2 3 0 0 -2 3 0 0 2 3 0 0 -2 3 0 0 2 3 0 0 -2 3 0 0 2 3 0 0 -2 3 0 0 2 3 0 0 -2 3 0 0 2 3 0 0 -2 3 0 0 2 2 0 0 2 -2 0 0 5 2 0 0 2 -2 0 0 2 -3 0 0 -2 -3 0 0 2 -3 0 0 -2 -3 0 0 2 -3 0 0 -2 -3 0 0 2 -3 0 0 -2 -3 0 0 2 -3 0 0 -2 -3 0 0 2 -3 0 0 -2 -3 0 0 2 -3 0 0 -2 -2 0 0 -2 2 0zm3 0l3 0 0 -5 -3 0 0 5zm6 0l3 0 0 -5 -3 0 0 5zm6 0l3 0 0 -5 -3 0 0 5zm6 0l3 0 0 -5 -3 0 0 5zm6 0l3 0 0 -5 -3 0 0 5zm6 0l3 0 0 -5 -3 0 0 5z"
+                    android:fillColor="#000000" />
+            </group>
+        </group>
+    </group>
+</vector>

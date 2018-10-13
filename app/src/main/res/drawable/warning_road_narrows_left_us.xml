@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:viewportWidth="80"
+    android:viewportHeight="80"
+    android:width="80dp"
+    android:height="80dp">
+    <group
+        android:translateX="-915"
+        android:translateY="-3130">
+        <group
+            android:translateX="909"
+            android:translateY="3124">
+            <group
+                android:rotation="-45"
+                android:translateX="-19.05382"
+                android:translateY="46">
+                <path
+                    android:pathData="M28 14l36 0c7.756 0 14 6.244 14 14l0 36c0 7.756 -6.244 14 -14 14L28 78C20.244 78 14 71.756 14 64l0 -36c0 -7.756 6.244 -14 14 -14z"
+                    android:fillColor="#f7d319" />
+            </group>
+            <group
+                android:rotation="-45"
+                android:translateX="-19.05382"
+                android:translateY="46">
+                <path
+                    android:pathData="M29 17l34 0c6.648 0 12 5.352 12 12l0 34c0 6.648 -5.352 12 -12 12L29 75C22.352 75 17 69.648 17 63l0 -34c0 -6.648 5.352 -12 12 -12z"
+                    android:strokeWidth="2"
+                    android:fillColor="#f7d319"
+                    android:strokeColor="#000000" />
+            </group>
+            <group
+                android:scaleX="-1"
+                android:translateX="107">
+                <path
+                    android:pathData="M50 27l7 0 0 38 -7 0z"
+                    android:fillColor="#000000" />
+            </group>
+            <group
+                android:scaleX="-1"
+                android:translateX="80">
+                <path
+                    android:pathData="M34 27l7 0 0 13.403474c0 0.428262 0.09169 0.85156 0.268911 1.241433l4.462178 9.816565C45.908308 51.851345 46 52.274643 46 52.702904L46 65 39 65 39 52.644672c0 -0.430404 -0.09261 -0.855769 -0.271547 -1.247214L34.271547 41.647362C34.092612 41.255916 34 40.830551 34 40.400147L34 27Z"
+                    android:fillColor="#000000" />
+            </group>
+        </group>
+    </group>
+</vector>
