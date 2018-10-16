@@ -22,6 +22,7 @@ import com.mapbox.vision.examples.utils.classification.SignMapperImpl
 import com.mapbox.vision.examples.utils.classification.Tracker
 import com.mapbox.vision.examples.utils.lines.RoadDescriptionMapper
 import com.mapbox.vision.performance.ModelPerformance
+import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.view.VisualizationMode
@@ -68,12 +69,12 @@ class MainActivity : AppCompatActivity() {
 
     private val visionEventsListener = object : VisionEventsListener {
         private fun extractFpsInfo() {
-//            val frameStatistics = VisionManager.getFrameStatistics()
-//            setSegmentationFPS(frameStatistics.segmentationFPS)
-//            setDetectionFPS(frameStatistics.detectionFPS)
-//            setRoadConfidenceFPS(frameStatistics.roadConfidenceFPS)
-//            setSegmentationDetectionFPS(frameStatistics.segmentationDetectionFPS)
-//            setCoreUpdateFPS(frameStatistics.coreUpdateFPS)
+            val frameStatistics = VisionManager.getFrameStatistics()
+            setSegmentationFPS(frameStatistics.segmentationFPS)
+            setDetectionFPS(frameStatistics.detectionFPS)
+            setRoadConfidenceFPS(frameStatistics.roadConfidenceFPS)
+            setSegmentationDetectionFPS(frameStatistics.segmentationDetectionFPS)
+            setCoreUpdateFPS(frameStatistics.coreUpdateFPS)
         }
 
         override fun detectionsUpdated(detections: Detections) {
@@ -124,8 +125,11 @@ class MainActivity : AppCompatActivity() {
     private fun onPermissionsGranted() {
         isPermissionsGranted = true
 
-        VisionManager.setDetectionPerformance(ModelPerformance(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH))
-        VisionManager.setSegmentationPerformance(ModelPerformance(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH))
+        VisionManager.setModelPerformanceConfig(
+                ModelPerformanceConfig.Merged(
+                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+                )
+        )
 
         signSize = resources.getDimension(R.dimen.dp64).toInt()
         lineSize = resources.getDimension(R.dimen.dp40).toInt()
@@ -284,8 +288,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setSignClassificationMode() {
-        VisionManager.setSegmentationPerformance(ModelPerformance(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW))
-        VisionManager.setDetectionPerformance(ModelPerformance(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH))
+        VisionManager.setModelPerformanceConfig(
+                ModelPerformanceConfig.Merged(
+                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+                )
+        )
 
         vision_view.visualizationMode = VisualizationMode.CLEAR
         currentMode = CLASSIFICATION_MODE
@@ -300,8 +307,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setDetectionMode() {
-        VisionManager.setSegmentationPerformance(ModelPerformance(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW))
-        VisionManager.setDetectionPerformance(ModelPerformance(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH))
+        VisionManager.setModelPerformanceConfig(
+                ModelPerformanceConfig.Merged(
+                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+                )
+        )
 
         vision_view.visualizationMode = VisualizationMode.DETECTION
         currentMode = DETECTION_MODE
@@ -313,8 +323,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setSegmentationMode() {
-        VisionManager.setSegmentationPerformance(ModelPerformance(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH))
-        VisionManager.setDetectionPerformance(ModelPerformance(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW))
+        VisionManager.setModelPerformanceConfig(
+                ModelPerformanceConfig.Merged(
+                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+                )
+        )
 
         vision_view.visualizationMode = VisualizationMode.SEGMENTATION
         currentMode = SEGMENTATION_MODE
