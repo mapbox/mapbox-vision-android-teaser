@@ -19,6 +19,7 @@ import com.mapbox.vision.examples.activity.map.MapActivity
 import com.mapbox.vision.examples.models.UiSignValueModel
 import com.mapbox.vision.examples.utils.classification.SignMapper
 import com.mapbox.vision.examples.utils.classification.SignMapperImpl
+import com.mapbox.vision.examples.utils.classification.Tracker
 import com.mapbox.vision.examples.utils.lines.RoadDescriptionMapper
 import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceMode
@@ -30,7 +31,23 @@ import com.mapbox.vision.visionevents.events.position.Position
 import com.mapbox.vision.visionevents.events.roaddescription.RoadDescription
 import com.mapbox.vision.visionevents.events.segmentation.SegmentationMask
 import com.mapbox.vision.visionevents.events.worlddescription.WorldDescription
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.ar_navigation_button_container
+import kotlinx.android.synthetic.main.activity_main.back
+import kotlinx.android.synthetic.main.activity_main.core_update_fps
+import kotlinx.android.synthetic.main.activity_main.dashboard_container
+import kotlinx.android.synthetic.main.activity_main.det_container
+import kotlinx.android.synthetic.main.activity_main.detection_fps
+import kotlinx.android.synthetic.main.activity_main.distance_container
+import kotlinx.android.synthetic.main.activity_main.fps_info_container
+import kotlinx.android.synthetic.main.activity_main.lines_detections_container
+import kotlinx.android.synthetic.main.activity_main.merge_model_fps
+import kotlinx.android.synthetic.main.activity_main.object_mapping_button_container
+import kotlinx.android.synthetic.main.activity_main.road_confidence_fps
+import kotlinx.android.synthetic.main.activity_main.segm_container
+import kotlinx.android.synthetic.main.activity_main.segmentation_fps
+import kotlinx.android.synthetic.main.activity_main.sign_detection_container
+import kotlinx.android.synthetic.main.activity_main.sign_info_container
+import kotlinx.android.synthetic.main.activity_main.vision_view
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
     private var lineSize = 0
 
-    //    private var tracker: Tracker<UiSignValueModel> = Tracker(5)
+    private var tracker: Tracker<UiSignValueModel> = Tracker(5)
     private var currentMode = DETECTION_MODE
 
     private var isPermissionsGranted = false
@@ -74,6 +91,10 @@ class MainActivity : AppCompatActivity() {
         override fun signClassificationUpdated(signClassification: SignClassification) {
             if (currentMode == CLASSIFICATION_MODE) {
                 extractFpsInfo()
+                with(tracker) {
+                    update(UiSignValueModel.getSignValueListBySignClassification(signClassification))
+                    drawSigns(getCurrent())
+                }
             }
         }
 
@@ -112,7 +133,7 @@ class MainActivity : AppCompatActivity() {
 
         back.setOnClickListener { onBackClick() }
         segm_container.setOnClickListener { setSegmentationMode() }
-        sign_detection_container.setOnClickListener { setClearMode() }
+        sign_detection_container.setOnClickListener { setSignClassificationMode() }
         det_container.setOnClickListener { setDetectionMode() }
         distance_container.setOnClickListener { setDistanceToCarMode() }
         object_mapping_button_container.setOnClickListener {
@@ -160,7 +181,6 @@ class MainActivity : AppCompatActivity() {
         hideBackButton()
     }
 
-    // TODO draw signs
     private fun drawSigns(signsValueUis: List<UiSignValueModel>) {
         sign_info_container.removeAllViews()
         for (signValue in signsValueUis) {
@@ -263,14 +283,14 @@ class MainActivity : AppCompatActivity() {
         fps_info_container.visibility = View.GONE
     }
 
-    private fun setClearMode() {
+    private fun setSignClassificationMode() {
         VisionManager.setSegmentationPerformance(ModelPerformance(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW))
         VisionManager.setDetectionPerformance(ModelPerformance(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH))
 
         vision_view.visualizationMode = VisualizationMode.CLEAR
         currentMode = CLASSIFICATION_MODE
 
-        // tracker = Tracker(5)
+        tracker = Tracker(5)
 
         hideLineDetectionContainer()
         showSignsContainer()
