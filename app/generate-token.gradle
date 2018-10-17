@@ -5,7 +5,7 @@ task accessToken {
     def tokenFile = new File("${projectDir}/src/main/res/values/developer-config.xml")
     if (!tokenFile.exists()) {
         String envToken = "$System.env.MAPBOX_ACCESS_TOKEN"
-        if(envToken == "null"){
+        if (envToken == "null") {
             envToken = "YOUR_MAPBOX_ACCESS_TOKEN_GOES_HERE"
         }
         String tokenFileContents = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +

@@ -10,6 +10,10 @@ import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation
 import com.mapbox.vision.VisionManager
 import com.mapbox.vision.examples.R
+import com.mapbox.vision.performance.ModelPerformance
+import com.mapbox.vision.performance.ModelPerformanceConfig
+import com.mapbox.vision.performance.ModelPerformanceMode
+import com.mapbox.vision.performance.ModelPerformanceRate
 import kotlinx.android.synthetic.main.activity_ar_navigation.*
 
 class ArNavigationActivity : AppCompatActivity() {
@@ -35,6 +39,11 @@ class ArNavigationActivity : AppCompatActivity() {
         setContentView(R.layout.activity_ar_navigation)
 
         VisionManager.create()
+        VisionManager.setModelPerformanceConfig(
+                ModelPerformanceConfig.Merged(
+                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW)
+                )
+        )
 
         back.setOnClickListener {
             onBackPressed()
