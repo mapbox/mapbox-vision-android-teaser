@@ -139,7 +139,10 @@ class MainActivity : AppCompatActivity() {
         segm_container.setOnClickListener { setSegmentationMode() }
         sign_detection_container.setOnClickListener { setSignClassificationMode() }
         det_container.setOnClickListener { setDetectionMode() }
-        distance_container.setOnClickListener { setDistanceToCarMode() }
+
+        // TODO: Enable after all will be ready
+//        distance_container.setOnClickListener { setDistanceToCarMode() }
+
         object_mapping_button_container.setOnClickListener {
             startActivity(MapActivity.createIntent(this))
         }
