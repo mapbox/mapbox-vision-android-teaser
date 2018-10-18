@@ -256,6 +256,7 @@
 
             <LinearLayout
                 android:id="@+id/distance_container"
+                android:visibility="gone"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
