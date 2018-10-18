@@ -25,7 +25,9 @@ class ArNavigationActivity : AppCompatActivity() {
         }
     }
 
-    private val mapboxNavigation by lazy { MapboxNavigation(this, Mapbox.getAccessToken()!!) }
+    private val mapboxNavigation by lazy {
+        MapboxNavigation(this, Mapbox.getAccessToken()!!)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -42,13 +44,15 @@ class ArNavigationActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         VisionManager.start()
-        mapboxNavigation.startNavigation(intent.getSerializableExtra(EXTRA_ROUTE) as DirectionsRoute)
+        mapboxNavigation.addOffRouteListener(mapbox_ar_view)
         mapboxNavigation.addProgressChangeListener(mapbox_ar_view)
+        mapboxNavigation.startNavigation(intent.getSerializableExtra(EXTRA_ROUTE) as DirectionsRoute)
     }
 
     override fun onPause() {
         super.onPause()
         mapboxNavigation.removeProgressChangeListener(mapbox_ar_view)
+        mapboxNavigation.removeOffRouteListener(mapbox_ar_view)
         mapboxNavigation.stopNavigation()
         VisionManager.stop()
     }
