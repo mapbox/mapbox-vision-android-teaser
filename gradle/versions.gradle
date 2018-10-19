@@ -10,9 +10,14 @@ ext {
     compile_sdk_version = 28
     build_tools_version = '28.0.3'
 
+    support_lib = '28.0.0'
+
     vision_core = '0.1.0'
+
     mapbox_core = '0.2.1'
-    mapbox_telemetry = '3.2.0'
+    mapbox_navigation = '0.21.0'
+    mapbox_sdk = '6.6.0'
+    mapbox_location_layer = '0.8.2'
 
     retrofit_version = '2.4.0'
 
