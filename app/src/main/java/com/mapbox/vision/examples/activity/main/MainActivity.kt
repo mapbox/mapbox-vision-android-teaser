@@ -11,7 +11,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
+import android.widget.Toast
 import com.mapbox.vision.VisionManager
+import com.mapbox.vision.core.utils.SystemInfoUtils
 import com.mapbox.vision.corewrapper.update.VisionEventsListener
 import com.mapbox.vision.examples.R
 import com.mapbox.vision.examples.activity.ar.ArMapActivity
@@ -110,6 +112,12 @@ class MainActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        if (!SystemInfoUtils.isSNPESupportedDevice()) {
+            Toast.makeText(this, "The device is not supported", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
 
         VisionManager.create()
         VisionManager.setVisionEventListener(visionEventsListener)
