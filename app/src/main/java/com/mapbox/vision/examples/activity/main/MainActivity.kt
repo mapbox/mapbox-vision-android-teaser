@@ -2,17 +2,18 @@ package com.mapbox.vision.examples.activity.main
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.Html
-import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.Toast
+import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
+import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
+import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
 import com.mapbox.vision.VisionManager
 
 import com.mapbox.vision.core.utils.SystemInfoUtils
@@ -25,7 +26,9 @@ import com.mapbox.vision.examples.models.UiSignValueModel
 import com.mapbox.vision.examples.utils.classification.SignMapper
 import com.mapbox.vision.examples.utils.classification.SignMapperImpl
 import com.mapbox.vision.examples.utils.classification.Tracker
+import com.mapbox.vision.examples.utils.hide
 import com.mapbox.vision.examples.utils.lines.RoadDescriptionMapper
+import com.mapbox.vision.examples.utils.show
 import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
@@ -37,22 +40,8 @@ import com.mapbox.vision.visionevents.events.position.Position
 import com.mapbox.vision.visionevents.events.roaddescription.RoadDescription
 import com.mapbox.vision.visionevents.events.segmentation.SegmentationMask
 import com.mapbox.vision.visionevents.events.worlddescription.WorldDescription
-import kotlinx.android.synthetic.main.activity_main.ar_navigation_button_container
-import kotlinx.android.synthetic.main.activity_main.back
-import kotlinx.android.synthetic.main.activity_main.core_update_fps
-import kotlinx.android.synthetic.main.activity_main.dashboard_container
-import kotlinx.android.synthetic.main.activity_main.det_container
-import kotlinx.android.synthetic.main.activity_main.detection_fps
-import kotlinx.android.synthetic.main.activity_main.fps_info_container
-import kotlinx.android.synthetic.main.activity_main.lines_detections_container
-import kotlinx.android.synthetic.main.activity_main.merge_model_fps
-import kotlinx.android.synthetic.main.activity_main.object_mapping_button_container
-import kotlinx.android.synthetic.main.activity_main.road_confidence_fps
-import kotlinx.android.synthetic.main.activity_main.segm_container
-import kotlinx.android.synthetic.main.activity_main.segmentation_fps
-import kotlinx.android.synthetic.main.activity_main.sign_detection_container
-import kotlinx.android.synthetic.main.activity_main.sign_info_container
-import kotlinx.android.synthetic.main.activity_main.vision_view
+import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -63,13 +52,19 @@ class MainActivity : AppCompatActivity() {
 
     private var lineSize = 0
 
+    private val distanceFormatter by lazy {
+        LocaleUtils().let { localeUtils ->
+            val language = localeUtils.inferDeviceLanguage(this@MainActivity)
+            val unitType = localeUtils.getUnitTypeForDeviceLocale(this@MainActivity)
+            val roundingIncrement = NavigationConstants.ROUNDING_INCREMENT_FIVE
+            DistanceFormatter(this@MainActivity, language, unitType, roundingIncrement)
+        }
+    }
+
     private var tracker: Tracker<UiSignValueModel> = Tracker(5)
     private var currentMode = DETECTION_MODE
 
     private var isPermissionsGranted = false
-
-    // Debug flag to show debug overlay
-    private var extractFpsInfo = true
 
     private val visionEventsListener = object : VisionEventsListener {
         private fun extractFpsInfo() {
@@ -105,7 +100,22 @@ class MainActivity : AppCompatActivity() {
 
         override fun roadDescriptionUpdated(roadDescription: RoadDescription) {}
 
-        override fun worldDescriptionUpdated(worldDescription: WorldDescription) {}
+        override fun worldDescriptionUpdated(worldDescription: WorldDescription) {
+            if (currentMode == DISTANCE_TO_CAR_MODE) {
+                extractFpsInfo()
+                worldDescription.objects.firstOrNull().let { car ->
+                    if (car == null) {
+                        distance_to_car_label.hide()
+                        distance_to_car_image.hide()
+                    } else {
+                        distance_to_car_label.show()
+                        distance_to_car_image.show()
+                        distance_to_car_label.text = distanceFormatter.formatDistance(car.distance)
+                        distance_to_car_image.drawDetectedDistanceToCar(car)
+                    }
+                }
+            }
+        }
 
         override fun estimatedPositionUpdated(position: Position) {}
     }
@@ -150,22 +160,14 @@ class MainActivity : AppCompatActivity() {
         segm_container.setOnClickListener { setSegmentationMode() }
         sign_detection_container.setOnClickListener { setSignClassificationMode() }
         det_container.setOnClickListener { setDetectionMode() }
-
-        // TODO: Enable after all will be ready
-//        distance_container.setOnClickListener { setDistanceToCarMode() }
-
+        distance_container.setOnClickListener { setDistanceToCarMode() }
         object_mapping_button_container.setOnClickListener {
             startActivity(MapActivity.createIntent(this))
         }
         ar_navigation_button_container.setOnClickListener {
             startActivity(Intent(this, ArMapActivity::class.java))
         }
-
-        if (extractFpsInfo) {
-            showFpsInfoContainer()
-        } else {
-            hideFpsInfoContainer()
-        }
+        fps_info_container.show()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -195,8 +197,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onBackClick() {
-        showDashboard()
-        hideBackButton()
+        dashboard_container.show()
+        back.hide()
     }
 
     private fun drawSigns(signsValueUis: List<UiSignValueModel>) {
@@ -231,46 +233,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showDashboard() {
-        dashboard_container.visibility = View.VISIBLE
-    }
-
-    private fun hideDashboard() {
-        dashboard_container.visibility = View.GONE
-    }
-
     private fun hideSignsContainer() {
         sign_info_container.removeAllViews()
-        sign_info_container.visibility = View.GONE
-    }
-
-    private fun showSignsContainer() {
-        sign_info_container.visibility = View.VISIBLE
-    }
-
-    private fun showLineDetectionContainer() {
-        lines_detections_container.visibility = View.VISIBLE
+        sign_info_container.hide()
     }
 
     private fun hideLineDetectionContainer() {
         lines_detections_container.removeAllViews()
-        lines_detections_container.visibility = View.GONE
-    }
-
-    private fun hideBackButton() {
-        back.visibility = View.GONE
-    }
-
-    private fun showBackButton() {
-        back.visibility = View.VISIBLE
-    }
-
-    private fun setSegmentationOverlay(bitmap: Bitmap) {
-        // DO nothing
-    }
-
-    private fun setDetectionOverlay(bitmap: Bitmap) {
-        // Do nothing
+        lines_detections_container.hide()
     }
 
     private fun setSegmentationFPS(fpsRate: Float) {
@@ -293,30 +263,22 @@ class MainActivity : AppCompatActivity() {
         core_update_fps.text = "CU: $fpsRate"
     }
 
-    private fun showFpsInfoContainer() {
-        fps_info_container.visibility = View.VISIBLE
-    }
-
-    private fun hideFpsInfoContainer() {
-        fps_info_container.visibility = View.GONE
-    }
-
     private fun setSignClassificationMode() {
         VisionManager.setModelPerformanceConfig(
                 ModelPerformanceConfig.Merged(
                         performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
                 )
         )
-
         vision_view.visualizationMode = VisualizationMode.CLEAR
         currentMode = CLASSIFICATION_MODE
 
         tracker = Tracker(5)
 
         hideLineDetectionContainer()
-        showSignsContainer()
-        hideDashboard()
-        showBackButton()
+        sign_info_container.show()
+        dashboard_container.hide()
+        distance_to_car.hide()
+        back.show()
 
     }
 
@@ -332,8 +294,9 @@ class MainActivity : AppCompatActivity() {
 
         hideLineDetectionContainer()
         hideSignsContainer()
-        hideDashboard()
-        showBackButton()
+        dashboard_container.hide()
+        distance_to_car.hide()
+        back.show()
     }
 
     private fun setSegmentationMode() {
@@ -348,18 +311,27 @@ class MainActivity : AppCompatActivity() {
 
         hideLineDetectionContainer()
         hideSignsContainer()
-        hideDashboard()
-        showBackButton()
+        dashboard_container.hide()
+        distance_to_car.hide()
+        back.show()
     }
 
-    // FIXME
     private fun setDistanceToCarMode() {
+        VisionManager.setModelPerformanceConfig(
+                ModelPerformanceConfig.Separate(
+                        detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH),
+                        segmentationPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.MEDIUM)
+                )
+        )
+
+        vision_view.visualizationMode = VisualizationMode.CLEAR
         currentMode = DISTANCE_TO_CAR_MODE
 
         hideLineDetectionContainer()
         hideSignsContainer()
-        hideDashboard()
-        showBackButton()
+        dashboard_container.hide()
+        distance_to_car.show()
+        back.show()
     }
 
     private fun allPermissionsGranted(): Boolean {

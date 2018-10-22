@@ -84,14 +84,14 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
         if (::locationLayerPlugin.isInitialized) {
             locationLayerPlugin.onStop()
         }
+        locationEngine.removeLocationEngineListener(this)
+        locationEngine.removeLocationUpdates()
+        locationEngine.deactivate()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         mapView.onDestroy()
-        locationEngine.removeLocationEngineListener(this)
-        locationEngine.removeLocationUpdates()
-        locationEngine.deactivate()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
