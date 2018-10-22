@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.text.Html
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -40,7 +41,6 @@ import kotlinx.android.synthetic.main.activity_main.core_update_fps
 import kotlinx.android.synthetic.main.activity_main.dashboard_container
 import kotlinx.android.synthetic.main.activity_main.det_container
 import kotlinx.android.synthetic.main.activity_main.detection_fps
-import kotlinx.android.synthetic.main.activity_main.distance_container
 import kotlinx.android.synthetic.main.activity_main.fps_info_container
 import kotlinx.android.synthetic.main.activity_main.lines_detections_container
 import kotlinx.android.synthetic.main.activity_main.merge_model_fps
@@ -114,7 +114,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         if (!SystemInfoUtils.isSNPESupportedDevice()) {
-            Toast.makeText(this, "The device is not supported", Toast.LENGTH_LONG).show()
+            val text = Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
+            Toast.makeText(this, text, Toast.LENGTH_LONG).show()
             finish()
             return
         }
