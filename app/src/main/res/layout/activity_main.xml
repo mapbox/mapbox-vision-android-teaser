@@ -26,9 +26,7 @@
         android:paddingTop="18dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-    </LinearLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/lines_detections_container"
@@ -40,17 +38,43 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
+    <FrameLayout
+        android:id="@+id/distance_to_car"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <TextView
+            android:id="@+id/distance_to_car_label"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:layout_gravity="center|bottom"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_label"
+            android:gravity="center"
+            android:minWidth="80dp"
+            android:textColor="@color/minty_green"
+            android:textSize="20sp"
+            tools:text="50 m" />
+
+        <com.mapbox.vision.examples.DistanceToCarView
+            android:id="@+id/distance_to_car_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/fps_info_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minWidth="250dp"
         android:layout_margin="16dp"
         android:background="@color/white_70_transparent"
+        android:minWidth="250dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -256,7 +280,6 @@
 
             <LinearLayout
                 android:id="@+id/distance_container"
-                android:visibility="gone"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
