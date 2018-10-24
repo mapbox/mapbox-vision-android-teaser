@@ -14,7 +14,9 @@ import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.Toast
 import com.mapbox.vision.VisionManager
+
 import com.mapbox.vision.core.utils.SystemInfoUtils
+import com.mapbox.vision.core.utils.snapdragon.SupportedSnapdragonBoards
 import com.mapbox.vision.corewrapper.update.VisionEventsListener
 import com.mapbox.vision.examples.R
 import com.mapbox.vision.examples.activity.ar.ArMapActivity
@@ -113,7 +115,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if (!SystemInfoUtils.isSNPESupportedDevice()) {
+        if (!SupportedSnapdragonBoards.isBoardSupported(SystemInfoUtils.getSnpeSupportedBoard()) ) {
             val text = Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
             Toast.makeText(this, text, Toast.LENGTH_LONG).show()
             finish()
