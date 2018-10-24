@@ -56,7 +56,6 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.aar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation "com.android.support:appcompat-v7:$support_lib"
@@ -64,19 +63,11 @@ dependencies {
 
     implementation 'com.android.support:multidex:1.0.3'
 
-    implementation("com.mapbox.mapboxsdk:mapbox-android-sdk:$mapbox_sdk") {
-        exclude module: 'mapbox-android-telemetry'
-    }
-    implementation("com.mapbox.mapboxsdk:mapbox-android-navigation:$mapbox_navigation") {
-        exclude module: 'mapbox-android-telemetry'
-    }
-    implementation("com.mapbox.mapboxsdk:mapbox-android-navigation-ui:$mapbox_navigation") {
-        exclude module: 'mapbox-android-telemetry'
-    }
-    implementation("com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:$mapbox_location_layer") {
-        exclude module: 'mapbox-android-telemetry'
-    }
-    implementation("com.mapbox.mapboxsdk:mapbox-android-core:$mapbox_core")
+    implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:$mapbox_sdk"
+    implementation "com.mapbox.mapboxsdk:mapbox-android-navigation:$mapbox_navigation"
+    implementation "com.mapbox.mapboxsdk:mapbox-android-navigation-ui:$mapbox_navigation"
+    implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:$mapbox_location_layer"
+    implementation "com.mapbox.mapboxsdk:mapbox-android-core:$mapbox_core"
 
     implementation 'com.mapbox.vision:mapbox-android-vision:0.1.0'
     implementation 'com.mapbox.vision:mapbox-android-vision-ar:0.1.0'
