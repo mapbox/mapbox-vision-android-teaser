@@ -15,7 +15,7 @@ ext {
     vision_core = '0.1.0'
 
     mapbox_core = '0.2.1'
-    mapbox_navigation = '0.22.0-SNAPSHOT'
+    mapbox_navigation = '0.22.0'
     mapbox_sdk = '6.6.0'
     mapbox_location_layer = '0.8.2'
 
