@@ -205,7 +205,7 @@
                     android:id="@+id/segm"
                     android:layout_width="68dp"
                     android:layout_height="68dp"
-                    android:src="@drawable/ic_icon1" />
+                    android:src="@drawable/ic_section_segmentation" />
 
                 <TextView
                     android:id="@+id/segm_text"
@@ -236,7 +236,7 @@
                     android:id="@+id/det"
                     android:layout_width="68dp"
                     android:layout_height="68dp"
-                    android:src="@drawable/ic_icon6" />
+                    android:src="@drawable/ic_section_object_detector" />
 
                 <TextView
                     android:id="@+id/det_text"
@@ -291,7 +291,7 @@
                     android:id="@+id/distance"
                     android:layout_width="68dp"
                     android:layout_height="68dp"
-                    android:src="@drawable/ic_icon3" />
+                    android:src="@drawable/ic_section_collision_detection" />
 
                 <TextView
                     android:id="@+id/distance_text"
@@ -323,7 +323,7 @@
                     android:id="@+id/object_mapping"
                     android:layout_width="68dp"
                     android:layout_height="68dp"
-                    android:src="@drawable/ic_icon5" />
+                    android:src="@drawable/ic_section_object_mapping" />
 
                 <TextView
                     android:id="@+id/object_mapping_text"
@@ -355,7 +355,7 @@
                     android:id="@+id/ar_navigation"
                     android:layout_width="68dp"
                     android:layout_height="68dp"
-                    android:src="@drawable/ic_icon7" />
+                    android:src="@drawable/ic_section_routing" />
 
                 <TextView
                     android:id="@+id/ar_navigation_text"

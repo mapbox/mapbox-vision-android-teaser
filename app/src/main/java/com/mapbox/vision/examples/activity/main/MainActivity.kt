@@ -1,5 +1,6 @@
 package com.mapbox.vision.examples.activity.main
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -15,11 +16,9 @@ import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
 import com.mapbox.vision.VisionManager
-
-import com.mapbox.vision.core.utils.SystemInfoUtils
-import com.mapbox.vision.core.utils.snapdragon.SupportedSnapdragonBoards
 import com.mapbox.vision.corewrapper.update.VisionEventsListener
 import com.mapbox.vision.examples.R
+import com.mapbox.vision.examples.utils.SoundsPlayer
 import com.mapbox.vision.examples.activity.ar.ArMapActivity
 import com.mapbox.vision.examples.activity.map.MapActivity
 import com.mapbox.vision.examples.models.UiSignValueModel
@@ -34,7 +33,9 @@ import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.view.VisualizationMode
+import com.mapbox.vision.visionevents.CalibrationProgress
 import com.mapbox.vision.visionevents.events.classification.SignClassification
+import com.mapbox.vision.visionevents.events.detection.Collision
 import com.mapbox.vision.visionevents.events.detection.Detections
 import com.mapbox.vision.visionevents.events.position.Position
 import com.mapbox.vision.visionevents.events.roaddescription.RoadDescription
@@ -45,6 +46,16 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        private const val PERMISSIONS_REQUEST_CODE = 1
+
+        private const val SEGMENTATION_MODE = 0
+        private const val CLASSIFICATION_MODE = 1
+        private const val DETECTION_MODE = 2
+        private const val DISTANCE_TO_CAR_MODE = 3
+        private const val LINE_DETECTION_MODE = 4
+    }
+
     private val signMapper: SignMapper = SignMapperImpl(this)
 
     private var signSize = 0
@@ -52,28 +63,22 @@ class MainActivity : AppCompatActivity() {
 
     private var lineSize = 0
 
-    private val distanceFormatter by lazy {
-        LocaleUtils().let { localeUtils ->
-            val language = localeUtils.inferDeviceLanguage(this@MainActivity)
-            val unitType = localeUtils.getUnitTypeForDeviceLocale(this@MainActivity)
-            val roundingIncrement = NavigationConstants.ROUNDING_INCREMENT_FIVE
-            DistanceFormatter(this@MainActivity, language, unitType, roundingIncrement)
-        }
-    }
-
     private var tracker: Tracker<UiSignValueModel> = Tracker(5)
     private var currentMode = DETECTION_MODE
 
     private var isPermissionsGranted = false
+    private lateinit var soundsPlayer: SoundsPlayer
 
     private val visionEventsListener = object : VisionEventsListener {
+
+        @SuppressLint("SetTextI18n")
         private fun extractFpsInfo() {
             val frameStatistics = VisionManager.getFrameStatistics()
-            setSegmentationFPS(frameStatistics.segmentationFPS)
-            setDetectionFPS(frameStatistics.detectionFPS)
-            setRoadConfidenceFPS(frameStatistics.roadConfidenceFPS)
-            setSegmentationDetectionFPS(frameStatistics.segmentationDetectionFPS)
-            setCoreUpdateFPS(frameStatistics.coreUpdateFPS)
+            segmentation_fps.text = "S: ${frameStatistics.segmentationFPS}"
+            detection_fps.text = "D: ${frameStatistics.detectionFPS}"
+            road_confidence_fps.text = "RC: ${frameStatistics.roadConfidenceFPS}"
+            merge_model_fps.text = "MM: ${frameStatistics.segmentationDetectionFPS}"
+            core_update_fps.text = "CU: ${frameStatistics.coreUpdateFPS}"
         }
 
         override fun detectionsUpdated(detections: Detections) {
@@ -100,24 +105,54 @@ class MainActivity : AppCompatActivity() {
 
         override fun roadDescriptionUpdated(roadDescription: RoadDescription) {}
 
+        private val distanceFormatter by lazy {
+            LocaleUtils().let { localeUtils ->
+                val language = localeUtils.inferDeviceLanguage(this@MainActivity)
+                val unitType = localeUtils.getUnitTypeForDeviceLocale(this@MainActivity)
+                val roundingIncrement = NavigationConstants.ROUNDING_INCREMENT_FIVE
+                DistanceFormatter(this@MainActivity, language, unitType, roundingIncrement)
+            }
+        }
+
+        private var currentCollisionState: Collision.CollisionState = Collision.CollisionState.NOT_TRIGGERED
         override fun worldDescriptionUpdated(worldDescription: WorldDescription) {
             if (currentMode == DISTANCE_TO_CAR_MODE) {
                 extractFpsInfo()
-                worldDescription.objects.firstOrNull().let { car ->
-                    if (car == null) {
+                val car = worldDescription.objects.firstOrNull()
+                worldDescription.collisions.firstOrNull().let { collision ->
+
+                    if (collision == null) {
+                        soundsPlayer.stop()
+                        currentCollisionState = Collision.CollisionState.NOT_TRIGGERED
                         distance_to_car_label.hide()
                         distance_to_car_image.hide()
                     } else {
                         distance_to_car_label.show()
                         distance_to_car_image.show()
-                        distance_to_car_label.text = distanceFormatter.formatDistance(car.distance)
-                        distance_to_car_image.drawDetectedDistanceToCar(car)
+                        if (currentCollisionState != collision.state) {
+                            soundsPlayer.stop()
+                            when (collision.state) {
+                                Collision.CollisionState.WARNING -> {
+                                    soundsPlayer.playWarning()
+                                }
+                                Collision.CollisionState.CRITICAL -> {
+                                    soundsPlayer.playCritical()
+                                }
+                                else -> {
+                                }
+                            }
+                            currentCollisionState = collision.state
+                        }
+                        distance_to_car_label.text = distanceFormatter.formatDistance(collision.car.distance)
+                        distance_to_car_image.drawCollision(collision)
                     }
                 }
             }
         }
 
         override fun estimatedPositionUpdated(position: Position) {}
+
+        override fun calibrationProgressUpdated(calibrationProgress: CalibrationProgress) {}
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -134,6 +169,8 @@ class MainActivity : AppCompatActivity() {
 
         VisionManager.create()
         VisionManager.setVisionEventListener(visionEventsListener)
+
+        soundsPlayer = SoundsPlayer(this)
 
         if (!allPermissionsGranted() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(getRequiredPermissions(), PERMISSIONS_REQUEST_CODE)
@@ -161,6 +198,7 @@ class MainActivity : AppCompatActivity() {
         sign_detection_container.setOnClickListener { setSignClassificationMode() }
         det_container.setOnClickListener { setDetectionMode() }
         distance_container.setOnClickListener { setDistanceToCarMode() }
+        distance_to_car.hide()
         object_mapping_button_container.setOnClickListener {
             startActivity(MapActivity.createIntent(this))
         }
@@ -189,6 +227,7 @@ class MainActivity : AppCompatActivity() {
         if (isPermissionsGranted) {
             VisionManager.stop()
         }
+        soundsPlayer.stop()
     }
 
     override fun onDestroy() {
@@ -241,26 +280,6 @@ class MainActivity : AppCompatActivity() {
     private fun hideLineDetectionContainer() {
         lines_detections_container.removeAllViews()
         lines_detections_container.hide()
-    }
-
-    private fun setSegmentationFPS(fpsRate: Float) {
-        segmentation_fps.text = "S: $fpsRate"
-    }
-
-    private fun setDetectionFPS(fpsRate: Float) {
-        detection_fps.text = "D: $fpsRate"
-    }
-
-    private fun setRoadConfidenceFPS(fpsRate: Float) {
-        road_confidence_fps.text = "RC: $fpsRate"
-    }
-
-    private fun setSegmentationDetectionFPS(fpsRate: Float) {
-        merge_model_fps.text = "MM: $fpsRate"
-    }
-
-    private fun setCoreUpdateFPS(fpsRate: Float) {
-        core_update_fps.text = "CU: $fpsRate"
     }
 
     private fun setSignClassificationMode() {
@@ -320,7 +339,7 @@ class MainActivity : AppCompatActivity() {
         VisionManager.setModelPerformanceConfig(
                 ModelPerformanceConfig.Separate(
                         detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH),
-                        segmentationPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.MEDIUM)
+                        segmentationPerformance = ModelPerformance.Off
                 )
         )
 
@@ -355,15 +374,5 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             emptyArray()
         }
-    }
-
-    companion object {
-        private const val PERMISSIONS_REQUEST_CODE = 1
-
-        private const val SEGMENTATION_MODE = 0
-        private const val CLASSIFICATION_MODE = 1
-        private const val DETECTION_MODE = 2
-        private const val DISTANCE_TO_CAR_MODE = 3
-        private const val LINE_DETECTION_MODE = 4
     }
 }
