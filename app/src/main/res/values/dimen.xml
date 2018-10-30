@@ -10,9 +10,11 @@
     <dimen name="dp10">10dp</dimen>
     <dimen name="dp16">16dp</dimen>
     <dimen name="dp40">40dp</dimen>
+    <dimen name="dp46">46dp</dimen>
     <dimen name="dp64">64dp</dimen>
 
     <dimen name="menu_small_margin">60dp</dimen>
+    <dimen name="menu_medium_margin">120dp</dimen>
     <dimen name="menu_big_margin">160dp</dimen>
 
     <!-- distance to car view -->

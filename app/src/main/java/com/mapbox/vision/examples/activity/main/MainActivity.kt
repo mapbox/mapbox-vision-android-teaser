@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.Html
+import android.util.Log
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
@@ -16,17 +17,18 @@ import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
 import com.mapbox.vision.VisionManager
+import com.mapbox.vision.core.utils.SystemInfoUtils
+import com.mapbox.vision.core.utils.snapdragon.SupportedSnapdragonBoards
 import com.mapbox.vision.corewrapper.update.VisionEventsListener
 import com.mapbox.vision.examples.R
-import com.mapbox.vision.examples.utils.SoundsPlayer
 import com.mapbox.vision.examples.activity.ar.ArMapActivity
 import com.mapbox.vision.examples.activity.map.MapActivity
 import com.mapbox.vision.examples.models.UiSignValueModel
+import com.mapbox.vision.examples.utils.SoundsPlayer
 import com.mapbox.vision.examples.utils.classification.SignMapper
 import com.mapbox.vision.examples.utils.classification.SignMapperImpl
 import com.mapbox.vision.examples.utils.classification.Tracker
 import com.mapbox.vision.examples.utils.hide
-import com.mapbox.vision.examples.utils.lines.RoadDescriptionMapper
 import com.mapbox.vision.examples.utils.show
 import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
@@ -38,6 +40,8 @@ import com.mapbox.vision.visionevents.events.classification.SignClassification
 import com.mapbox.vision.visionevents.events.detection.Collision
 import com.mapbox.vision.visionevents.events.detection.Detections
 import com.mapbox.vision.visionevents.events.position.Position
+import com.mapbox.vision.visionevents.events.roaddescription.Direction
+import com.mapbox.vision.visionevents.events.roaddescription.MarkingType
 import com.mapbox.vision.visionevents.events.roaddescription.RoadDescription
 import com.mapbox.vision.visionevents.events.segmentation.SegmentationMask
 import com.mapbox.vision.visionevents.events.worlddescription.WorldDescription
@@ -59,9 +63,9 @@ class MainActivity : AppCompatActivity() {
     private val signMapper: SignMapper = SignMapperImpl(this)
 
     private var signSize = 0
-    private var leftMargin = 0
+    private var margin = 0
 
-    private var lineSize = 0
+    private var lineHeight = 0
 
     private var tracker: Tracker<UiSignValueModel> = Tracker(5)
     private var currentMode = DETECTION_MODE
@@ -103,7 +107,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        override fun roadDescriptionUpdated(roadDescription: RoadDescription) {}
+        override fun roadDescriptionUpdated(roadDescription: RoadDescription) {
+            if (currentMode == LINE_DETECTION_MODE) {
+                extractFpsInfo()
+                drawLinesDetection(roadDescription)
+            }
+        }
 
         private val distanceFormatter by lazy {
             LocaleUtils().let { localeUtils ->
@@ -160,8 +169,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if (!SupportedSnapdragonBoards.isBoardSupported(SystemInfoUtils.getSnpeSupportedBoard()) ) {
-            val text = Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
+        if (!SupportedSnapdragonBoards.isBoardSupported(SystemInfoUtils.getSnpeSupportedBoard())) {
+            val text =
+                Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
             Toast.makeText(this, text, Toast.LENGTH_LONG).show()
             finish()
             return
@@ -184,14 +194,14 @@ class MainActivity : AppCompatActivity() {
         isPermissionsGranted = true
 
         VisionManager.setModelPerformanceConfig(
-                ModelPerformanceConfig.Merged(
-                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-                )
+            ModelPerformanceConfig.Merged(
+                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+            )
         )
 
         signSize = resources.getDimension(R.dimen.dp64).toInt()
-        lineSize = resources.getDimension(R.dimen.dp40).toInt()
-        leftMargin = resources.getDimension(R.dimen.dp8).toInt()
+        lineHeight = resources.getDimension(R.dimen.dp40).toInt()
+        margin = resources.getDimension(R.dimen.dp8).toInt()
 
         back.setOnClickListener { onBackClick() }
         segm_container.setOnClickListener { setSegmentationMode() }
@@ -199,6 +209,7 @@ class MainActivity : AppCompatActivity() {
         det_container.setOnClickListener { setDetectionMode() }
         distance_container.setOnClickListener { setDistanceToCarMode() }
         distance_to_car.hide()
+        line_detection_container.setOnClickListener { setLineDetectionMode() }
         object_mapping_button_container.setOnClickListener {
             startActivity(MapActivity.createIntent(this))
         }
@@ -245,9 +256,8 @@ class MainActivity : AppCompatActivity() {
         for (signValue in signsValueUis) {
             val image = ImageView(this)
             val lp = ViewGroup.MarginLayoutParams(signSize, ViewGroup.LayoutParams.WRAP_CONTENT)
-            lp.leftMargin = leftMargin
+            lp.leftMargin = margin
             image.layoutParams = lp
-            image.paddingLeft
 
             image.setImageResource(signMapper.getResourceByValue(signValue))
 
@@ -256,19 +266,62 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // TODO draw lines
-    private fun drawLinesDetection(roadElements: List<RoadDescriptionMapper.RoadElement>) {
+    private fun drawLinesDetection(roadDescription: RoadDescription) {
+
+        fun getImageView(isFirst:Boolean = false): ImageView {
+            val image = ImageView(this)
+            val lp = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,lineHeight)
+            if(isFirst) {
+                lp.marginStart = margin
+            }
+            lp.marginEnd = margin
+            image.layoutParams = lp
+            return image
+        }
+
+        fun MarkingType.imageSource(isForward: Boolean = false): Int {
+            return when (this) {
+                MarkingType.CURB -> if (isForward) {
+                    R.drawable.ic_right_curb
+                } else {
+                    R.drawable.ic_left_curb
+                }
+                MarkingType.SOLID -> R.drawable.ic_separator_lane
+                MarkingType.DOUBLE_SOLID -> R.drawable.ic_separator_double_lane
+                MarkingType.DASHES -> R.drawable.ic_half_lane
+                MarkingType.UNKNOWN -> R.drawable.ic_unknown_lane
+            }
+        }
+
+        fun Direction.imageSource() : Int {
+            return when (this) {
+                Direction.FORWARD -> R.drawable.ic_arrow_forward
+                Direction.BACKWARD -> R.drawable.ic_arrow
+                Direction.REVERS -> R.drawable.ic_arrow_reversed
+            }
+        }
+
         lines_detections_container.removeAllViews()
 
-        for (roadElement in roadElements) {
-            val image = ImageView(this)
-            val lp = ViewGroup.MarginLayoutParams(lineSize, ViewGroup.LayoutParams.WRAP_CONTENT)
-            image.layoutParams = lp
-            image.paddingLeft
+        for (index in roadDescription.lines.indices) {
+            val line = roadDescription.lines[index]
+            val leftMarkingImageView = getImageView(index == 0)
+            leftMarkingImageView.setImageResource(line.leftMarking.type.imageSource())
+            lines_detections_container.addView(leftMarkingImageView)
 
-            image.setImageResource(roadElement.drawableResourceId)
+            val directionImageView = getImageView()
+            if (index == roadDescription.currentLane) {
+                directionImageView.setImageResource(R.drawable.ic_blue_arrow)
+            } else {
+                directionImageView.setImageResource(line.direction.imageSource())
+            }
+            lines_detections_container.addView(directionImageView)
 
-            lines_detections_container.addView(image)
+            if (index == roadDescription.lines.lastIndex) {
+                val rightMarkingImageView = getImageView()
+                rightMarkingImageView.setImageResource(line.rightMarking.type.imageSource(true))
+                lines_detections_container.addView(rightMarkingImageView)
+            }
         }
     }
 
@@ -284,9 +337,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setSignClassificationMode() {
         VisionManager.setModelPerformanceConfig(
-                ModelPerformanceConfig.Merged(
-                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-                )
+            ModelPerformanceConfig.Merged(
+                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+            )
         )
         vision_view.visualizationMode = VisualizationMode.CLEAR
         currentMode = CLASSIFICATION_MODE
@@ -303,9 +356,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setDetectionMode() {
         VisionManager.setModelPerformanceConfig(
-                ModelPerformanceConfig.Merged(
-                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-                )
+            ModelPerformanceConfig.Merged(
+                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+            )
         )
 
         vision_view.visualizationMode = VisualizationMode.DETECTION
@@ -320,9 +373,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setSegmentationMode() {
         VisionManager.setModelPerformanceConfig(
-                ModelPerformanceConfig.Merged(
-                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-                )
+            ModelPerformanceConfig.Merged(
+                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+            )
         )
 
         vision_view.visualizationMode = VisualizationMode.SEGMENTATION
@@ -337,10 +390,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun setDistanceToCarMode() {
         VisionManager.setModelPerformanceConfig(
-                ModelPerformanceConfig.Separate(
-                        detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH),
-                        segmentationPerformance = ModelPerformance.Off
-                )
+            ModelPerformanceConfig.Separate(
+                detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH),
+                segmentationPerformance = ModelPerformance.Off
+            )
         )
 
         vision_view.visualizationMode = VisualizationMode.CLEAR
@@ -350,6 +403,23 @@ class MainActivity : AppCompatActivity() {
         hideSignsContainer()
         dashboard_container.hide()
         distance_to_car.show()
+        back.show()
+    }
+
+    private fun setLineDetectionMode() {
+        VisionManager.setModelPerformanceConfig(
+            ModelPerformanceConfig.Separate(
+                detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW),
+                segmentationPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+            )
+        )
+
+        vision_view.visualizationMode = VisualizationMode.CLEAR
+        currentMode = LINE_DETECTION_MODE
+
+        hideSignsContainer()
+        dashboard_container.hide()
+        lines_detections_container.show()
         back.show()
     }
 
