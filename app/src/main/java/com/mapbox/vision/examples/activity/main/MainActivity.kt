@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.Html
-import android.util.Log
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
@@ -45,7 +44,27 @@ import com.mapbox.vision.visionevents.events.roaddescription.MarkingType
 import com.mapbox.vision.visionevents.events.roaddescription.RoadDescription
 import com.mapbox.vision.visionevents.events.segmentation.SegmentationMask
 import com.mapbox.vision.visionevents.events.worlddescription.WorldDescription
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.ar_navigation_button_container
+import kotlinx.android.synthetic.main.activity_main.back
+import kotlinx.android.synthetic.main.activity_main.core_update_fps
+import kotlinx.android.synthetic.main.activity_main.dashboard_container
+import kotlinx.android.synthetic.main.activity_main.det_container
+import kotlinx.android.synthetic.main.activity_main.detection_fps
+import kotlinx.android.synthetic.main.activity_main.distance_container
+import kotlinx.android.synthetic.main.activity_main.distance_to_car
+import kotlinx.android.synthetic.main.activity_main.distance_to_car_image
+import kotlinx.android.synthetic.main.activity_main.distance_to_car_label
+import kotlinx.android.synthetic.main.activity_main.fps_info_container
+import kotlinx.android.synthetic.main.activity_main.line_detection_container
+import kotlinx.android.synthetic.main.activity_main.lines_detections_container
+import kotlinx.android.synthetic.main.activity_main.merge_model_fps
+import kotlinx.android.synthetic.main.activity_main.object_mapping_button_container
+import kotlinx.android.synthetic.main.activity_main.road_confidence_fps
+import kotlinx.android.synthetic.main.activity_main.segm_container
+import kotlinx.android.synthetic.main.activity_main.segmentation_fps
+import kotlinx.android.synthetic.main.activity_main.sign_detection_container
+import kotlinx.android.synthetic.main.activity_main.sign_info_container
+import kotlinx.android.synthetic.main.activity_main.vision_view
 
 
 class MainActivity : AppCompatActivity() {
@@ -171,7 +190,7 @@ class MainActivity : AppCompatActivity() {
 
         if (!SupportedSnapdragonBoards.isBoardSupported(SystemInfoUtils.getSnpeSupportedBoard())) {
             val text =
-                Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
+                    Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
             Toast.makeText(this, text, Toast.LENGTH_LONG).show()
             finish()
             return
@@ -194,9 +213,9 @@ class MainActivity : AppCompatActivity() {
         isPermissionsGranted = true
 
         VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Merged(
-                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-            )
+                ModelPerformanceConfig.Merged(
+                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+                )
         )
 
         signSize = resources.getDimension(R.dimen.dp64).toInt()
@@ -268,10 +287,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun drawLinesDetection(roadDescription: RoadDescription) {
 
-        fun getImageView(isFirst:Boolean = false): ImageView {
+        fun getImageView(isFirst: Boolean = false): ImageView {
             val image = ImageView(this)
-            val lp = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,lineHeight)
-            if(isFirst) {
+            val lp = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, lineHeight)
+            if (isFirst) {
                 lp.marginStart = margin
             }
             lp.marginEnd = margin
@@ -279,26 +298,22 @@ class MainActivity : AppCompatActivity() {
             return image
         }
 
-        fun MarkingType.imageSource(isForward: Boolean = false): Int {
-            return when (this) {
-                MarkingType.CURB -> if (isForward) {
-                    R.drawable.ic_right_curb
-                } else {
-                    R.drawable.ic_left_curb
-                }
-                MarkingType.SOLID -> R.drawable.ic_separator_lane
-                MarkingType.DOUBLE_SOLID -> R.drawable.ic_separator_double_lane
-                MarkingType.DASHES -> R.drawable.ic_half_lane
-                MarkingType.UNKNOWN -> R.drawable.ic_unknown_lane
+        fun MarkingType.imageSource(isForward: Boolean = false) = when (this) {
+            MarkingType.CURB -> if (isForward) {
+                R.drawable.ic_right_curb
+            } else {
+                R.drawable.ic_left_curb
             }
+            MarkingType.SOLID -> R.drawable.ic_separator_lane
+            MarkingType.DOUBLE_SOLID -> R.drawable.ic_separator_double_lane
+            MarkingType.DASHES -> R.drawable.ic_half_lane
+            MarkingType.UNKNOWN -> R.drawable.ic_unknown_lane
         }
 
-        fun Direction.imageSource() : Int {
-            return when (this) {
-                Direction.FORWARD -> R.drawable.ic_arrow_forward
-                Direction.BACKWARD -> R.drawable.ic_arrow
-                Direction.REVERS -> R.drawable.ic_arrow_reversed
-            }
+        fun Direction.imageSource() = when (this) {
+            Direction.FORWARD -> R.drawable.ic_arrow_forward
+            Direction.BACKWARD -> R.drawable.ic_arrow
+            Direction.REVERS -> R.drawable.ic_arrow_reversed
         }
 
         lines_detections_container.removeAllViews()
@@ -337,9 +352,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setSignClassificationMode() {
         VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Merged(
-                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-            )
+                ModelPerformanceConfig.Merged(
+                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+                )
         )
         vision_view.visualizationMode = VisualizationMode.CLEAR
         currentMode = CLASSIFICATION_MODE
@@ -356,9 +371,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setDetectionMode() {
         VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Merged(
-                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-            )
+                ModelPerformanceConfig.Merged(
+                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+                )
         )
 
         vision_view.visualizationMode = VisualizationMode.DETECTION
@@ -373,9 +388,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setSegmentationMode() {
         VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Merged(
-                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-            )
+                ModelPerformanceConfig.Merged(
+                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+                )
         )
 
         vision_view.visualizationMode = VisualizationMode.SEGMENTATION
@@ -390,10 +405,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun setDistanceToCarMode() {
         VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Separate(
-                detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH),
-                segmentationPerformance = ModelPerformance.Off
-            )
+                ModelPerformanceConfig.Separate(
+                        detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH),
+                        segmentationPerformance = ModelPerformance.Off
+                )
         )
 
         vision_view.visualizationMode = VisualizationMode.CLEAR
@@ -408,10 +423,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun setLineDetectionMode() {
         VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Separate(
-                detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW),
-                segmentationPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-            )
+                ModelPerformanceConfig.Separate(
+                        detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW),
+                        segmentationPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+                )
         )
 
         vision_view.visualizationMode = VisualizationMode.CLEAR
