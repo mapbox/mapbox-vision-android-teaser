@@ -34,7 +34,7 @@ android {
         minSdkVersion min_sdk_version
         targetSdkVersion target_sdk_version
         versionCode 3
-        versionName "0.1.0"
+        versionName "0.1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -69,8 +69,8 @@ dependencies {
     implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:$mapbox_location_layer"
     implementation "com.mapbox.mapboxsdk:mapbox-android-core:$mapbox_core"
 
-    implementation 'com.mapbox.vision:mapbox-android-vision:0.1.0'
-    implementation 'com.mapbox.vision:mapbox-android-vision-ar:0.1.0'
+    implementation 'com.mapbox.vision:mapbox-android-vision:0.1.1'
+    implementation 'com.mapbox.vision:mapbox-android-vision-ar:0.1.1'
 
     testImplementation 'junit:junit:4.12'
 
