@@ -185,11 +185,7 @@ class MainActivity : AppCompatActivity() {
 
         override fun laneDepartureStateUpdated(laneDepartureState: LaneDepartureState) {
             if (currentMode == LINE_DETECTION_MODE) {
-               when(laneDepartureState) {
-                   LaneDepartureState.Normal,LaneDepartureState.Warning -> soundsPlayer.stop()
-                   LaneDepartureState.Alert -> soundsPlayer.playLaneDepartureWarning()
-               }
-                // TODO Update UI
+                // TODO Play sound. Update UI
             }
         }
     }
