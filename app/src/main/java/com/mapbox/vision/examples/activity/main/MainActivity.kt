@@ -29,6 +29,7 @@ import com.mapbox.vision.examples.utils.classification.SignMapperImpl
 import com.mapbox.vision.examples.utils.classification.Tracker
 import com.mapbox.vision.examples.utils.hide
 import com.mapbox.vision.examples.utils.show
+import com.mapbox.vision.models.LaneDepartureState
 import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
@@ -181,6 +182,16 @@ class MainActivity : AppCompatActivity() {
         override fun estimatedPositionUpdated(position: Position) {}
 
         override fun calibrationProgressUpdated(calibrationProgress: CalibrationProgress) {}
+
+        override fun laneDepartureStateUpdated(laneDepartureState: LaneDepartureState) {
+            if (currentMode == LINE_DETECTION_MODE) {
+               when(laneDepartureState) {
+                   LaneDepartureState.Normal,LaneDepartureState.Warning -> soundsPlayer.stop()
+                   LaneDepartureState.Alert -> soundsPlayer.playLaneDepartureWarning()
+               }
+                // TODO Update UI
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
