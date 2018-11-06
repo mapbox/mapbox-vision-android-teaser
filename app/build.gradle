@@ -69,8 +69,13 @@ dependencies {
     implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:$mapbox_location_layer"
     implementation "com.mapbox.mapboxsdk:mapbox-android-core:$mapbox_core"
 
-    implementation 'com.mapbox.vision:mapbox-android-vision:0.1.1'
-    implementation 'com.mapbox.vision:mapbox-android-vision-ar:0.1.1'
+    if (envVarOrLocalProperty('BUILD_CORE_FROM_SOURCE')) {
+        implementation project(path: ':MapboxVision')
+        implementation project(path: ':MapboxVisionAndroidAR')
+    } else {
+        implementation "com.mapbox.vision:mapbox-android-vision:$vision_core"
+        implementation "com.mapbox.vision:mapbox-android-vision-ar:$vision_core"
+    }
 
     testImplementation 'junit:junit:4.12'
 
