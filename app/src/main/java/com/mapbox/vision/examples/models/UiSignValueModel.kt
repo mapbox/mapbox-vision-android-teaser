@@ -8,7 +8,7 @@ data class UiSignValueModel(val signType: SignType, val signNum: SignNumber) {
     enum class SignType(val resourceName: String = "") {
 
         Unknown("unknown"),
-        SpeedLimit("speed_limit_us_"),
+        SpeedLimit("speed_limit_eu_"),
         SpeedLimitEnd("speed_limit_end_us_"),
         SpeedLimitMin("speed_limit_min_us_"),
         SpeedLimitNight("speed_limit_night_us_"),
@@ -160,7 +160,7 @@ data class UiSignValueModel(val signType: SignType, val signNum: SignNumber) {
             for (item in signClassification.items) {
 
                 val signTypeIndex = item.type.ordinal
-                val signType = if (signTypeIndex < signTypeValues.size) {
+                val signType = if (signTypeIndex == SignType.SpeedLimit.ordinal) {
                     signTypeValues[signTypeIndex]
                 } else {
                     continue
