@@ -6,19 +6,19 @@ apply from: 'generate-token.gradle'
 
 def envVarOrLocalProperty(String name) {
     if (System.getenv(name) != null) {
-        return System.getenv(name).toBoolean()
+        return System.getenv(name)
     }
 
     Properties properties = new Properties()
     def file = project.rootProject.file('local.properties')
     if (file.exists()) {
         properties.load(file.newDataInputStream())
-        def isLocalDevelopment = properties.getProperty(name)
-        if (isLocalDevelopment != null) {
-            return isLocalDevelopment.toBoolean()
+        def localProperty = properties.getProperty(name)
+        if (localProperty != null) {
+            return localProperty
         }
     }
-    return false
+    return null
 }
 
 if (file("${rootDir}/gradle/versions.gradle").exists()) {
@@ -43,6 +43,15 @@ android {
         sourceCompatibility 1.8
     }
 
+    signingConfigs {
+        release {
+            storeFile file(envVarOrLocalProperty('SIGNING_CONFIG_RELEASE'))
+            storePassword envVarOrLocalProperty('SIGNING_CONFIG_RELEASE_PASSWORD')
+            keyAlias envVarOrLocalProperty('SIGNING_CONFIG_RELEASE_ALIAS')
+            keyPassword envVarOrLocalProperty('SIGNING_CONFIG_RELEASE_KEY_PASSWORD')
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
@@ -51,6 +60,8 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -69,7 +80,7 @@ dependencies {
     implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:$mapbox_location_layer"
     implementation "com.mapbox.mapboxsdk:mapbox-android-core:$mapbox_core"
 
-    if (envVarOrLocalProperty('BUILD_CORE_FROM_SOURCE')) {
+    if (envVarOrLocalProperty('BUILD_CORE_FROM_SOURCE') != null) {
         implementation project(path: ':MapboxVision')
         implementation project(path: ':MapboxVisionAndroidAR')
     } else {
