@@ -128,12 +128,6 @@ class MainActivity : AppCompatActivity() {
         private var currentCollisionState: Collision.CollisionState = Collision.CollisionState.NOT_TRIGGERED
         override fun worldDescriptionUpdated(worldDescription: WorldDescription) {
 
-            fun WorldDescription.getCollisionForObject(objectDescription: ObjectDescription): Collision? {
-                if (worldDescription.collisions.isEmpty()) {
-                    return null
-                }
-                return this.collisions.firstOrNull { it.objectDescription == objectDescription }
-            }
 
             if (currentMode == DISTANCE_TO_CAR_MODE) {
                 extractFpsInfo()
@@ -146,9 +140,8 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
 
-
                 val carInFront = worldDescription.objects[worldDescription.carInFrontIndex]
-                val collision = worldDescription.getCollisionForObject(carInFront)
+                val collision = worldDescription.collisions.firstOrNull { it.objectDescription == carInFront }
 
                 if(collision == null) {
                     soundsPlayer.stop()
@@ -196,7 +189,7 @@ class MainActivity : AppCompatActivity() {
 
         if (!SupportedSnapdragonBoards.isBoardSupported(SystemInfoUtils.getSnpeSupportedBoard())) {
             val text =
-                Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
+                    Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
             Toast.makeText(this, text, Toast.LENGTH_LONG).show()
             finish()
             return
