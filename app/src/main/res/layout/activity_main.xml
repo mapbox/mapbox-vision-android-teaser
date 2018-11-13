@@ -49,6 +49,21 @@
         app:layout_constraintRight_toRightOf="parent">
 
         <TextView
+            android:id="@+id/calibration_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:layout_margin="18dp"
+            android:background="@drawable/bg_label"
+            android:gravity="center"
+            android:paddingEnd="16dp"
+            android:layout_gravity="center_horizontal"
+            android:paddingStart="16dp"
+            android:text="@string/calibration_progress"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:visibility="visible" />
+
+        <TextView
             android:id="@+id/distance_to_car_label"
             android:layout_width="wrap_content"
             android:layout_height="44dp"
@@ -134,7 +149,6 @@
         android:id="@+id/dashboard_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/black_70_transparent"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
