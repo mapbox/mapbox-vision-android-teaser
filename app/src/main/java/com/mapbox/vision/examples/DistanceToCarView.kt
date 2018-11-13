@@ -100,17 +100,17 @@ class DistanceToCarView : View {
         heightRatio = height.toFloat() / frameSize.height
     }
 
-    fun drawCollision(collision: Collision) {
+    fun drawDistanceToObject(objectDescription: ObjectDescription, collisionState: Collision.CollisionState) {
         distancePath.reset()
-        mode = when (collision.state) {
+        mode = when (collisionState) {
             Collision.CollisionState.NOT_TRIGGERED -> {
                 setBackgroundColor(transparent)
-                drawDistanceToCar(collision.car)
+                drawDistanceToCar(objectDescription)
                 Mode.DISTANCE
             }
             Collision.CollisionState.WARNING -> {
                 setBackgroundColor(transparent)
-                drawWarning(collision.car)
+                drawWarning(objectDescription)
                 Mode.WARNING
             }
             Collision.CollisionState.CRITICAL -> {
