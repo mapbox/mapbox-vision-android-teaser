@@ -49,7 +49,6 @@ import com.mapbox.vision.visionevents.events.worlddescription.ObjectDescription
 import com.mapbox.vision.visionevents.events.worlddescription.WorldDescription
 import kotlinx.android.synthetic.main.activity_main.*
 
-
 class MainActivity : AppCompatActivity() {
 
     companion object {
@@ -126,54 +125,69 @@ class MainActivity : AppCompatActivity() {
         }
 
         private var currentCollisionState: Collision.CollisionState = Collision.CollisionState.NOT_TRIGGERED
+
+        private var calibrationProgress: CalibrationProgress = CalibrationProgress(progress = 0, completed = false)
+
         override fun worldDescriptionUpdated(worldDescription: WorldDescription) {
 
-
             if (currentMode == DISTANCE_TO_CAR_MODE) {
+                calibration_progress.hide()
                 extractFpsInfo()
 
-                if (worldDescription.carInFrontIndex < 0 || worldDescription.carInFrontIndex >= worldDescription.objects.size) {
-                    soundsPlayer.stop()
-                    currentCollisionState = Collision.CollisionState.NOT_TRIGGERED
+                if (calibrationProgress.completed) {
+                    if (worldDescription.carInFrontIndex < 0 || worldDescription.carInFrontIndex >= worldDescription.objects.size) {
+                        soundsPlayer.stop()
+                        currentCollisionState = Collision.CollisionState.NOT_TRIGGERED
+                        distance_to_car_label.hide()
+                        distance_to_car_image.hide()
+                        return
+                    }
+
+                    val carInFront = worldDescription.objects[worldDescription.carInFrontIndex]
+                    val collision = worldDescription.collisions.firstOrNull { it.objectDescription == carInFront }
+
+                    if (collision == null) {
+                        soundsPlayer.stop()
+                        currentCollisionState = Collision.CollisionState.NOT_TRIGGERED
+
+                    } else {
+                        if (currentCollisionState != collision.state) {
+                            soundsPlayer.stop()
+                            when (collision.state) {
+                                Collision.CollisionState.WARNING -> {
+                                    soundsPlayer.playWarning()
+                                }
+                                Collision.CollisionState.CRITICAL -> {
+                                    soundsPlayer.playCritical()
+                                }
+                                else -> {
+                                }
+                            }
+                            currentCollisionState = collision.state
+                        }
+                    }
+
+                    distance_to_car_label.show()
+                    distance_to_car_image.show()
+                    distance_to_car_label.text = distanceFormatter.formatDistance(carInFront.distance)
+                    distance_to_car_image.drawDistanceToObject(carInFront, currentCollisionState)
+                } else {
                     distance_to_car_label.hide()
                     distance_to_car_image.hide()
-                    return
+                    calibration_progress.show()
+                    calibration_progress.text = getString(
+                            R.string.calibration_progress,
+                            calibrationProgress.progress
+                    )
                 }
-
-                val carInFront = worldDescription.objects[worldDescription.carInFrontIndex]
-                val collision = worldDescription.collisions.firstOrNull { it.objectDescription == carInFront }
-
-                if(collision == null) {
-                    soundsPlayer.stop()
-                    currentCollisionState = Collision.CollisionState.NOT_TRIGGERED
-
-                } else {
-                    if (currentCollisionState != collision.state) {
-                        soundsPlayer.stop()
-                        when (collision.state) {
-                            Collision.CollisionState.WARNING -> {
-                                soundsPlayer.playWarning()
-                            }
-                            Collision.CollisionState.CRITICAL -> {
-                                soundsPlayer.playCritical()
-                            }
-                            else -> {
-                            }
-                        }
-                        currentCollisionState = collision.state
-                    }
-                }
-
-                distance_to_car_label.show()
-                distance_to_car_image.show()
-                distance_to_car_label.text = distanceFormatter.formatDistance(carInFront.distance)
-                distance_to_car_image.drawDistanceToObject(carInFront,currentCollisionState)
             }
         }
 
         override fun estimatedPositionUpdated(position: Position) {}
 
-        override fun calibrationProgressUpdated(calibrationProgress: CalibrationProgress) {}
+        override fun calibrationProgressUpdated(calibrationProgress: CalibrationProgress) {
+            this.calibrationProgress = calibrationProgress
+        }
 
         override fun laneDepartureStateUpdated(laneDepartureState: LaneDepartureState) {
             if (currentMode == LINE_DETECTION_MODE) {
@@ -189,7 +203,7 @@ class MainActivity : AppCompatActivity() {
 
         if (!SupportedSnapdragonBoards.isBoardSupported(SystemInfoUtils.getSnpeSupportedBoard())) {
             val text =
-                    Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
+                Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
             Toast.makeText(this, text, Toast.LENGTH_LONG).show()
             finish()
             return
@@ -212,9 +226,9 @@ class MainActivity : AppCompatActivity() {
         isPermissionsGranted = true
 
         VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Merged(
-                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-            )
+                ModelPerformanceConfig.Merged(
+                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+                )
         )
 
         signSize = resources.getDimension(R.dimen.dp64).toInt()
@@ -351,9 +365,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setSignClassificationMode() {
         VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Merged(
-                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-            )
+                ModelPerformanceConfig.Merged(
+                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+                )
         )
         vision_view.visualizationMode = VisualizationMode.CLEAR
         currentMode = CLASSIFICATION_MODE
@@ -370,9 +384,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setDetectionMode() {
         VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Merged(
-                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-            )
+                ModelPerformanceConfig.Merged(
+                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+                )
         )
 
         vision_view.visualizationMode = VisualizationMode.DETECTION
@@ -387,9 +401,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setSegmentationMode() {
         VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Merged(
-                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-            )
+                ModelPerformanceConfig.Merged(
+                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+                )
         )
 
         vision_view.visualizationMode = VisualizationMode.SEGMENTATION
@@ -404,10 +418,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun setDistanceToCarMode() {
         VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Separate(
-                detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH),
-                segmentationPerformance = ModelPerformance.Off
-            )
+                ModelPerformanceConfig.Separate(
+                        detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH),
+                        segmentationPerformance = ModelPerformance.Off
+                )
         )
 
         vision_view.visualizationMode = VisualizationMode.CLEAR
@@ -422,10 +436,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun setLineDetectionMode() {
         VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Separate(
-                detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW),
-                segmentationPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-            )
+                ModelPerformanceConfig.Separate(
+                        detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW),
+                        segmentationPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+                )
         )
 
         vision_view.visualizationMode = VisualizationMode.CLEAR
