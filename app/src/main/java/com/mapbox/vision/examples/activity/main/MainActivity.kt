@@ -191,7 +191,16 @@ class MainActivity : AppCompatActivity() {
 
         override fun laneDepartureStateUpdated(laneDepartureState: LaneDepartureState) {
             if (currentMode == LINE_DETECTION_MODE) {
-                // TODO Play sound. Update UI
+               when(laneDepartureState) {
+                   LaneDepartureState.Alert -> {
+                       line_departure.show()
+                       soundsPlayer.playLaneDepartureWarning()
+                   }
+                   else -> {
+                       soundsPlayer.stop()
+                       line_departure.hide()
+                   }
+               }
             }
         }
     }
@@ -359,11 +368,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun hideLineDetectionContainer() {
+        line_departure.hide()
         lines_detections_container.removeAllViews()
         lines_detections_container.hide()
     }
 
     private fun setSignClassificationMode() {
+        soundsPlayer.stop()
         VisionManager.setModelPerformanceConfig(
                 ModelPerformanceConfig.Merged(
                         performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
@@ -383,6 +394,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setDetectionMode() {
+        soundsPlayer.stop()
         VisionManager.setModelPerformanceConfig(
                 ModelPerformanceConfig.Merged(
                         performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
@@ -400,6 +412,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setSegmentationMode() {
+        soundsPlayer.stop()
         VisionManager.setModelPerformanceConfig(
                 ModelPerformanceConfig.Merged(
                         performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
@@ -417,6 +430,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setDistanceToCarMode() {
+        soundsPlayer.stop()
         VisionManager.setModelPerformanceConfig(
                 ModelPerformanceConfig.Separate(
                         detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH),
@@ -435,6 +449,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setLineDetectionMode() {
+        soundsPlayer.stop()
         VisionManager.setModelPerformanceConfig(
                 ModelPerformanceConfig.Separate(
                         detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW),
@@ -448,6 +463,7 @@ class MainActivity : AppCompatActivity() {
         hideSignsContainer()
         dashboard_container.hide()
         lines_detections_container.show()
+        distance_to_car.hide()
         back.show()
     }
 
