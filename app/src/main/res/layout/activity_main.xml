@@ -87,8 +87,8 @@
             android:textSize="20sp"
             tools:text="50 m" />
 
-        <com.mapbox.vision.examples.DistanceToCarView
-            android:id="@+id/distance_to_car_image"
+        <com.mapbox.vision.examples.SafetyModeView
+            android:id="@+id/safety_mode"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

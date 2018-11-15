@@ -18,7 +18,8 @@
     <dimen name="menu_big_margin">160dp</dimen>
 
     <!-- distance to car view -->
-    <dimen name="alert_size">30dp</dimen>
+    <dimen name="alert_width">65dp</dimen>
+    <dimen name="alert_height">54dp</dimen>
     <dimen name="critical_alert_width">270dp</dimen>
     <dimen name="critical_alert_height">100dp</dimen>
     <dimen name="critical_alert_margin">18dp</dimen>
