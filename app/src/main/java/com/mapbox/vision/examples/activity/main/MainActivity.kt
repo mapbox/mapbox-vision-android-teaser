@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.Html
-import android.util.Log
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
@@ -45,7 +44,6 @@ import com.mapbox.vision.visionevents.events.roaddescription.Direction
 import com.mapbox.vision.visionevents.events.roaddescription.MarkingType
 import com.mapbox.vision.visionevents.events.roaddescription.RoadDescription
 import com.mapbox.vision.visionevents.events.segmentation.SegmentationMask
-import com.mapbox.vision.visionevents.events.worlddescription.ObjectDescription
 import com.mapbox.vision.visionevents.events.worlddescription.WorldDescription
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -139,7 +137,7 @@ class MainActivity : AppCompatActivity() {
                         soundsPlayer.stop()
                         currentCollisionState = Collision.CollisionState.NOT_TRIGGERED
                         distance_to_car_label.hide()
-                        distance_to_car_image.hide()
+                        safety_mode.hide()
                         return
                     }
 
@@ -149,7 +147,6 @@ class MainActivity : AppCompatActivity() {
                     if (collision == null) {
                         soundsPlayer.stop()
                         currentCollisionState = Collision.CollisionState.NOT_TRIGGERED
-
                     } else {
                         if (currentCollisionState != collision.state) {
                             soundsPlayer.stop()
@@ -168,16 +165,29 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     distance_to_car_label.show()
-                    distance_to_car_image.show()
+                    safety_mode.show()
                     distance_to_car_label.text = distanceFormatter.formatDistance(carInFront.distance)
-                    distance_to_car_image.drawDistanceToObject(carInFront, currentCollisionState)
+
+                    when (currentCollisionState) {
+                        Collision.CollisionState.NOT_TRIGGERED -> {
+                            safety_mode.drawDistanceToCar(carInFront)
+                        }
+                        Collision.CollisionState.WARNING -> {
+                            safety_mode.drawWarnings(
+                                worldDescription.collisions.map { it.objectDescription }
+                            )
+                        }
+                        Collision.CollisionState.CRITICAL -> {
+                            safety_mode.drawCritical()
+                        }
+                    }
                 } else {
                     distance_to_car_label.hide()
-                    distance_to_car_image.hide()
+                    safety_mode.hide()
                     calibration_progress.show()
                     calibration_progress.text = getString(
-                            R.string.calibration_progress,
-                            calibrationProgress.progress
+                        R.string.calibration_progress,
+                        calibrationProgress.progress
                     )
                 }
             }
@@ -235,9 +245,9 @@ class MainActivity : AppCompatActivity() {
         isPermissionsGranted = true
 
         VisionManager.setModelPerformanceConfig(
-                ModelPerformanceConfig.Merged(
-                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-                )
+            ModelPerformanceConfig.Merged(
+                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+            )
         )
 
         signSize = resources.getDimension(R.dimen.dp64).toInt()
@@ -376,9 +386,9 @@ class MainActivity : AppCompatActivity() {
     private fun setSignClassificationMode() {
         soundsPlayer.stop()
         VisionManager.setModelPerformanceConfig(
-                ModelPerformanceConfig.Merged(
-                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-                )
+            ModelPerformanceConfig.Merged(
+                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+            )
         )
         vision_view.visualizationMode = VisualizationMode.CLEAR
         currentMode = CLASSIFICATION_MODE
@@ -396,9 +406,9 @@ class MainActivity : AppCompatActivity() {
     private fun setDetectionMode() {
         soundsPlayer.stop()
         VisionManager.setModelPerformanceConfig(
-                ModelPerformanceConfig.Merged(
-                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-                )
+            ModelPerformanceConfig.Merged(
+                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+            )
         )
 
         vision_view.visualizationMode = VisualizationMode.DETECTION
@@ -414,9 +424,9 @@ class MainActivity : AppCompatActivity() {
     private fun setSegmentationMode() {
         soundsPlayer.stop()
         VisionManager.setModelPerformanceConfig(
-                ModelPerformanceConfig.Merged(
-                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-                )
+            ModelPerformanceConfig.Merged(
+                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+            )
         )
 
         vision_view.visualizationMode = VisualizationMode.SEGMENTATION
@@ -432,10 +442,10 @@ class MainActivity : AppCompatActivity() {
     private fun setDistanceToCarMode() {
         soundsPlayer.stop()
         VisionManager.setModelPerformanceConfig(
-                ModelPerformanceConfig.Separate(
-                        detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH),
-                        segmentationPerformance = ModelPerformance.Off
-                )
+            ModelPerformanceConfig.Separate(
+                detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH),
+                segmentationPerformance = ModelPerformance.Off
+            )
         )
 
         vision_view.visualizationMode = VisualizationMode.CLEAR
@@ -451,10 +461,10 @@ class MainActivity : AppCompatActivity() {
     private fun setLineDetectionMode() {
         soundsPlayer.stop()
         VisionManager.setModelPerformanceConfig(
-                ModelPerformanceConfig.Separate(
-                        detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW),
-                        segmentationPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-                )
+            ModelPerformanceConfig.Separate(
+                detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW),
+                segmentationPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+            )
         )
 
         vision_view.visualizationMode = VisualizationMode.CLEAR
