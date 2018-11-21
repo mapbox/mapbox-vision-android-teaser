@@ -429,6 +429,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setSignClassificationMode() {
+        soundsPlayer.stop()
         currentModelPerformanceConfig = ModelPerformanceConfig.Merged(
                 performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
         )
@@ -449,6 +450,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setDetectionMode() {
+        soundsPlayer.stop()
         currentModelPerformanceConfig = ModelPerformanceConfig.Merged(
                 performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
         )
@@ -467,6 +469,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setSegmentationMode() {
+        soundsPlayer.stop()
         currentModelPerformanceConfig = ModelPerformanceConfig.Merged(
                 performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
         )
@@ -485,6 +488,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setDistanceToCarMode() {
+        soundsPlayer.stop()
         currentModelPerformanceConfig = ModelPerformanceConfig.Separate(
                 detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH),
                 segmentationPerformance = ModelPerformance.Off
@@ -504,6 +508,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setLineDetectionMode() {
+        soundsPlayer.stop()
         currentModelPerformanceConfig = ModelPerformanceConfig.Separate(
                 detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW),
                 segmentationPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
