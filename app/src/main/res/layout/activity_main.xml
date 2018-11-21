@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/root"
     tools:context=".activity.main.MainActivity">
 
     <com.mapbox.vision.view.VisionView
@@ -125,23 +126,13 @@
             tools:text="lane_detection fps" />
 
         <TextView
-            android:id="@+id/road_confidence_fps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/detection_fps"
-            tools:text="road confidence fps" />
-
-        <TextView
             android:id="@+id/merge_model_fps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/road_confidence_fps"
+            app:layout_constraintTop_toBottomOf="@id/detection_fps"
             tools:text="merge model fps" />
 
         <TextView

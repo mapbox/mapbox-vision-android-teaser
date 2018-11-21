@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.Html
+import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
@@ -45,7 +46,28 @@ import com.mapbox.vision.visionevents.events.roaddescription.MarkingType
 import com.mapbox.vision.visionevents.events.roaddescription.RoadDescription
 import com.mapbox.vision.visionevents.events.segmentation.SegmentationMask
 import com.mapbox.vision.visionevents.events.worlddescription.WorldDescription
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.ar_navigation_button_container
+import kotlinx.android.synthetic.main.activity_main.back
+import kotlinx.android.synthetic.main.activity_main.calibration_progress
+import kotlinx.android.synthetic.main.activity_main.core_update_fps
+import kotlinx.android.synthetic.main.activity_main.dashboard_container
+import kotlinx.android.synthetic.main.activity_main.det_container
+import kotlinx.android.synthetic.main.activity_main.detection_fps
+import kotlinx.android.synthetic.main.activity_main.distance_container
+import kotlinx.android.synthetic.main.activity_main.distance_to_car
+import kotlinx.android.synthetic.main.activity_main.distance_to_car_image
+import kotlinx.android.synthetic.main.activity_main.distance_to_car_label
+import kotlinx.android.synthetic.main.activity_main.fps_info_container
+import kotlinx.android.synthetic.main.activity_main.line_detection_container
+import kotlinx.android.synthetic.main.activity_main.lines_detections_container
+import kotlinx.android.synthetic.main.activity_main.merge_model_fps
+import kotlinx.android.synthetic.main.activity_main.object_mapping_button_container
+import kotlinx.android.synthetic.main.activity_main.root
+import kotlinx.android.synthetic.main.activity_main.segm_container
+import kotlinx.android.synthetic.main.activity_main.segmentation_fps
+import kotlinx.android.synthetic.main.activity_main.sign_detection_container
+import kotlinx.android.synthetic.main.activity_main.sign_info_container
+import kotlinx.android.synthetic.main.activity_main.vision_view
 
 class MainActivity : AppCompatActivity() {
 
@@ -72,15 +94,29 @@ class MainActivity : AppCompatActivity() {
     private var isPermissionsGranted = false
     private lateinit var soundsPlayer: SoundsPlayer
 
+    private var currentModelPerformanceConfig: ModelPerformanceConfig = ModelPerformanceConfig.Merged(
+            performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+    )
+
     private val visionEventsListener = object : VisionEventsListener {
 
         @SuppressLint("SetTextI18n")
         private fun extractFpsInfo() {
             val frameStatistics = VisionManager.getFrameStatistics()
-            segmentation_fps.text = "S: ${frameStatistics.segmentationFPS}"
-            detection_fps.text = "D: ${frameStatistics.detectionFPS}"
-            road_confidence_fps.text = "RC: ${frameStatistics.roadConfidenceFPS}"
-            merge_model_fps.text = "MM: ${frameStatistics.segmentationDetectionFPS}"
+
+            when(currentModelPerformanceConfig) {
+                is ModelPerformanceConfig.Merged -> {
+                    segmentation_fps.text = "S: 0"
+                    detection_fps.text = "D: 0"
+                    merge_model_fps.text = "MM: ${frameStatistics.segmentationDetectionFPS}"
+                }
+                is ModelPerformanceConfig.Separate -> {
+                    segmentation_fps.text = "S: ${frameStatistics.segmentationFPS}"
+                    detection_fps.text = "D: ${frameStatistics.detectionFPS}"
+                    merge_model_fps.text = "MM: 0"
+                }
+            }
+
             core_update_fps.text = "CU: ${frameStatistics.coreUpdateFPS}"
         }
 
@@ -245,9 +281,7 @@ class MainActivity : AppCompatActivity() {
         isPermissionsGranted = true
 
         VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Merged(
-                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-            )
+                currentModelPerformanceConfig
         )
 
         signSize = resources.getDimension(R.dimen.dp64).toInt()
@@ -267,7 +301,16 @@ class MainActivity : AppCompatActivity() {
         ar_navigation_button_container.setOnClickListener {
             startActivity(Intent(this, ArMapActivity::class.java))
         }
-        fps_info_container.show()
+        root.setOnLongClickListener {
+            if(fps_info_container.visibility == View.GONE) {
+                fps_info_container.show()
+            } else {
+                fps_info_container.hide()
+            }
+            return@setOnLongClickListener true
+
+        }
+        fps_info_container.hide()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -384,11 +427,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setSignClassificationMode() {
-        soundsPlayer.stop()
-        VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Merged(
+        currentModelPerformanceConfig = ModelPerformanceConfig.Merged(
                 performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-            )
+        )
+        VisionManager.setModelPerformanceConfig(
+                currentModelPerformanceConfig
         )
         vision_view.visualizationMode = VisualizationMode.CLEAR
         currentMode = CLASSIFICATION_MODE
@@ -404,11 +447,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setDetectionMode() {
-        soundsPlayer.stop()
-        VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Merged(
+        currentModelPerformanceConfig = ModelPerformanceConfig.Merged(
                 performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-            )
+        )
+        VisionManager.setModelPerformanceConfig(
+                currentModelPerformanceConfig
         )
 
         vision_view.visualizationMode = VisualizationMode.DETECTION
@@ -422,11 +465,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setSegmentationMode() {
-        soundsPlayer.stop()
-        VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Merged(
+        currentModelPerformanceConfig = ModelPerformanceConfig.Merged(
                 performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-            )
+        )
+        VisionManager.setModelPerformanceConfig(
+                currentModelPerformanceConfig
         )
 
         vision_view.visualizationMode = VisualizationMode.SEGMENTATION
@@ -440,12 +483,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setDistanceToCarMode() {
-        soundsPlayer.stop()
-        VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Separate(
+        currentModelPerformanceConfig = ModelPerformanceConfig.Separate(
                 detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH),
                 segmentationPerformance = ModelPerformance.Off
-            )
+        )
+        VisionManager.setModelPerformanceConfig(
+                currentModelPerformanceConfig
         )
 
         vision_view.visualizationMode = VisualizationMode.CLEAR
@@ -459,12 +502,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setLineDetectionMode() {
-        soundsPlayer.stop()
-        VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Separate(
+        currentModelPerformanceConfig = ModelPerformanceConfig.Separate(
                 detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW),
                 segmentationPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-            )
+        )
+        VisionManager.setModelPerformanceConfig(
+                currentModelPerformanceConfig
         )
 
         vision_view.visualizationMode = VisualizationMode.CLEAR
