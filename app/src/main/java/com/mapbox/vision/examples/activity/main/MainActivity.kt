@@ -55,14 +55,15 @@ import kotlinx.android.synthetic.main.activity_main.det_container
 import kotlinx.android.synthetic.main.activity_main.detection_fps
 import kotlinx.android.synthetic.main.activity_main.distance_container
 import kotlinx.android.synthetic.main.activity_main.distance_to_car
-import kotlinx.android.synthetic.main.activity_main.distance_to_car_image
 import kotlinx.android.synthetic.main.activity_main.distance_to_car_label
 import kotlinx.android.synthetic.main.activity_main.fps_info_container
+import kotlinx.android.synthetic.main.activity_main.line_departure
 import kotlinx.android.synthetic.main.activity_main.line_detection_container
 import kotlinx.android.synthetic.main.activity_main.lines_detections_container
 import kotlinx.android.synthetic.main.activity_main.merge_model_fps
 import kotlinx.android.synthetic.main.activity_main.object_mapping_button_container
 import kotlinx.android.synthetic.main.activity_main.root
+import kotlinx.android.synthetic.main.activity_main.safety_mode
 import kotlinx.android.synthetic.main.activity_main.segm_container
 import kotlinx.android.synthetic.main.activity_main.segmentation_fps
 import kotlinx.android.synthetic.main.activity_main.sign_detection_container
@@ -237,6 +238,7 @@ class MainActivity : AppCompatActivity() {
 
         override fun laneDepartureStateUpdated(laneDepartureState: LaneDepartureState) {
             if (currentMode == LINE_DETECTION_MODE) {
+                extractFpsInfo()
                when(laneDepartureState) {
                    LaneDepartureState.Alert -> {
                        line_departure.show()
