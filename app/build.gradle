@@ -45,11 +45,13 @@ android {
     }
 
     signingConfigs {
-        release {
-            storeFile file(envVarOrLocalProperty('SIGNING_CONFIG_RELEASE'))
-            storePassword envVarOrLocalProperty('SIGNING_CONFIG_RELEASE_PASSWORD')
-            keyAlias envVarOrLocalProperty('SIGNING_CONFIG_RELEASE_ALIAS')
-            keyPassword envVarOrLocalProperty('SIGNING_CONFIG_RELEASE_KEY_PASSWORD')
+        if (envVarOrLocalProperty('SIGNING_CONFIG_RELEASE')) {
+            release {
+                storeFile file(envVarOrLocalProperty('SIGNING_CONFIG_RELEASE'))
+                storePassword envVarOrLocalProperty('SIGNING_CONFIG_RELEASE_PASSWORD')
+                keyAlias envVarOrLocalProperty('SIGNING_CONFIG_RELEASE_ALIAS')
+                keyPassword envVarOrLocalProperty('SIGNING_CONFIG_RELEASE_KEY_PASSWORD')
+            }
         }
     }
 
@@ -62,7 +64,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
-            signingConfig signingConfigs.release
+            if (envVarOrLocalProperty('SIGNING_CONFIG_RMainELEASE')) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
@@ -85,8 +89,8 @@ dependencies {
         implementation project(path: ':MapboxVision')
         implementation project(path: ':MapboxVisionAndroidAR')
     } else {
-        implementation "com.mapbox.vision:mapbox-android-vision:$vision_core"
-        implementation "com.mapbox.vision:mapbox-android-vision-ar:$vision_core"
+        implementation "com.mapbox.vision:mapbox-android-vision:$vision_sdk"
+        implementation "com.mapbox.vision:mapbox-android-vision-ar:$vision_ar"
     }
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
