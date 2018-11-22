@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.Html
-import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
@@ -30,13 +29,16 @@ import com.mapbox.vision.examples.utils.classification.SignMapperImpl
 import com.mapbox.vision.examples.utils.classification.Tracker
 import com.mapbox.vision.examples.utils.hide
 import com.mapbox.vision.examples.utils.show
+
 import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.view.VisualizationMode
 import com.mapbox.vision.visionevents.CalibrationProgress
+
 import com.mapbox.vision.visionevents.LaneDepartureState
+
 import com.mapbox.vision.visionevents.events.classification.SignClassification
 import com.mapbox.vision.visionevents.events.detection.Collision
 import com.mapbox.vision.visionevents.events.detection.Detections
@@ -55,9 +57,11 @@ import kotlinx.android.synthetic.main.activity_main.det_container
 import kotlinx.android.synthetic.main.activity_main.detection_fps
 import kotlinx.android.synthetic.main.activity_main.distance_container
 import kotlinx.android.synthetic.main.activity_main.distance_to_car
+
 import kotlinx.android.synthetic.main.activity_main.distance_to_car_label
 import kotlinx.android.synthetic.main.activity_main.fps_info_container
 import kotlinx.android.synthetic.main.activity_main.line_departure
+
 import kotlinx.android.synthetic.main.activity_main.line_detection_container
 import kotlinx.android.synthetic.main.activity_main.lines_detections_container
 import kotlinx.android.synthetic.main.activity_main.merge_model_fps
@@ -69,6 +73,7 @@ import kotlinx.android.synthetic.main.activity_main.segmentation_fps
 import kotlinx.android.synthetic.main.activity_main.sign_detection_container
 import kotlinx.android.synthetic.main.activity_main.sign_info_container
 import kotlinx.android.synthetic.main.activity_main.vision_view
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -95,9 +100,11 @@ class MainActivity : AppCompatActivity() {
     private var isPermissionsGranted = false
     private lateinit var soundsPlayer: SoundsPlayer
 
+
     private var currentModelPerformanceConfig: ModelPerformanceConfig = ModelPerformanceConfig.Merged(
             performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
     )
+
 
     private val visionEventsListener = object : VisionEventsListener {
 
@@ -159,6 +166,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
         private var currentCollisionState: Collision.CollisionState = Collision.CollisionState.NOT_TRIGGERED
 
         private var calibrationProgress: CalibrationProgress = CalibrationProgress(progress = 0, completed = false)
@@ -184,7 +192,9 @@ class MainActivity : AppCompatActivity() {
                     if (collision == null) {
                         soundsPlayer.stop()
                         currentCollisionState = Collision.CollisionState.NOT_TRIGGERED
+
                     } else {
+
                         if (currentCollisionState != collision.state) {
                             soundsPlayer.stop()
                             when (collision.state) {
@@ -226,6 +236,7 @@ class MainActivity : AppCompatActivity() {
                         R.string.calibration_progress,
                         calibrationProgress.progress
                     )
+
                 }
             }
         }
@@ -261,6 +272,7 @@ class MainActivity : AppCompatActivity() {
         if (!SupportedSnapdragonBoards.isBoardSupported(SystemInfoUtils.getSnpeSupportedBoard())) {
             val text =
                 Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
+
             Toast.makeText(this, text, Toast.LENGTH_LONG).show()
             finish()
             return
@@ -303,6 +315,7 @@ class MainActivity : AppCompatActivity() {
         ar_navigation_button_container.setOnClickListener {
             startActivity(Intent(this, ArMapActivity::class.java))
         }
+
         root.setOnLongClickListener {
             if(fps_info_container.visibility == View.GONE) {
                 fps_info_container.show()
@@ -313,6 +326,7 @@ class MainActivity : AppCompatActivity() {
 
         }
         fps_info_container.hide()
+
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -495,6 +509,7 @@ class MainActivity : AppCompatActivity() {
         )
         VisionManager.setModelPerformanceConfig(
                 currentModelPerformanceConfig
+
         )
 
         vision_view.visualizationMode = VisualizationMode.CLEAR
@@ -508,6 +523,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setLineDetectionMode() {
+
         soundsPlayer.stop()
         currentModelPerformanceConfig = ModelPerformanceConfig.Separate(
                 detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW),
@@ -515,6 +531,7 @@ class MainActivity : AppCompatActivity() {
         )
         VisionManager.setModelPerformanceConfig(
                 currentModelPerformanceConfig
+
         )
 
         vision_view.visualizationMode = VisualizationMode.CLEAR
@@ -524,6 +541,7 @@ class MainActivity : AppCompatActivity() {
         dashboard_container.hide()
         lines_detections_container.show()
         distance_to_car.hide()
+
         back.show()
     }
 
