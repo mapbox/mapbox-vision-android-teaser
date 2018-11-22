@@ -41,6 +41,15 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
+    splits {
+        abi {
+            enable true
+            reset()
+            include "arm64-v8a"
+            universalApk false
+        }
+    }
+
     compileOptions {
         targetCompatibility 1.8
         sourceCompatibility 1.8
@@ -87,7 +96,7 @@ dependencies {
     implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:$mapbox_location_layer"
     implementation "com.mapbox.mapboxsdk:mapbox-android-core:$mapbox_core"
 
-    if (envVarOrLocalProperty('BUILD_CORE_FROM_SOURCE') != null) {
+    if (envVarOrLocalProperty('BUILD_CORE_FROM_SOURCE')?.toBoolean()) {
         implementation project(path: ':MapboxVision')
         implementation project(path: ':MapboxVisionAndroidAR')
     } else {
