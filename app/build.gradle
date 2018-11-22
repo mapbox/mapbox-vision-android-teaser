@@ -34,7 +34,7 @@ android {
         applicationId "com.mapbox.vision.examples"
         minSdkVersion min_sdk_version
         targetSdkVersion target_sdk_version
-        versionCode 4
+        versionCode 5
         versionName "0.1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
