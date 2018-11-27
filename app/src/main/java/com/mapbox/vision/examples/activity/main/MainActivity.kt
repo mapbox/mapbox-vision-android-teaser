@@ -19,6 +19,7 @@ import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
 import com.mapbox.vision.VisionManager
 import com.mapbox.vision.core.utils.SystemInfoUtils
 import com.mapbox.vision.core.utils.snapdragon.SupportedSnapdragonBoards
+import com.mapbox.vision.corewrapper.update.RoadRestrictionsListener
 import com.mapbox.vision.corewrapper.update.VisionEventsListener
 import com.mapbox.vision.examples.R
 import com.mapbox.vision.examples.activity.ar.ArMapActivity
@@ -44,31 +45,11 @@ import com.mapbox.vision.visionevents.events.position.Position
 import com.mapbox.vision.visionevents.events.roaddescription.Direction
 import com.mapbox.vision.visionevents.events.roaddescription.MarkingType
 import com.mapbox.vision.visionevents.events.roaddescription.RoadDescription
+import com.mapbox.vision.visionevents.events.roadrestrictions.SpeedLimit
 import com.mapbox.vision.visionevents.events.segmentation.SegmentationMask
 import com.mapbox.vision.visionevents.events.worlddescription.WorldDescription
-import kotlinx.android.synthetic.main.activity_main.ar_navigation_button_container
-import kotlinx.android.synthetic.main.activity_main.back
-import kotlinx.android.synthetic.main.activity_main.calibration_progress
-import kotlinx.android.synthetic.main.activity_main.core_update_fps
-import kotlinx.android.synthetic.main.activity_main.dashboard_container
-import kotlinx.android.synthetic.main.activity_main.det_container
-import kotlinx.android.synthetic.main.activity_main.detection_fps
-import kotlinx.android.synthetic.main.activity_main.distance_container
-import kotlinx.android.synthetic.main.activity_main.distance_to_car
-import kotlinx.android.synthetic.main.activity_main.distance_to_car_label
-import kotlinx.android.synthetic.main.activity_main.fps_info_container
-import kotlinx.android.synthetic.main.activity_main.line_departure
-import kotlinx.android.synthetic.main.activity_main.line_detection_container
-import kotlinx.android.synthetic.main.activity_main.lines_detections_container
-import kotlinx.android.synthetic.main.activity_main.merge_model_fps
-import kotlinx.android.synthetic.main.activity_main.object_mapping_button_container
-import kotlinx.android.synthetic.main.activity_main.root
-import kotlinx.android.synthetic.main.activity_main.safety_mode
-import kotlinx.android.synthetic.main.activity_main.segm_container
-import kotlinx.android.synthetic.main.activity_main.segmentation_fps
-import kotlinx.android.synthetic.main.activity_main.sign_detection_container
-import kotlinx.android.synthetic.main.activity_main.sign_info_container
-import kotlinx.android.synthetic.main.activity_main.vision_view
+import kotlinx.android.synthetic.main.activity_main.*
+import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
 
@@ -105,7 +86,7 @@ class MainActivity : AppCompatActivity() {
         private fun extractFpsInfo() {
             val frameStatistics = VisionManager.getFrameStatistics()
 
-            when(currentModelPerformanceConfig) {
+            when (currentModelPerformanceConfig) {
                 is ModelPerformanceConfig.Merged -> {
                     segmentation_fps.text = "S: 0"
                     detection_fps.text = "D: 0"
@@ -211,7 +192,7 @@ class MainActivity : AppCompatActivity() {
                         }
                         Collision.CollisionState.WARNING -> {
                             safety_mode.drawWarnings(
-                                worldDescription.collisions.map { it.objectDescription }
+                                    worldDescription.collisions.map { it.objectDescription }
                             )
                         }
                         Collision.CollisionState.CRITICAL -> {
@@ -223,8 +204,8 @@ class MainActivity : AppCompatActivity() {
                     safety_mode.hide()
                     calibration_progress.show()
                     calibration_progress.text = getString(
-                        R.string.calibration_progress,
-                        calibrationProgress.progress
+                            R.string.calibration_progress,
+                            calibrationProgress.progress
                     )
                 }
             }
@@ -239,17 +220,22 @@ class MainActivity : AppCompatActivity() {
         override fun laneDepartureStateUpdated(laneDepartureState: LaneDepartureState) {
             if (currentMode == LINE_DETECTION_MODE) {
                 extractFpsInfo()
-               when(laneDepartureState) {
-                   LaneDepartureState.Alert -> {
-                       line_departure.show()
-                       soundsPlayer.playLaneDepartureWarning()
-                   }
-                   else -> {
-                       soundsPlayer.stop()
-                       line_departure.hide()
-                   }
-               }
+                when (laneDepartureState) {
+                    LaneDepartureState.Alert -> {
+                        line_departure.show()
+                        soundsPlayer.playLaneDepartureWarning()
+                    }
+                    else -> {
+                        soundsPlayer.stop()
+                        line_departure.hide()
+                    }
+                }
             }
+        }
+    }
+
+    private val speedLimitListener = object : RoadRestrictionsListener {
+        override fun speedLimitUpdated(speedLimit: SpeedLimit) {
         }
     }
 
@@ -260,7 +246,7 @@ class MainActivity : AppCompatActivity() {
 
         if (!SupportedSnapdragonBoards.isBoardSupported(SystemInfoUtils.getSnpeSupportedBoard())) {
             val text =
-                Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
+                    Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
             Toast.makeText(this, text, Toast.LENGTH_LONG).show()
             finish()
             return
@@ -268,6 +254,7 @@ class MainActivity : AppCompatActivity() {
 
         VisionManager.create()
         VisionManager.setVisionEventListener(visionEventsListener)
+        VisionManager.setRoadRestrictionsListener(speedLimitListener)
 
         soundsPlayer = SoundsPlayer(this)
 
@@ -304,7 +291,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, ArMapActivity::class.java))
         }
         root.setOnLongClickListener {
-            if(fps_info_container.visibility == View.GONE) {
+            if (fps_info_container.visibility == View.GONE) {
                 fps_info_container.show()
             } else {
                 fps_info_container.hide()
