@@ -39,6 +39,7 @@ import com.mapbox.vision.view.VisualizationMode
 import com.mapbox.vision.visionevents.CalibrationProgress
 import com.mapbox.vision.visionevents.LaneDepartureState
 import com.mapbox.vision.visionevents.events.classification.SignClassification
+import com.mapbox.vision.visionevents.events.roadrestrictions.SpeedLimit
 import com.mapbox.vision.visionevents.events.detection.Collision
 import com.mapbox.vision.visionevents.events.detection.Detections
 import com.mapbox.vision.visionevents.events.position.Position
