@@ -17,7 +17,7 @@
     <dimen name="menu_medium_margin">120dp</dimen>
     <dimen name="menu_big_margin">160dp</dimen>
 
-    <!-- distance to car view -->
+    <!-- safety mode -->
     <dimen name="alert_width">65dp</dimen>
     <dimen name="alert_height">54dp</dimen>
 
@@ -30,5 +30,6 @@
     <dimen name="distance_rect_base">17dp</dimen>
     <dimen name="distance_rect_base_width_min">7dp</dimen>
     <dimen name="distance_rect_base_width_max">25dp</dimen>
+    <dimen name="speed_limit_translation">118dp</dimen>
 
 </resources>

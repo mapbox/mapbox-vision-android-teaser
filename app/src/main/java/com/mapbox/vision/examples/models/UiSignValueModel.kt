@@ -148,7 +148,7 @@ data class UiSignValueModel(val signType: SignType, val signNum: SignNumber) {
         RegulatoryYieldOrStopForPedestrians("regulatory_yield_or_stop_for_pedestrians_us")
     }
 
-    enum class SignNumber(val resourcePostfix: Int = 0) {
+    enum class SignNumber(val value: Int = 0) {
         SpeedLimit_5(5),
         SpeedLimit_15(15),
         SpeedLimit_25(25),
@@ -167,13 +167,10 @@ data class UiSignValueModel(val signType: SignType, val signNum: SignNumber) {
         SpeedLimit_70(70),
         SpeedLimit_80(80),
         SpeedLimit_90(90),
-        SpeedLimit_100(100),
-        SpeedLimit_110(110),
-        SpeedLimit_120(120),
         Unknown;
 
         companion object {
-            fun fromNumber(value: Double) = SignNumber.values().firstOrNull { it.resourcePostfix.toDouble() == value } ?: Unknown
+            fun fromNumber(value: Double) = SignNumber.values().firstOrNull { it.value.toDouble() == value } ?: Unknown
         }
     }
 }
