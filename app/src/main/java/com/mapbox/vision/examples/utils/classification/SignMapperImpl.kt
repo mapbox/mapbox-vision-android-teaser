@@ -16,11 +16,10 @@ class SignMapperImpl(val context: Context) : SignMapper {
     )
 
     override fun getResourceByValue(uiSignValueModel: UiSignValueModel): Int {
-        val indicator: String
-        if (uiSignValueModel.signType in numbersTypesArray) {
-            indicator = uiSignValueModel.signType.resourceName + uiSignValueModel.signNum.resourcePostfix.toInt()
+        val indicator: String = if (uiSignValueModel.signType in numbersTypesArray) {
+            uiSignValueModel.signType.resourceName + uiSignValueModel.signNum.resourcePostfix
         } else {
-            indicator = uiSignValueModel.signType.resourceName
+            uiSignValueModel.signType.resourceName
         }
         return context.resources.getIdentifier(indicator, "drawable", context.packageName)
     }
