@@ -101,12 +101,12 @@
             android:layout_margin="16dp"
             android:visibility="gone"
             tools:visibility="visible"
-            tools:src="@drawable/speed_limit_us_20" />
+            tools:src="@drawable/over_speed_limit_us_70" />
 
         <ImageView
             android:id="@+id/speed_limit_next"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="64dp"
+            android:layout_height="90dp"
             android:layout_gravity="end|top"
             android:layout_margin="16dp"
             android:visibility="gone"
