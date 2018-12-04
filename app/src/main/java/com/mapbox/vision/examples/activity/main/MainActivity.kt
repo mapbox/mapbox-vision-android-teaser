@@ -1,5 +1,6 @@
 package com.mapbox.vision.examples.activity.main
 
+import android.animation.Animator
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,6 +12,7 @@ import android.text.Html
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import android.widget.Toast
 import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
@@ -26,8 +28,7 @@ import com.mapbox.vision.examples.activity.ar.ArMapActivity
 import com.mapbox.vision.examples.activity.map.MapActivity
 import com.mapbox.vision.examples.models.UiSignValueModel
 import com.mapbox.vision.examples.utils.SoundsPlayer
-import com.mapbox.vision.examples.utils.classification.SignMapper
-import com.mapbox.vision.examples.utils.classification.SignMapperImpl
+import com.mapbox.vision.examples.utils.classification.SignResourceMapper
 import com.mapbox.vision.examples.utils.classification.Tracker
 import com.mapbox.vision.examples.utils.hide
 import com.mapbox.vision.examples.utils.show
@@ -39,7 +40,6 @@ import com.mapbox.vision.view.VisualizationMode
 import com.mapbox.vision.visionevents.CalibrationProgress
 import com.mapbox.vision.visionevents.LaneDepartureState
 import com.mapbox.vision.visionevents.events.classification.SignClassification
-import com.mapbox.vision.visionevents.events.roadrestrictions.SpeedLimit
 import com.mapbox.vision.visionevents.events.detection.Collision
 import com.mapbox.vision.visionevents.events.detection.Detections
 import com.mapbox.vision.visionevents.events.position.Position
@@ -50,7 +50,6 @@ import com.mapbox.vision.visionevents.events.roadrestrictions.SpeedLimit
 import com.mapbox.vision.visionevents.events.segmentation.SegmentationMask
 import com.mapbox.vision.visionevents.events.worlddescription.WorldDescription
 import kotlinx.android.synthetic.main.activity_main.*
-import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
 
@@ -64,7 +63,7 @@ class MainActivity : AppCompatActivity() {
         private const val LINE_DETECTION_MODE = 4
     }
 
-    private val signMapper: SignMapper = SignMapperImpl(this)
+    private val signResourceMapper: SignResourceMapper = SignResourceMapper.Impl(this)
 
     private var signSize = 0
     private var margin = 0
@@ -80,6 +79,8 @@ class MainActivity : AppCompatActivity() {
     private var currentModelPerformanceConfig: ModelPerformanceConfig = ModelPerformanceConfig.Merged(
             performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
     )
+
+    private var lastSpeed: Double = 0.0
 
     private val visionEventsListener = object : VisionEventsListener {
 
@@ -212,7 +213,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        override fun estimatedPositionUpdated(position: Position) {}
+        override fun estimatedPositionUpdated(position: Position) {
+            lastSpeed = position.speed
+        }
 
         override fun calibrationProgressUpdated(calibrationProgress: CalibrationProgress) {
             this.calibrationProgress = calibrationProgress
@@ -235,8 +238,74 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    val currentSpeedLimit: SpeedLimit? = null
+    val speedLimitTranslation by lazy {
+        resources.getDimension(R.dimen.speed_limit_translation)
+    }
+
     private val speedLimitListener = object : RoadRestrictionsListener {
+
         override fun speedLimitUpdated(speedLimit: SpeedLimit) {
+            if (currentSpeedLimit == speedLimit) {
+                return
+            }
+
+            val imageResource = signResourceMapper.getResourceByValue(
+                    UiSignValueModel(
+                            signType = UiSignValueModel.SignType.SpeedLimit,
+                            signNum = UiSignValueModel.SignNumber.fromNumber(speedLimit.maxSpeed.toDouble())
+                    ),
+                    speed = lastSpeed
+            )
+
+            speed_limit_current.animate().cancel()
+            speed_limit_next.animate().cancel()
+
+            speed_limit_current.apply {
+                show()
+                translationY = 0f
+                alpha = 1f
+                animate()
+                        .translationY(speedLimitTranslation)
+                        .alpha(0f)
+                        .scaleX(0.5f)
+                        .scaleY(0.5f)
+                        .setDuration(500L)
+                        .setListener(
+                                object : Animator.AnimatorListener {
+                                    override fun onAnimationRepeat(animation: Animator?) {}
+
+                                    override fun onAnimationEnd(animation: Animator?) {
+                                        setImageResource(imageResource)
+                                        translationY = 0f
+                                        alpha = 1f
+                                        scaleX = 1f
+                                        scaleY = 1f
+                                        speed_limit_next.hide()
+                                    }
+
+                                    override fun onAnimationCancel(animation: Animator?) {}
+
+                                    override fun onAnimationStart(animation: Animator?) {}
+                                }
+                        )
+                        .setInterpolator(AccelerateDecelerateInterpolator())
+                        .start()
+            }
+
+            if (speedLimit.maxSpeed != 0f) {
+                speed_limit_next.apply {
+                    translationY = -speedLimitTranslation
+                    setImageResource(imageResource)
+                    show()
+                    animate().translationY(0f)
+                            .setDuration(500L)
+                            .setInterpolator(AccelerateDecelerateInterpolator())
+                            .start()
+                }
+            } else {
+                speed_limit_next.hide()
+            }
         }
     }
 
@@ -282,8 +351,8 @@ class MainActivity : AppCompatActivity() {
         segm_container.setOnClickListener { setSegmentationMode() }
         sign_detection_container.setOnClickListener { setSignClassificationMode() }
         det_container.setOnClickListener { setDetectionMode() }
-        distance_container.setOnClickListener { setDistanceToCarMode() }
-        distance_to_car.hide()
+        distance_container.setOnClickListener { setSafetyMode() }
+        safety_mode_container.hide()
         line_detection_container.setOnClickListener { setLineDetectionMode() }
         object_mapping_button_container.setOnClickListener {
             startActivity(MapActivity.createIntent(this))
@@ -343,7 +412,7 @@ class MainActivity : AppCompatActivity() {
             lp.leftMargin = margin
             image.layoutParams = lp
 
-            image.setImageResource(signMapper.getResourceByValue(signValue))
+            image.setImageResource(signResourceMapper.getResourceByValue(signValue))
 
             // Adds the view to the layout
             sign_info_container.addView(image)
@@ -432,7 +501,7 @@ class MainActivity : AppCompatActivity() {
         hideLineDetectionContainer()
         sign_info_container.show()
         dashboard_container.hide()
-        distance_to_car.hide()
+        safety_mode_container.hide()
         back.show()
 
     }
@@ -452,7 +521,7 @@ class MainActivity : AppCompatActivity() {
         hideLineDetectionContainer()
         hideSignsContainer()
         dashboard_container.hide()
-        distance_to_car.hide()
+        safety_mode_container.hide()
         back.show()
     }
 
@@ -471,11 +540,11 @@ class MainActivity : AppCompatActivity() {
         hideLineDetectionContainer()
         hideSignsContainer()
         dashboard_container.hide()
-        distance_to_car.hide()
+        safety_mode_container.hide()
         back.show()
     }
 
-    private fun setDistanceToCarMode() {
+    private fun setSafetyMode() {
         soundsPlayer.stop()
         currentModelPerformanceConfig = ModelPerformanceConfig.Separate(
                 detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH),
@@ -491,7 +560,7 @@ class MainActivity : AppCompatActivity() {
         hideLineDetectionContainer()
         hideSignsContainer()
         dashboard_container.hide()
-        distance_to_car.show()
+        safety_mode_container.show()
         back.show()
     }
 
@@ -511,7 +580,7 @@ class MainActivity : AppCompatActivity() {
         hideSignsContainer()
         dashboard_container.hide()
         lines_detections_container.show()
-        distance_to_car.hide()
+        safety_mode_container.hide()
         back.show()
     }
 
