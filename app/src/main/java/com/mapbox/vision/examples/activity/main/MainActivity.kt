@@ -412,6 +412,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun onBackClick() {
         dashboard_container.show()
+        hideLineDetectionContainer()
+        hideSignsContainer()
+        safety_mode_container.hide()
         back.hide()
     }
 
@@ -514,7 +517,6 @@ class MainActivity : AppCompatActivity() {
         dashboard_container.hide()
         safety_mode_container.hide()
         back.show()
-
     }
 
     private fun setDetectionMode() {
