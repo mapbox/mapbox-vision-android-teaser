@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">Vision Teaser</string>
     <string name="segmentation">Segmentation</string>
-    <string name="lane_detection">Lane detection</string>
+    <string name="lane_detection">Lane Detection</string>
     <string name="object_mapping">Object Mapping</string>
-    <string name="distance_to_object">Collision detection</string>
+    <string name="safety_mode">Safety Mode</string>
     <string name="signs_detection">Signs Detection</string>
     <string name="object_detection">Object Detection</string>
     <string name="ar_navigation">AR Routing</string>
