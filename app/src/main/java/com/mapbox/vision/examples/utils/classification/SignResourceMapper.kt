@@ -5,7 +5,8 @@ import com.mapbox.vision.examples.models.UiSignValueModel
 
 interface SignResourceMapper {
 
-    fun getResourceByValue(uiSignValueModel: UiSignValueModel, speed: Double = 0.0): Int
+    fun getSignResource(uiSignValueModel: UiSignValueModel): Int
+    fun getSignResourceForCurrentSpeed(uiSignValueModel: UiSignValueModel, speed: Double): Int
 
     class Impl(val context: Context) : SignResourceMapper {
 
@@ -27,17 +28,29 @@ interface SignResourceMapper {
                 UiSignValueModel.SignType.SpeedLimitTrucks
         )
 
-        override fun getResourceByValue(uiSignValueModel: UiSignValueModel, speed: Double): Int {
-            val resourceName: String = if (uiSignValueModel.signType in numbersTypesArray) {
+        private fun getResourceNameForSign(uiSignValueModel: UiSignValueModel) = if (uiSignValueModel.signType in numbersTypesArray) {
+            uiSignValueModel.signType.resourceName + uiSignValueModel.signNum.value
+        } else {
+            uiSignValueModel.signType.resourceName
+        }
+
+        private fun getResourceId(name: String) = context.resources.getIdentifier(
+                name, "drawable", context.packageName
+        )
+
+        override fun getSignResource(uiSignValueModel: UiSignValueModel) = getResourceId(
+                name = getResourceNameForSign(uiSignValueModel)
+        )
+
+        override fun getSignResourceForCurrentSpeed(uiSignValueModel: UiSignValueModel, speed: Double): Int {
+            val resourceName = getResourceNameForSign(uiSignValueModel)
+            val fullResourceName =
                 if (uiSignValueModel.signType in overSpeedArray && speed > uiSignValueModel.signNum.value) {
-                    "over_" + uiSignValueModel.signType.resourceName + uiSignValueModel.signNum.value
+                    "over_$resourceName"
                 } else {
-                    uiSignValueModel.signType.resourceName + uiSignValueModel.signNum.value
+                    resourceName
                 }
-            } else {
-                uiSignValueModel.signType.resourceName
-            }
-            return context.resources.getIdentifier(resourceName, "drawable", context.packageName)
+            return getResourceId(name = fullResourceName)
         }
     }
 }
