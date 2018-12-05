@@ -266,7 +266,7 @@ class MainActivity : AppCompatActivity() {
                 translationY = 0f
                 alpha = 1f
                 animate()
-                        .translationY(speedLimitTranslation)
+                        .translationY(speedLimitTranslation / 2)
                         .alpha(0f)
                         .scaleX(0.5f)
                         .scaleY(0.5f)
