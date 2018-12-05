@@ -259,7 +259,7 @@ class MainActivity : AppCompatActivity() {
                 return
             }
 
-            val imageResource = signResourceMapper.getResourceByValue(
+            val imageResource = signResourceMapper.getSignResourceForCurrentSpeed(
                     UiSignValueModel(
                             signType = UiSignValueModel.SignType.SpeedLimit,
                             signNum = UiSignValueModel.SignNumber.fromNumber(speedLimit.maxSpeed.toDouble())
@@ -426,7 +426,7 @@ class MainActivity : AppCompatActivity() {
             lp.leftMargin = margin
             image.layoutParams = lp
 
-            image.setImageResource(signResourceMapper.getResourceByValue(signValue))
+            image.setImageResource(signResourceMapper.getSignResource(signValue))
 
             // Adds the view to the layout
             sign_info_container.addView(image)
