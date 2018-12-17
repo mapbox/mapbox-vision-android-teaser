@@ -18,7 +18,8 @@ interface SignResourceMapper {
                 UiSignValueModel.SignType.SpeedLimitTrucks,
                 UiSignValueModel.SignType.SpeedLimitComplementary,
                 UiSignValueModel.SignType.SpeedLimitExit,
-                UiSignValueModel.SignType.SpeedLimitRamp
+                UiSignValueModel.SignType.SpeedLimitRamp,
+                UiSignValueModel.SignType.Mass
         )
 
         private val overSpeedArray = arrayOf(
@@ -29,14 +30,18 @@ interface SignResourceMapper {
         )
 
         private fun getResourceNameForSign(uiSignValueModel: UiSignValueModel) = if (uiSignValueModel.signType in numbersTypesArray) {
-            uiSignValueModel.signType.resourceName + uiSignValueModel.signNum.value
+            uiSignValueModel.signType.usResourceName + uiSignValueModel.signNum.value
         } else {
-            uiSignValueModel.signType.resourceName
+            uiSignValueModel.signType.usResourceName
         }
 
         private fun getResourceId(name: String) = context.resources.getIdentifier(
                 name, "drawable", context.packageName
-        )
+        ).also {
+            if (it == 0) {
+
+            }
+        }
 
         override fun getSignResource(uiSignValueModel: UiSignValueModel) = getResourceId(
                 name = getResourceNameForSign(uiSignValueModel)
