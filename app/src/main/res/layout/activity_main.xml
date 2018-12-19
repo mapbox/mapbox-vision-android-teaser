@@ -169,7 +169,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:background="@color/black">
+        android:visibility="gone"
+        android:background="@color/black_70_transparent">
 
         <ImageView
             android:layout_width="wrap_content"
