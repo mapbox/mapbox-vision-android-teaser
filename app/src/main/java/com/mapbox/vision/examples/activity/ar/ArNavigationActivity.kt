@@ -136,7 +136,8 @@ class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteL
     override fun onConnected() = arLocationEngine.requestLocationUpdates()
 
     override fun onErrorReceived(throwable: Throwable?) {
-       //
+        mapboxNavigation.stopNavigation()
+        Toast.makeText(this, R.string.can_not_colculate_new_rout, Toast.LENGTH_SHORT).show()
     }
 
     override fun onResponseReceived(response: DirectionsResponse, routeProgress: RouteProgress?) {
