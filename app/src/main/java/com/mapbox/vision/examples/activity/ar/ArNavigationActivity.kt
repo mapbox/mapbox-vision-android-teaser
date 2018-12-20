@@ -6,16 +6,13 @@ import android.content.Intent
 import android.location.Location
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
-import com.mapbox.android.core.location.LocationEngine
 import com.mapbox.android.core.location.LocationEngineListener
 import com.mapbox.android.core.location.LocationEnginePriority
 import com.mapbox.android.core.location.LocationEngineProvider
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
-import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigationOptions
 import com.mapbox.services.android.navigation.v5.offroute.OffRouteListener
@@ -87,9 +84,9 @@ class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteL
         val builder = MapboxNavigationOptions
                 .builder()
                 .enableOffRouteDetection(true)
-        mapboxNavigation = MapboxNavigation(this, Mapbox.getAccessToken()!!, builder.build())
+        mapboxNavigation = MapboxNavigation(this, getString(R.string.mapbox_access_token), builder.build())
 
-        routeFetcher = RouteFetcher(this, Mapbox.getAccessToken())
+        routeFetcher = RouteFetcher(this, getString(R.string.mapbox_access_token))
         routeFetcher.addRouteListener(this@ArNavigationActivity)
     }
 
@@ -109,7 +106,7 @@ class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteL
     }
 
     override fun onPause() {
-        arLocationEngine.apply{
+        arLocationEngine.apply {
             removeLocationUpdates()
             removeLocationEngineListener(this@ArNavigationActivity)
             deactivate()
