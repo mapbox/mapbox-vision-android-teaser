@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Vision Teaser</string>
     <string name="segmentation">Segmentation</string>
     <string name="lane_detection">Lane Detection</string>
     <string name="object_mapping">Object Mapping</string>

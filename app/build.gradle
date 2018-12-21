@@ -67,6 +67,7 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
+            manifestPlaceholders = [appName: "Vision Teaser Debug"]
         }
 
         release {
@@ -76,6 +77,8 @@ android {
             if (envVarOrLocalProperty('SIGNING_CONFIG_RELEASE')) {
                 signingConfig signingConfigs.release
             }
+
+            manifestPlaceholders = [appName: "Vision Teaser"]
         }
     }
 }
