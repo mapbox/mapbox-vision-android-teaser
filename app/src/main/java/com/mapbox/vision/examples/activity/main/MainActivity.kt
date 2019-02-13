@@ -370,6 +370,8 @@ class MainActivity : AppCompatActivity() {
 
         }
         fps_info_container.hide()
+
+        setSignClassificationMode()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
