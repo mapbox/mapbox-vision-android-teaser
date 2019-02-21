@@ -4,12 +4,9 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.support.annotation.DimenRes
-import android.support.v4.math.MathUtils
 import android.util.AttributeSet
 import android.view.View
-import com.mapbox.vision.VisionManager
-import com.mapbox.vision.visionevents.FrameSize
-import com.mapbox.vision.visionevents.events.worlddescription.ObjectDescription
+import com.mapbox.vision.mobile.events_new.frame.ImageSize
 
 class SafetyModeView : View {
 
@@ -31,7 +28,7 @@ class SafetyModeView : View {
     private var mode = Mode.DISTANCE
 
     private var scaleFactor = 1f
-    private var scaledSize = FrameSize(1, 1)
+    private var scaledSize = ImageSize(1, 1)
 
     private val distancePath = Path()
     private var warningShapes: List<WarningShape> = emptyList()
@@ -96,75 +93,76 @@ class SafetyModeView : View {
     )
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        val frameSize = VisionManager.getFrameSize()
-        scaleFactor = Math.max(
-            width.toFloat() / frameSize.width,
-            height.toFloat() / frameSize.height
-        )
-        scaledSize = frameSize * scaleFactor
+        // FIXME
+//        val frameSize = VisionManager.getFrameSize()
+//        scaleFactor = Math.max(
+//            width.toFloat() / frameSize.width,
+//            height.toFloat() / frameSize.height
+//        )
+//        scaledSize = frameSize * scaleFactor
     }
 
-    private fun Int.scaleX(): Float = this * scaleFactor - (scaledSize.width - width) / 2
+    private fun Int.scaleX(): Float = this * scaleFactor - (scaledSize.imageWidth - width) / 2
 
-    private fun Int.scaleY(): Float = this * scaleFactor - (scaledSize.height - height) / 2
+    private fun Int.scaleY(): Float = this * scaleFactor - (scaledSize.imageHeight - height) / 2
 
-    fun drawDistanceToCar(car: ObjectDescription) {
-        distancePath.reset()
-        mode = Mode.DISTANCE
-        setBackgroundColor(transparent)
+//    fun drawDistanceToCar(car: WorldObject) {
+//        distancePath.reset()
+//        mode = Mode.DISTANCE
+//        setBackgroundColor(transparent)
+//
+//        val widthDelta = MathUtils.clamp(
+//            (distanceRectBaseWidth / DISTANCE_BASE_RANGE_METERS * car.distance).toFloat(),
+//            distanceRectBaseWidthMin,
+//            distanceRectBaseWidthMax
+//        )
+//
+//        val left = car.detection.boundingBox.left.scaleX() - widthDelta
+//        val top = car.detection.boundingBox.bottom.scaleY()
+//        val right = car.detection.boundingBox.right.scaleX() + widthDelta
+//        val bottom = car.detection.boundingBox.bottom.scaleY() + distanceRectHeight
+//
+//        if (car.detection.boundingBox.left != 0 && car.detection.boundingBox.right != 0) {
+//            distancePath.moveTo(
+//                left + widthDelta,
+//                top
+//            )
+//            distancePath.lineTo(
+//                left,
+//                bottom
+//            )
+//            distancePath.lineTo(
+//                right,
+//                bottom
+//            )
+//            distancePath.lineTo(
+//                right - widthDelta,
+//                top
+//            )
+//            distancePath.close()
+//            distancePaint.shader = getDistanceShader(top, bottom)
+//        }
+//
+//        invalidate()
+//    }
 
-        val widthDelta = MathUtils.clamp(
-            (distanceRectBaseWidth / DISTANCE_BASE_RANGE_METERS * car.distance).toFloat(),
-            distanceRectBaseWidthMin,
-            distanceRectBaseWidthMax
-        )
-
-        val left = car.detection.boundingBox.left.scaleX() - widthDelta
-        val top = car.detection.boundingBox.bottom.scaleY()
-        val right = car.detection.boundingBox.right.scaleX() + widthDelta
-        val bottom = car.detection.boundingBox.bottom.scaleY() + distanceRectHeight
-
-        if (car.detection.boundingBox.left != 0 && car.detection.boundingBox.right != 0) {
-            distancePath.moveTo(
-                left + widthDelta,
-                top
-            )
-            distancePath.lineTo(
-                left,
-                bottom
-            )
-            distancePath.lineTo(
-                right,
-                bottom
-            )
-            distancePath.lineTo(
-                right - widthDelta,
-                top
-            )
-            distancePath.close()
-            distancePaint.shader = getDistanceShader(top, bottom)
-        }
-
-        invalidate()
-    }
-
-    fun drawWarnings(objectDescriptions: List<ObjectDescription>) {
-        distancePath.reset()
-        mode = Mode.WARNING
-        setBackgroundColor(transparent)
-
-        warningShapes = objectDescriptions.map { objectDescription ->
-            WarningShape(
-                center = PointF(
-                    ((objectDescription.detection.boundingBox.left + objectDescription.detection.boundingBox.right) / 2).scaleX(),
-                    ((objectDescription.detection.boundingBox.bottom + objectDescription.detection.boundingBox.top) / 2).scaleY()
-                ),
-                radius = (objectDescription.detection.boundingBox.right - objectDescription.detection.boundingBox.left) * scaleFactor
-            )
-        }
-
-        invalidate()
-    }
+//    fun drawWarnings(objectDescriptions: List<WorldObject>) {
+//        distancePath.reset()
+//        mode = Mode.WARNING
+//        setBackgroundColor(transparent)
+//
+//        warningShapes = objectDescriptions.map { objectDescription ->
+//            WarningShape(
+//                center = PointF(
+//                    ((objectDescription.detection.boundingBox.left + objectDescription.detection.boundingBox.right) / 2).scaleX(),
+//                    ((objectDescription.detection.boundingBox.bottom + objectDescription.detection.boundingBox.top) / 2).scaleY()
+//                ),
+//                radius = (objectDescription.detection.boundingBox.right - objectDescription.detection.boundingBox.left) * scaleFactor
+//            )
+//        }
+//
+//        invalidate()
+//    }
 
     fun drawCritical() {
         distancePath.reset()
