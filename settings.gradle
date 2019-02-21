@@ -1,5 +1,5 @@
-include ':VisionCore'
-project(':VisionCore').projectDir = new File('../cv-assist/cv-assist-android/CvAssistAndroid/VisionCore')
+include ':VisionSdk'
+project(':VisionSdk').projectDir = new File('../cv-assist/SDK/Platforms/Android/sdk')
 
 include ':MapboxVision'
 project(':MapboxVision').projectDir = new File('../mapbox-vision-android/MapboxVision')

@@ -1,9 +1,9 @@
 package com.mapbox.vision.examples.utils.classification
 
 
-class Tracker<T>(private val maxCapacity: Int) {
+class Tracker<T : Any>(private val maxCapacity: Int) {
 
-    private var items = LinkedHashMap<Int, Item<T>>()
+    private var items = mutableMapOf<Int, Item<T>>()
 
     data class Item<T>(val payload: T) {
         var seenCounter = 0
@@ -20,29 +20,30 @@ class Tracker<T>(private val maxCapacity: Int) {
     }
 
     fun update(batch: List<T>) {
-
         // add new elements
         batch.forEach {
-            val hash = it!!.hashCode()
-            if (items[hash] == null) {
+            val hash = it.hashCode()
+            val item = items[hash]
+            if (item == null) {
                 items[hash] = Item(it)
-            } else {
-                if (items[hash]!!.expirationCounter > OLD_PAYLOAD_BORDER) {
-                    val oldItemHash = hash + OLD_PAYLOAD_HASH_SHIFT
-                    items[oldItemHash] = items[hash]!!
-                    items[hash] = Item(it)
-                }
+            } else if (item.expirationCounter > OLD_PAYLOAD_BORDER) {
+                val oldItemHash = hash + OLD_PAYLOAD_HASH_SHIFT
+                items[oldItemHash] = item
+                items[hash] = Item(it)
             }
-            items[hash]?.resetTimer()
+
+            items.getValue(hash).resetTimer()
         }
 
         // update counters
-        items.keys.forEach { items[it]?.updateTimer() }
+        items.values.forEach(Item<T>::updateTimer)
 
         // remove expired
-        items = LinkedHashMap(items.filter {
-            it.value.expirationCounter < EXPIRY_DEADLINE
-        })
+        items = items
+            .filter {
+                it.value.expirationCounter < EXPIRY_DEADLINE
+            }
+            .toMutableMap()
     }
 
     fun getCurrent(): List<T> {
