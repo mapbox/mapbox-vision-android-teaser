@@ -1,5 +1,6 @@
 package com.mapbox.vision.examples.activity.main
 
+import android.animation.Animator
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,6 +12,7 @@ import android.text.Html
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import android.widget.Toast
 import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
@@ -26,22 +28,29 @@ import com.mapbox.vision.examples.utils.classification.SignResourceMapper
 import com.mapbox.vision.examples.utils.classification.Tracker
 import com.mapbox.vision.examples.utils.hide
 import com.mapbox.vision.examples.utils.show
-import com.mapbox.vision.mobile.events_new.Camera
-import com.mapbox.vision.mobile.events_new.FrameSegmentation
-import com.mapbox.vision.mobile.events_new.classification.FrameSigns
-import com.mapbox.vision.mobile.events_new.detection.FrameDetections
-import com.mapbox.vision.mobile.events_new.position.VehicleLocation
-import com.mapbox.vision.mobile.events_new.road.LaneDirection
-import com.mapbox.vision.mobile.events_new.road.LaneEdgeType
-import com.mapbox.vision.mobile.events_new.road.RoadDescription
-import com.mapbox.vision.mobile.events_new.world.WorldDescription
 import com.mapbox.vision.mobile.interfaces.VisionEventsListener
+import com.mapbox.vision.mobile.models.AuthorizationStatus
+import com.mapbox.vision.mobile.models.Camera
+import com.mapbox.vision.mobile.models.FrameSegmentation
+import com.mapbox.vision.mobile.models.classification.FrameSigns
+import com.mapbox.vision.mobile.models.detection.DetectionClass
+import com.mapbox.vision.mobile.models.detection.FrameDetections
+import com.mapbox.vision.mobile.models.position.VehicleLocation
+import com.mapbox.vision.mobile.models.road.LaneDirection
+import com.mapbox.vision.mobile.models.road.LaneEdgeType
+import com.mapbox.vision.mobile.models.road.RoadDescription
+import com.mapbox.vision.mobile.models.world.WorldDescription
 import com.mapbox.vision.mobile.utils.SystemInfoUtils
 import com.mapbox.vision.mobile.utils.snapdragon.SupportedSnapdragonBoards
 import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
+import com.mapbox.vision.safety.VisionSafetyListener
+import com.mapbox.vision.safety.VisionSafetyManager
+import com.mapbox.vision.safety.models.CollisionDangerLevel
+import com.mapbox.vision.safety.models.CollisionObject
+import com.mapbox.vision.safety.models.RoadRestrictions
 import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -77,8 +86,12 @@ class MainActivity : AppCompatActivity() {
     )
 
     private var lastSpeed: Float = 0f
+    private var calibrationProgress = 0f
 
     private val visionEventsListener = object : VisionEventsListener {
+
+        override fun onAuthorizationStatusChanged(authorizationStatus: AuthorizationStatus) {
+        }
 
         override fun onDetectionsUpdated(frameDetections: FrameDetections) {
             vision_view.setDetections(frameDetections)
@@ -103,83 +116,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        private val distanceFormatter by lazy {
-            LocaleUtils().let { localeUtils ->
-                val language = localeUtils.inferDeviceLanguage(this@MainActivity)
-                val unitType = localeUtils.getUnitTypeForDeviceLocale(this@MainActivity)
-                val roundingIncrement = NavigationConstants.ROUNDING_INCREMENT_FIVE
-                DistanceFormatter(this@MainActivity, language, unitType, roundingIncrement)
-            }
-        }
-
-//        private var currentCollisionState: Collision.CollisionState = Collision.CollisionState.NOT_TRIGGERED
-//
-//        private var calibrationProgress: CalibrationProgress = CalibrationProgress(progress = 0, completed = false)
-
         override fun onWorldUpdated(worldDescription: WorldDescription) {
-            // FIXME
-/*            if (appMode == DISTANCE_TO_CAR_MODE) {
-                calibration_progress.hide()
-
-                if (calibrationProgress.completed) {
-                    if (worldDescription.carInFrontIndex < 0 || worldDescription.carInFrontIndex >= worldDescription.objects.size) {
-                        soundsPlayer.stop()
-                        currentCollisionState = Collision.CollisionState.NOT_TRIGGERED
-                        distance_to_car_label.hide()
-                        safety_mode.hide()
-                        return
-                    }
-
-                    val carInFront = worldDescription.objects[worldDescription.carInFrontIndex]
-                    val collision = worldDescription.collisions.firstOrNull { it.objectDescription == carInFront }
-
-                    if (collision == null) {
-                        soundsPlayer.stop()
-                        currentCollisionState = Collision.CollisionState.NOT_TRIGGERED
-                    } else {
-                        if (currentCollisionState != collision.state) {
-                            soundsPlayer.stop()
-                            when (collision.state) {
-                                Collision.CollisionState.WARNING -> {
-                                    soundsPlayer.playWarning()
-                                }
-                                Collision.CollisionState.CRITICAL -> {
-                                    soundsPlayer.playCritical()
-                                }
-                                else -> {
-                                }
-                            }
-                            currentCollisionState = collision.state
-                        }
-                    }
-
-                    distance_to_car_label.show()
-                    safety_mode.show()
-                    distance_to_car_label.text = distanceFormatter.formatDistance(carInFront.distance)
-
-                    when (currentCollisionState) {
-                        Collision.CollisionState.NOT_TRIGGERED -> {
-                            safety_mode.drawDistanceToCar(carInFront)
-                        }
-                        Collision.CollisionState.WARNING -> {
-                            safety_mode.drawWarnings(
-                                worldDescription.collisions.map { it.objectDescription }
-                            )
-                        }
-                        Collision.CollisionState.CRITICAL -> {
-                            safety_mode.drawCritical()
-                        }
-                    }
-                } else {
-                    distance_to_car_label.hide()
-                    safety_mode.hide()
-                    calibration_progress.show()
-                    calibration_progress.text = getString(
-                        R.string.calibration_progress,
-                        calibrationProgress.progress
-                    )
-                }
-            }*/
+            // TODO
         }
 
         override fun onVehicleLocationUpdated(vehicleLocation: VehicleLocation) {
@@ -187,7 +125,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onCameraUpdated(camera: Camera) {
-//            calibrationProgress = CalibrationProgress((camera.calibrationProgress * 100).toInt(), false)
+            calibrationProgress = camera.calibrationProgress
         }
 
         @SuppressLint("SetTextI18n")
@@ -209,94 +147,147 @@ class MainActivity : AppCompatActivity() {
                 core_update_fps.text = "CU: ${frameStatistics.coreUpdateFPS}"
             }
         }
-
-//        override fun lane(laneDepartureState: LaneDepartureState) {
-//            if (appMode == LINE_DETECTION_MODE) {
-//                extractFpsInfo()
-//                when (laneDepartureState) {
-//                    LaneDepartureState.Alert -> {
-//                        line_departure.show()
-//                        soundsPlayer.playLaneDepartureWarning()
-//                    }
-//                    else -> {
-//                        soundsPlayer.stop()
-//                        line_departure.hide()
-//                    }
-//                }
-//            }
-//        }
     }
 
-//    val currentSpeedLimit: SpeedLimit? = null
-//    val speedLimitTranslation by lazy {
-//        resources.getDimension(R.dimen.speed_limit_translation)
-//    }
+    private val visionSafetyListener = object : VisionSafetyListener {
 
-//    private val speedLimitListener = object : RoadRestrictionsListener {
-//
-//        override fun speedLimitUpdated(speedLimit: SpeedLimit) {
-//            if (currentSpeedLimit == speedLimit) {
-//                return
-//            }
-//
-//            val imageResource = signResourceMapper.getSignResourceForCurrentSpeed(
-//                UiSignValueModel(
-//                    signType = UiSignValueModel.SignType.SpeedLimit,
-//                    signNum = UiSignValueModel.SignNumber.fromNumber(speedLimit.maxSpeed)
-//                ),
-//                speed = lastSpeed
-//            )
-//
-//            speed_limit_current.animate().cancel()
-//            speed_limit_next.animate().cancel()
-//
-//            speed_limit_current.apply {
-//                show()
-//                translationY = 0f
-//                alpha = 1f
-//                animate()
-//                    .translationY(speedLimitTranslation / 2)
-//                    .alpha(0f)
-//                    .scaleX(0.5f)
-//                    .scaleY(0.5f)
-//                    .setDuration(500L)
-//                    .setListener(
-//                        object : Animator.AnimatorListener {
-//                            override fun onAnimationRepeat(animation: Animator?) {}
-//
-//                            override fun onAnimationEnd(animation: Animator?) {
-//                                setImageResource(imageResource)
-//                                translationY = 0f
-//                                alpha = 1f
-//                                scaleX = 1f
-//                                scaleY = 1f
-//                                speed_limit_next.hide()
-//                            }
-//
-//                            override fun onAnimationCancel(animation: Animator?) {}
-//
-//                            override fun onAnimationStart(animation: Animator?) {}
-//                        }
-//                    )
-//                    .setInterpolator(AccelerateDecelerateInterpolator())
-//                    .start()
-//            }
-//
-//            if (speedLimit.maxSpeed != 0f) {
-//                speed_limit_next.apply {
-//                    translationY = -speedLimitTranslation
-//                    setImageResource(imageResource)
-//                    show()
-//                    animate().translationY(0f)
-//                        .setDuration(500L)
-//                        .setInterpolator(AccelerateDecelerateInterpolator())
-//                        .start()
-//                }
-//            } else {
-//                speed_limit_next.hide()
-//            }
-//        }
-//    }
+        private var currentDangerLevel: CollisionDangerLevel = CollisionDangerLevel.None
+
+        private val distanceFormatter by lazy {
+            LocaleUtils().let { localeUtils ->
+                val language = localeUtils.inferDeviceLanguage(this@MainActivity)
+                val unitType = localeUtils.getUnitTypeForDeviceLocale(this@MainActivity)
+                val roundingIncrement = NavigationConstants.ROUNDING_INCREMENT_FIVE
+                DistanceFormatter(this@MainActivity, language, unitType, roundingIncrement)
+            }
+        }
+
+        override fun onCollisionsUpdated(collisions: Array<CollisionObject>) {
+            if (appMode == AppMode.Safety) {
+                runOnUiThread {
+
+                    if (calibrationProgress == 1f) {
+                        distance_to_car_label.show()
+                        safety_mode.show()
+                        calibration_progress.hide()
+
+                        val collision = collisions.firstOrNull { it.`object`.objectClass == DetectionClass.Car }
+                        if (collision == null) {
+                            soundsPlayer.stop()
+                            currentDangerLevel = CollisionDangerLevel.None
+                            distance_to_car_label.hide()
+                            safety_mode.hide()
+                        } else {
+
+                            if (currentDangerLevel != collision.dangerLevel) {
+                                soundsPlayer.stop()
+                                when (collision.dangerLevel) {
+                                    CollisionDangerLevel.Warning -> {
+                                        soundsPlayer.playWarning()
+                                    }
+                                    CollisionDangerLevel.Critical -> {
+                                        soundsPlayer.playCritical()
+                                    }
+                                    else -> {
+                                    }
+                                }
+                                currentDangerLevel = collision.dangerLevel
+                            }
+
+                            distance_to_car_label.show()
+                            safety_mode.show()
+                            distance_to_car_label.text = distanceFormatter.formatDistance(collision.`object`.position.y)
+
+                            when (currentDangerLevel) {
+                                CollisionDangerLevel.None -> {
+                                    safety_mode.drawDistanceToCar(collision)
+                                }
+                                CollisionDangerLevel.Warning -> {
+                                    safety_mode.drawWarnings(collisions)
+
+                                }
+                                CollisionDangerLevel.Critical -> {
+                                    safety_mode.drawCritical()
+
+                                }
+                            }
+                        }
+                    } else {
+                        distance_to_car_label.hide()
+                        safety_mode.hide()
+                        calibration_progress.show()
+                        calibration_progress.text = getString(
+                            R.string.calibration_progress,
+                            (calibrationProgress * 100).toInt()
+                        )
+                    }
+                }
+            }
+        }
+
+        val speedLimitTranslation by lazy {
+            resources.getDimension(R.dimen.speed_limit_translation)
+        }
+
+        override fun onRoadRestrictionsUpdated(roadRestrictions: RoadRestrictions) {
+            val imageResource = signResourceMapper.getSignResourceForCurrentSpeed(
+                UiSign(
+                    signType = UiSign.SignType.SpeedLimit,
+                    signNum = UiSign.SignNumber.fromNumber(roadRestrictions.speedLimits.car.max)
+                ),
+                speed = lastSpeed
+            )
+
+            speed_limit_current.animate().cancel()
+            speed_limit_next.animate().cancel()
+
+            speed_limit_current.apply {
+                show()
+                translationY = 0f
+                alpha = 1f
+                animate()
+                    .translationY(speedLimitTranslation / 2)
+                    .alpha(0f)
+                    .scaleX(0.5f)
+                    .scaleY(0.5f)
+                    .setDuration(500L)
+                    .setListener(
+                        object : Animator.AnimatorListener {
+                            override fun onAnimationRepeat(animation: Animator?) {}
+
+                            override fun onAnimationEnd(animation: Animator?) {
+                                setImageResource(imageResource)
+                                translationY = 0f
+                                alpha = 1f
+                                scaleX = 1f
+                                scaleY = 1f
+                                speed_limit_next.hide()
+                            }
+
+                            override fun onAnimationCancel(animation: Animator?) {}
+
+                            override fun onAnimationStart(animation: Animator?) {}
+                        }
+                    )
+                    .setInterpolator(AccelerateDecelerateInterpolator())
+                    .start()
+            }
+
+            if (roadRestrictions.speedLimits.car.max != 0f) {
+                speed_limit_next.apply {
+                    translationY = -speedLimitTranslation
+                    setImageResource(imageResource)
+                    show()
+                    animate().translationY(0f)
+                        .setDuration(500L)
+                        .setInterpolator(AccelerateDecelerateInterpolator())
+                        .start()
+                }
+            } else {
+                speed_limit_next.hide()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -312,8 +303,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         soundsPlayer = SoundsPlayer(this)
-
-        println("OnCreate, granted : $isPermissionsGranted")
 
         if (!allPermissionsGranted() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(getRequiredPermissions(), PERMISSIONS_REQUEST_CODE)
@@ -337,7 +326,7 @@ class MainActivity : AppCompatActivity() {
         safety_mode_container.hide()
         line_detection_container.setOnClickListener { setLaneDetectionMode() }
         object_mapping_button_container.setOnClickListener {
-            startActivity(MapActivity.createIntent(this))
+            startActivity(Intent(this, MapActivity::class.java))
         }
         ar_navigation_button_container.setOnClickListener {
             startActivity(Intent(this, ArMapActivity::class.java))
@@ -354,10 +343,13 @@ class MainActivity : AppCompatActivity() {
         fps_info_container.hide()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (allPermissionsGranted() && requestCode == PERMISSIONS_REQUEST_CODE) {
-            println("OnPermResult, granted : $isPermissionsGranted")
             onPermissionsGranted()
         }
     }
@@ -365,15 +357,14 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        println("OnStart, granted : $isPermissionsGranted")
-
         if (isPermissionsGranted) {
             VisionManager.create()
-            VisionManager.setModelPerformanceConfig(
-                appModelPerformanceConfig
-            )
+            VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
             VisionManager.setVisionEventListener(visionEventsListener)
             VisionManager.start()
+            VisionManager.setVideoSourceListener(vision_view)
+
+            VisionSafetyManager.create(VisionManager, visionSafetyListener)
         }
     }
 
@@ -381,6 +372,7 @@ class MainActivity : AppCompatActivity() {
         super.onStop()
 
         if (isPermissionsGranted) {
+            VisionSafetyManager.destroy()
             VisionManager.stop()
             VisionManager.destroy()
         }
@@ -388,6 +380,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onBackClick() {
+        soundsPlayer.stop()
         dashboard_container.show()
         hideLineDetectionContainer()
         hideSignsContainer()
@@ -398,15 +391,14 @@ class MainActivity : AppCompatActivity() {
     private fun drawSigns(signsValueUis: List<UiSign>) {
         sign_info_container.removeAllViews()
         for (signValue in signsValueUis) {
-            val image = ImageView(this)
-            val lp = ViewGroup.MarginLayoutParams(signSize, ViewGroup.LayoutParams.WRAP_CONTENT)
-            lp.leftMargin = margin
-            image.layoutParams = lp
-
-            image.setImageResource(signResourceMapper.getSignResource(signValue))
-
-            // Adds the view to the layout
-            sign_info_container.addView(image)
+            sign_info_container.addView(
+                ImageView(this).apply {
+                    layoutParams = ViewGroup.MarginLayoutParams(signSize, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                        leftMargin = margin
+                    }
+                    setImageResource(signResourceMapper.getSignResource(signValue))
+                }
+            )
         }
     }
 
@@ -486,7 +478,7 @@ class MainActivity : AppCompatActivity() {
             appModelPerformanceConfig
         )
         vision_view.visualizationMode = VisualizationMode.Clear
-        appMode = AppMode.Classification
+        appMode = MainActivity.AppMode.Classification
 
         tracker = Tracker(5)
 
@@ -507,7 +499,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         vision_view.visualizationMode = VisualizationMode.Detections
-        appMode = AppMode.Detection
+        appMode = MainActivity.AppMode.Detection
 
         hideLineDetectionContainer()
         hideSignsContainer()
@@ -526,7 +518,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         vision_view.visualizationMode = VisualizationMode.Segmentation
-        appMode = AppMode.Segmentation
+        appMode = MainActivity.AppMode.Segmentation
 
         hideLineDetectionContainer()
         hideSignsContainer()
@@ -546,12 +538,15 @@ class MainActivity : AppCompatActivity() {
         )
 
         vision_view.visualizationMode = VisualizationMode.Clear
-        appMode = AppMode.Safety
+        appMode = MainActivity.AppMode.Safety
 
         hideLineDetectionContainer()
         hideSignsContainer()
         dashboard_container.hide()
         safety_mode_container.show()
+        calibration_progress.hide()
+        distance_to_car_label.hide()
+        safety_mode.hide()
         back.show()
     }
 
@@ -566,7 +561,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         vision_view.visualizationMode = VisualizationMode.Clear
-        appMode = AppMode.Lanes
+        appMode = MainActivity.AppMode.Lanes
 
         hideSignsContainer()
         dashboard_container.hide()
