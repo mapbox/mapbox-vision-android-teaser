@@ -1,7 +1,5 @@
 package com.mapbox.vision.examples.activity.map
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.mapbox.mapboxsdk.maps.MapboxMap
@@ -15,7 +13,7 @@ import kotlinx.android.synthetic.main.activity_map.back
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
-    private lateinit var locationLayerPlugin: LocationLayerPlugin
+    private var locationLayerPlugin: LocationLayerPlugin? = null
 
     private lateinit var mapboxMap: MapboxMap
 
@@ -31,9 +29,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onStart() {
         super.onStart()
         mapView.onStart()
-        if (::locationLayerPlugin.isInitialized) {
-            locationLayerPlugin.onStart()
-        }
+        locationLayerPlugin?.onStart()
     }
 
     override fun onResume() {
@@ -49,9 +45,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onStop() {
         super.onStop()
         mapView.onStop()
-        if (::locationLayerPlugin.isInitialized) {
-            locationLayerPlugin.onStop()
-        }
+        locationLayerPlugin?.onStop()
     }
 
     override fun onDestroy() {
@@ -70,13 +64,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun enableLocationPlugin() {
-        locationLayerPlugin = LocationLayerPlugin(mapView, mapboxMap)
-        locationLayerPlugin.cameraMode = CameraMode.TRACKING
-        lifecycle.addObserver(locationLayerPlugin)
-    }
-
-    companion object {
-        @JvmStatic
-        fun createIntent(context: Context): Intent = Intent(context, MapActivity::class.java)
+        locationLayerPlugin = LocationLayerPlugin(mapView, mapboxMap).apply {
+            cameraMode = CameraMode.TRACKING
+            lifecycle.addObserver(this)
+        }
     }
 }

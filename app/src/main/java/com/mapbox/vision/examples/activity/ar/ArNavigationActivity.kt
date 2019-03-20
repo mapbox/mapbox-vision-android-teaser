@@ -21,23 +21,27 @@ import com.mapbox.services.android.navigation.v5.route.RouteListener
 import com.mapbox.services.android.navigation.v5.routeprogress.ProgressChangeListener
 import com.mapbox.services.android.navigation.v5.routeprogress.RouteProgress
 import com.mapbox.vision.VisionManager
+import com.mapbox.vision.ar.VisionArManager
+import com.mapbox.vision.ar.models.Route
+import com.mapbox.vision.ar.models.RoutePoint
 import com.mapbox.vision.examples.R
+import com.mapbox.vision.mobile.models.position.GeoCoordinate
 import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
-import kotlinx.android.synthetic.main.activity_ar_navigation.back
-import kotlinx.android.synthetic.main.activity_ar_navigation.mapbox_ar_view
+import kotlinx.android.synthetic.main.activity_ar_navigation.*
 
-class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteListener {
+class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteListener, ProgressChangeListener,
+    OffRouteListener {
 
     companion object {
         private const val EXTRA_ROUTE = "Route"
 
         fun start(context: Activity, directionsRoute: DirectionsRoute) {
             context.startActivity(
-                    Intent(context, ArNavigationActivity::class.java)
-                            .putExtra(EXTRA_ROUTE, directionsRoute)
+                Intent(context, ArNavigationActivity::class.java)
+                    .putExtra(EXTRA_ROUTE, directionsRoute)
             )
         }
     }
@@ -52,42 +56,26 @@ class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteL
     }
 
     private lateinit var mapboxNavigation: MapboxNavigation
-
-    private var lastKnownRoutProgress: RouteProgress? = null
-
-    private val progressChangeListener = ProgressChangeListener { _, routeProgress ->
-        lastKnownRoutProgress = routeProgress
-    }
-
     private lateinit var routeFetcher: RouteFetcher
 
-    private val offRouteListener = OffRouteListener { location ->
-        routeFetcher.findRouteFromRouteProgress(location, lastKnownRoutProgress)
-    }
+    private var lastRouteProgress: RouteProgress? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onCreate(savedInstanceState)
-        VisionManager.create()
         setContentView(R.layout.activity_ar_navigation)
-
-        VisionManager.setModelPerformanceConfig(
-                ModelPerformanceConfig.Merged(
-                        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW)
-                )
-        )
 
         back.setOnClickListener {
             onBackPressed()
         }
 
         val builder = MapboxNavigationOptions
-                .builder()
-                .enableOffRouteDetection(true)
+            .builder()
+            .enableOffRouteDetection(true)
         mapboxNavigation = MapboxNavigation(this, getString(R.string.mapbox_access_token), builder.build())
 
         routeFetcher = RouteFetcher(this, getString(R.string.mapbox_access_token))
-        routeFetcher.addRouteListener(this@ArNavigationActivity)
+        routeFetcher.addRouteListener(this)
     }
 
     override fun onResume() {
@@ -96,55 +84,108 @@ class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteL
             addLocationEngineListener(this@ArNavigationActivity)
             activate()
         }
-        VisionManager.start()
-        mapboxNavigation.addOffRouteListener(mapbox_ar_view)
-        mapboxNavigation.addOffRouteListener(offRouteListener)
-        mapboxNavigation.addProgressChangeListener(mapbox_ar_view)
-        mapboxNavigation.addProgressChangeListener(progressChangeListener)
+        mapboxNavigation.addOffRouteListener(this)
+        mapboxNavigation.addProgressChangeListener(this)
         mapboxNavigation.locationEngine = arLocationEngine
         mapboxNavigation.startNavigation(intent.getSerializableExtra(EXTRA_ROUTE) as DirectionsRoute)
+
+        VisionManager.create()
+        VisionManager.setModelPerformanceConfig(
+            ModelPerformanceConfig.Merged(
+                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW)
+            )
+        )
+        VisionManager.start()
+        VisionManager.setVideoSourceListener(mapbox_ar_view)
+
+        VisionArManager.create(VisionManager, mapbox_ar_view)
     }
 
     override fun onPause() {
+        super.onPause()
+        VisionArManager.destroy()
+
+        VisionManager.stop()
+        VisionManager.destroy()
+
         arLocationEngine.apply {
             removeLocationUpdates()
             removeLocationEngineListener(this@ArNavigationActivity)
             deactivate()
         }
-        mapboxNavigation.removeProgressChangeListener(mapbox_ar_view)
-        mapboxNavigation.removeProgressChangeListener(progressChangeListener)
-        mapboxNavigation.removeOffRouteListener(mapbox_ar_view)
-        mapboxNavigation.removeOffRouteListener(offRouteListener)
+        mapboxNavigation.removeProgressChangeListener(this)
+        mapboxNavigation.removeOffRouteListener(this)
         mapboxNavigation.stopNavigation()
-        VisionManager.stop()
-        super.onPause()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        VisionManager.destroy()
-    }
-
-    override fun onLocationChanged(location: Location?) {
-        // Do nothing
-    }
+    override fun onLocationChanged(location: Location?) {}
 
     @SuppressLint("MissingPermission")
     override fun onConnected() = arLocationEngine.requestLocationUpdates()
 
     override fun onErrorReceived(throwable: Throwable?) {
+        throwable?.printStackTrace()
+
         mapboxNavigation.stopNavigation()
-        Toast.makeText(this, R.string.can_not_colculate_new_rout, Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, R.string.can_not_calculate_new_route, Toast.LENGTH_SHORT).show()
     }
 
     override fun onResponseReceived(response: DirectionsResponse, routeProgress: RouteProgress?) {
         mapboxNavigation.stopNavigation()
+
         if (response.routes().isEmpty()) {
-            Toast.makeText(this, R.string.can_not_colculate_new_rout, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.can_not_calculate_new_route, Toast.LENGTH_SHORT).show()
             return
         }
         val route = response.routes()[0]
         mapboxNavigation.startNavigation(route)
     }
 
+    override fun onProgressChange(location: Location?, routeProgress: RouteProgress?) {
+        lastRouteProgress = routeProgress
+
+        VisionArManager.setRoute(
+            Route(
+                points = routeProgress!!.getRoutePoints(),
+                eta = routeProgress.durationRemaining().toFloat(),
+                sourceStreetName = "TODO()",
+                targetStreetName = "TODO()"
+            )
+        )
+    }
+
+    override fun userOffRoute(location: Location?) {
+        println("User off route")
+        routeFetcher.findRouteFromRouteProgress(location, lastRouteProgress)
+    }
+
+    private fun RouteProgress.getRoutePoints(): Array<RoutePoint> {
+        val routePoints = arrayListOf<RoutePoint>()
+        this.directionsRoute()?.legs()?.forEach { it ->
+            it.steps()?.forEach { step ->
+                val maneuverPoint = RoutePoint(
+                    GeoCoordinate(
+                        latitude = step.maneuver().location().latitude(),
+                        longitude = step.maneuver().location().longitude()
+                    )
+                )
+                routePoints.add(maneuverPoint)
+
+                step.intersections()
+                    ?.map {
+                        RoutePoint(
+                            GeoCoordinate(
+                                latitude = step.maneuver().location().latitude(),
+                                longitude = step.maneuver().location().longitude()
+                            )
+                        )
+                    }
+                    ?.let { stepPoints ->
+                        routePoints.addAll(stepPoints)
+                    }
+            }
+        }
+
+        return routePoints.toTypedArray()
+    }
 }

@@ -98,11 +98,16 @@ dependencies {
     implementation "com.mapbox.mapboxsdk:mapbox-android-core:$mapbox_core"
 
     if (envVarOrLocalProperty('BUILD_CORE_FROM_SOURCE')?.toBoolean()) {
-        implementation project(path: ':MapboxVision')
-        implementation project(path: ':MapboxVisionAndroidAR')
+        implementation project(path: ':Vision')
+        implementation project(path: ':VisionAr')
+        implementation project(path: ':VisionSafety')
+        implementation project(path: ':CoreAr')
+        implementation project(path: ':CoreSdk')
+        implementation project(path: ':CoreSafety')
     } else {
         implementation "com.mapbox.vision:mapbox-android-vision:$vision_sdk"
         implementation "com.mapbox.vision:mapbox-android-vision-ar:$vision_ar"
+        // TODO add safety
     }
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {

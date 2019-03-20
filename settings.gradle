@@ -1,10 +1,19 @@
-include ':VisionSdk'
-project(':VisionSdk').projectDir = new File('../cv-assist/SDK/Platforms/Android/sdk')
+include ':CoreSdk'
+project(':CoreSdk').projectDir = new File(CORE_VISION_SDK)
 
-include ':MapboxVision'
-project(':MapboxVision').projectDir = new File('../mapbox-vision-android/MapboxVision')
+include ':CoreSafety'
+project(':CoreSafety').projectDir = new File(CORE_VISION_SAFETY)
 
-include ':MapboxVisionAndroidAR'
-project(':MapboxVisionAndroidAR').projectDir = new File('../mapbox-vision-ar-android/MapboxVisionAR')
+include ':CoreAr'
+project(':CoreAr').projectDir = new File(CORE_VISION_AR)
+
+include ':Vision'
+project(':Vision').projectDir = new File(VISION_SDK)
+
+include ':VisionAr'
+project(':VisionAr').projectDir = new File(VISION_AR)
+
+include ':VisionSafety'
+project(':VisionSafety').projectDir = new File(VISION_SAFETY)
 
 include ':app'
