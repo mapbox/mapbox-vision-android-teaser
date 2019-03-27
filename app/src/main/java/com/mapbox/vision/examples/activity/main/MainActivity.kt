@@ -358,9 +358,8 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
 
         if (isPermissionsGranted) {
-            VisionManager.create()
+            VisionManager.create(visionEventsListener = visionEventsListener)
             VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
-            VisionManager.setVisionEventListener(visionEventsListener)
             VisionManager.start()
             VisionManager.setVideoSourceListener(vision_view)
 
