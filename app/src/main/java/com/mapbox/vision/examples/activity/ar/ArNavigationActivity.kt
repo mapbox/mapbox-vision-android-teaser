@@ -26,15 +26,7 @@ import com.mapbox.vision.ar.models.Route
 import com.mapbox.vision.ar.models.RoutePoint
 import com.mapbox.vision.examples.R
 import com.mapbox.vision.mobile.interfaces.VisionEventsListener
-import com.mapbox.vision.mobile.models.AuthorizationStatus
-import com.mapbox.vision.mobile.models.Camera
-import com.mapbox.vision.mobile.models.FrameSegmentation
-import com.mapbox.vision.mobile.models.classification.FrameSigns
-import com.mapbox.vision.mobile.models.detection.FrameDetections
 import com.mapbox.vision.mobile.models.position.GeoCoordinate
-import com.mapbox.vision.mobile.models.position.VehicleLocation
-import com.mapbox.vision.mobile.models.road.RoadDescription
-import com.mapbox.vision.mobile.models.world.WorldDescription
 import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
@@ -98,40 +90,13 @@ class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteL
         mapboxNavigation.locationEngine = arLocationEngine
         mapboxNavigation.startNavigation(intent.getSerializableExtra(EXTRA_ROUTE) as DirectionsRoute)
 
-        VisionManager.create(visionEventsListener = object : VisionEventsListener {
-            override fun onAuthorizationStatusChanged(authorizationStatus: AuthorizationStatus) {
-            }
-
-            override fun onSegmentationUpdated(frameSegmentation: FrameSegmentation) {
-            }
-
-            override fun onDetectionsUpdated(frameDetections: FrameDetections) {
-            }
-
-            override fun onSignsUpdated(frameSigns: FrameSigns) {
-            }
-
-            override fun onRoadUpdated(roadDescription: RoadDescription) {
-            }
-
-            override fun onWorldUpdated(worldDescription: WorldDescription) {
-            }
-
-            override fun onVehicleLocationUpdated(vehicleLocation: VehicleLocation) {
-            }
-
-            override fun onCameraUpdated(camera: Camera) {
-            }
-
-            override fun onClientUpdate() {
-            }
-        })
+        VisionManager.create(visionEventsListener = object : VisionEventsListener {})
+        VisionManager.start()
         VisionManager.setModelPerformanceConfig(
             ModelPerformanceConfig.Merged(
                 performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW)
             )
         )
-        VisionManager.start()
         VisionManager.setVideoSourceListener(mapbox_ar_view)
 
         VisionArManager.create(VisionManager, mapbox_ar_view)
