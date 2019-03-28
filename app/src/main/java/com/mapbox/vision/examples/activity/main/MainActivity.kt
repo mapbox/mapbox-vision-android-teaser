@@ -29,7 +29,6 @@ import com.mapbox.vision.examples.utils.classification.Tracker
 import com.mapbox.vision.examples.utils.hide
 import com.mapbox.vision.examples.utils.show
 import com.mapbox.vision.mobile.interfaces.VisionEventsListener
-import com.mapbox.vision.mobile.models.AuthorizationStatus
 import com.mapbox.vision.mobile.models.Camera
 import com.mapbox.vision.mobile.models.FrameSegmentation
 import com.mapbox.vision.mobile.models.classification.FrameSigns
@@ -39,7 +38,6 @@ import com.mapbox.vision.mobile.models.position.VehicleLocation
 import com.mapbox.vision.mobile.models.road.LaneDirection
 import com.mapbox.vision.mobile.models.road.LaneEdgeType
 import com.mapbox.vision.mobile.models.road.RoadDescription
-import com.mapbox.vision.mobile.models.world.WorldDescription
 import com.mapbox.vision.mobile.utils.SystemInfoUtils
 import com.mapbox.vision.mobile.utils.snapdragon.SupportedSnapdragonBoards
 import com.mapbox.vision.performance.ModelPerformance
@@ -90,9 +88,6 @@ class MainActivity : AppCompatActivity() {
 
     private val visionEventsListener = object : VisionEventsListener {
 
-        override fun onAuthorizationStatusChanged(authorizationStatus: AuthorizationStatus) {
-        }
-
         override fun onDetectionsUpdated(frameDetections: FrameDetections) {
             vision_view.setDetections(frameDetections)
         }
@@ -114,10 +109,6 @@ class MainActivity : AppCompatActivity() {
             if (appMode == AppMode.Lanes) {
                 drawLanesDetection(roadDescription)
             }
-        }
-
-        override fun onWorldUpdated(worldDescription: WorldDescription) {
-            // TODO
         }
 
         override fun onVehicleLocationUpdated(vehicleLocation: VehicleLocation) {
@@ -359,8 +350,8 @@ class MainActivity : AppCompatActivity() {
 
         if (isPermissionsGranted) {
             VisionManager.create(visionEventsListener = visionEventsListener)
-            VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
             VisionManager.start()
+            VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
             VisionManager.setVideoSourceListener(vision_view)
 
             VisionSafetyManager.create(VisionManager, visionSafetyListener)
