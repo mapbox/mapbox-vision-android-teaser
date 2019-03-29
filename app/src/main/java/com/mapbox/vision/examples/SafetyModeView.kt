@@ -7,8 +7,8 @@ import android.support.annotation.DimenRes
 import android.util.AttributeSet
 import android.view.View
 import com.mapbox.mapboxsdk.utils.MathUtils
-import com.mapbox.vision.mobile.models.frame.ImageSize
-import com.mapbox.vision.safety.models.CollisionObject
+import com.mapbox.vision.mobile.core.models.frame.ImageSize
+import com.mapbox.vision.safety.core.models.CollisionObject
 
 class SafetyModeView : View {
 

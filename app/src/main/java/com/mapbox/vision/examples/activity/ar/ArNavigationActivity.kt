@@ -22,11 +22,11 @@ import com.mapbox.services.android.navigation.v5.routeprogress.ProgressChangeLis
 import com.mapbox.services.android.navigation.v5.routeprogress.RouteProgress
 import com.mapbox.vision.VisionManager
 import com.mapbox.vision.ar.VisionArManager
-import com.mapbox.vision.ar.models.Route
-import com.mapbox.vision.ar.models.RoutePoint
+import com.mapbox.vision.ar.core.models.Route
+import com.mapbox.vision.ar.core.models.RoutePoint
 import com.mapbox.vision.examples.R
-import com.mapbox.vision.mobile.interfaces.VisionEventsListener
-import com.mapbox.vision.mobile.models.position.GeoCoordinate
+import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
+import com.mapbox.vision.mobile.core.models.position.GeoCoordinate
 import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode

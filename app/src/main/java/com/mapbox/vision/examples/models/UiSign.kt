@@ -1,6 +1,6 @@
 package com.mapbox.vision.examples.models
 
-import com.mapbox.vision.mobile.models.classification.FrameSigns
+import com.mapbox.vision.mobile.core.models.classification.FrameSigns
 
 data class UiSign(val signType: SignType, val signNum: SignNumber) {
 
