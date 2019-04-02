@@ -107,7 +107,9 @@ class MainActivity : AppCompatActivity() {
 
         override fun onRoadDescriptionUpdated(roadDescription: RoadDescription) {
             if (appMode == AppMode.Lanes) {
-                drawLanesDetection(roadDescription)
+                runOnUiThread {
+                    drawLanesDetection(roadDescription)
+                }
             }
         }
 
