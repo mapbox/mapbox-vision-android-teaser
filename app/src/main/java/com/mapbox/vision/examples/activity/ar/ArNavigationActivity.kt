@@ -88,7 +88,6 @@ class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteL
         mapboxNavigation.addOffRouteListener(this)
         mapboxNavigation.addProgressChangeListener(this)
         mapboxNavigation.locationEngine = arLocationEngine
-        mapboxNavigation.startNavigation(intent.getSerializableExtra(EXTRA_ROUTE) as DirectionsRoute)
 
         VisionManager.create(visionEventsListener = object : VisionEventsListener {})
         VisionManager.start()
@@ -100,6 +99,8 @@ class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteL
         VisionManager.setVideoSourceListener(mapbox_ar_view)
 
         VisionArManager.create(VisionManager, mapbox_ar_view)
+
+        setRoute(intent.getSerializableExtra(EXTRA_ROUTE) as DirectionsRoute)
     }
 
     override fun onPause() {
@@ -138,31 +139,36 @@ class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteL
             Toast.makeText(this, R.string.can_not_calculate_new_route, Toast.LENGTH_SHORT).show()
             return
         }
-        val route = response.routes()[0]
-        mapboxNavigation.startNavigation(route)
+        lastRouteProgress = routeProgress
+
+        setRoute(response.routes()[0])
     }
 
-    override fun onProgressChange(location: Location?, routeProgress: RouteProgress?) {
-        lastRouteProgress = routeProgress
+    private fun setRoute(route: DirectionsRoute) {
+        mapboxNavigation.startNavigation(route)
 
         VisionArManager.setRoute(
             Route(
-                points = routeProgress!!.getRoutePoints(),
-                eta = routeProgress.durationRemaining().toFloat(),
+                points = route.getRoutePoints(),
+                eta = route.duration()?.toFloat() ?: 0f,
                 sourceStreetName = "TODO()",
                 targetStreetName = "TODO()"
             )
         )
     }
 
+    override fun onProgressChange(location: Location?, routeProgress: RouteProgress?) {
+        lastRouteProgress = routeProgress
+    }
+
     override fun userOffRoute(location: Location?) {
         routeFetcher.findRouteFromRouteProgress(location, lastRouteProgress)
     }
 
-    private fun RouteProgress.getRoutePoints(): Array<RoutePoint> {
+    private fun DirectionsRoute.getRoutePoints(): Array<RoutePoint> {
         val routePoints = arrayListOf<RoutePoint>()
-        this.directionsRoute()?.legs()?.forEach { it ->
-            it.steps()?.forEach { step ->
+        legs()?.forEach {leg ->
+            leg.steps()?.forEach { step ->
                 val maneuverPoint = RoutePoint(
                     GeoCoordinate(
                         latitude = step.maneuver().location().latitude(),
