@@ -22,10 +22,6 @@ def envVarOrLocalProperty(String name) {
     return null
 }
 
-if (file("${rootDir}/gradle/versions.gradle").exists()) {
-    apply from: "${rootDir}/gradle/versions.gradle"
-}
-
 android {
     buildToolsVersion build_tools_version
     compileSdkVersion compile_sdk_version
@@ -34,8 +30,8 @@ android {
         applicationId "com.mapbox.vision.examples"
         minSdkVersion min_sdk_version
         targetSdkVersion target_sdk_version
-        versionCode 7
-        versionName "0.2.0"
+        versionCode 8
+        versionName "0.3.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -67,7 +63,7 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
-            manifestPlaceholders = [appName: "Vision Teaser Debug"]
+            manifestPlaceholders = [appName: "Debug Vision Teaser"]
         }
 
         release {
@@ -107,7 +103,7 @@ dependencies {
     } else {
         implementation "com.mapbox.vision:mapbox-android-vision:$vision_sdk"
         implementation "com.mapbox.vision:mapbox-android-vision-ar:$vision_ar"
-        // TODO add safety
+        implementation "com.mapbox.vision:mapbox-android-vision-safety:$vision_safety"
     }
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
