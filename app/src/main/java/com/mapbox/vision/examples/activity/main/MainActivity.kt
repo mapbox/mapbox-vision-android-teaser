@@ -31,10 +31,10 @@ import com.mapbox.vision.examples.utils.show
 import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.Camera
 import com.mapbox.vision.mobile.core.models.FrameSegmentation
-import com.mapbox.vision.mobile.core.models.classification.FrameSigns
+import com.mapbox.vision.mobile.core.models.classification.FrameSignClassifications
 import com.mapbox.vision.mobile.core.models.detection.DetectionClass
 import com.mapbox.vision.mobile.core.models.detection.FrameDetections
-import com.mapbox.vision.mobile.core.models.position.VehicleLocation
+import com.mapbox.vision.mobile.core.models.position.VehicleState
 import com.mapbox.vision.mobile.core.models.road.LaneDirection
 import com.mapbox.vision.mobile.core.models.road.LaneEdgeType
 import com.mapbox.vision.mobile.core.models.road.RoadDescription
@@ -88,31 +88,31 @@ class MainActivity : AppCompatActivity() {
 
     private val visionEventsListener = object : VisionEventsListener {
 
-        override fun onDetectionsUpdated(frameDetections: FrameDetections) {
+        override fun onFrameDetectionsUpdated(frameDetections: FrameDetections) {
             vision_view.setDetections(frameDetections)
         }
 
-        override fun onSegmentationUpdated(frameSegmentation: FrameSegmentation) {
+        override fun onFrameSegmentationUpdated(frameSegmentation: FrameSegmentation) {
             vision_view.setSegmentation(frameSegmentation)
         }
 
-        override fun onSignsUpdated(frameSigns: FrameSigns) {
+        override fun onFrameSignClassificationsUpdated(frameSignClassifications: FrameSignClassifications) {
             if (appMode == AppMode.Classification) {
                 runOnUiThread {
-                    tracker.update(UiSign.getUiSigns(frameSigns))
+                    tracker.update(UiSign.getUiSigns(frameSignClassifications))
                     drawSigns(tracker.getCurrent())
                 }
             }
         }
 
-        override fun onRoadUpdated(roadDescription: RoadDescription) {
+        override fun onRoadDescriptionUpdated(roadDescription: RoadDescription) {
             if (appMode == AppMode.Lanes) {
                 drawLanesDetection(roadDescription)
             }
         }
 
-        override fun onVehicleLocationUpdated(vehicleLocation: VehicleLocation) {
-            lastSpeed = vehicleLocation.speed
+        override fun onVehicleStateUpdated(vehicleState: VehicleState) {
+            lastSpeed = vehicleState.speed
         }
 
         override fun onCameraUpdated(camera: Camera) {
@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         @SuppressLint("SetTextI18n")
-        override fun onClientUpdate() {
+        override fun onUpdateCompleted() {
             val frameStatistics = VisionManager.getFrameStatistics()
             runOnUiThread {
                 when (appModelPerformanceConfig) {
@@ -433,7 +433,7 @@ class MainActivity : AppCompatActivity() {
             lines_detections_container.addView(leftMarkingImageView)
 
             val directionImageView = getImageView()
-            if (index == roadDescription.currentLane) {
+            if (index == roadDescription.currentLaneIndex) {
                 directionImageView.setImageResource(R.drawable.ic_blue_arrow)
             } else {
                 directionImageView.setImageResource(lane.direction.toDrawableId())

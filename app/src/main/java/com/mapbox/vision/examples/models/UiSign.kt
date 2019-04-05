@@ -1,14 +1,14 @@
 package com.mapbox.vision.examples.models
 
-import com.mapbox.vision.mobile.core.models.classification.FrameSigns
+import com.mapbox.vision.mobile.core.models.classification.FrameSignClassifications
 
 data class UiSign(val signType: SignType, val signNum: SignNumber) {
 
     companion object {
-        fun getUiSigns(frameSigns: FrameSigns): List<UiSign> {
+        fun getUiSigns(frameSignClassifications: FrameSignClassifications): List<UiSign> {
             val signTypeValues = SignType.values()
 
-            return frameSigns.signs.map { signClassification ->
+            return frameSignClassifications.signs.map { signClassification ->
                 val signTypeIndex = signClassification.sign.type.ordinal
                 if (signTypeIndex >= signTypeValues.size) {
                     throw IllegalStateException("Illegal sign! ${signClassification.sign}")
