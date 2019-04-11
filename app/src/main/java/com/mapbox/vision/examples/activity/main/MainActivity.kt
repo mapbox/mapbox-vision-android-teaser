@@ -49,6 +49,7 @@ import com.mapbox.vision.safety.core.VisionSafetyListener
 import com.mapbox.vision.safety.core.models.CollisionDangerLevel
 import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
+import com.mapbox.vision.video.videosource.camera.Camera2VideoSourceImpl
 import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -139,6 +140,23 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 core_update_fps.text = "CU: ${frameStatistics.coreUpdateFPS}"
+
+                if (appMode == AppMode.Safety) {
+                    if (calibrationProgress < 1f) {
+                        distance_to_car_label.hide()
+                        safety_mode.hide()
+                        calibration_progress.show()
+                        calibration_progress.text = getString(
+                            R.string.calibration_progress,
+                            (calibrationProgress * 100).toInt()
+                        )
+                    } else {
+                        distance_to_car_label.show()
+                        safety_mode.show()
+                        calibration_progress.hide()
+                    }
+                }
+
             }
         }
     }
@@ -159,12 +177,7 @@ class MainActivity : AppCompatActivity() {
         override fun onCollisionsUpdated(collisions: Array<CollisionObject>) {
             if (appMode == AppMode.Safety) {
                 runOnUiThread {
-
                     if (calibrationProgress == 1f) {
-                        distance_to_car_label.show()
-                        safety_mode.show()
-                        calibration_progress.hide()
-
                         val collision = collisions.firstOrNull { it.`object`.objectClass == DetectionClass.Car }
                         if (collision == null) {
                             soundsPlayer.stop()
@@ -172,7 +185,6 @@ class MainActivity : AppCompatActivity() {
                             distance_to_car_label.hide()
                             safety_mode.hide()
                         } else {
-
                             if (currentDangerLevel != collision.dangerLevel) {
                                 soundsPlayer.stop()
                                 when (collision.dangerLevel) {
@@ -202,14 +214,6 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
                         }
-                    } else {
-                        distance_to_car_label.hide()
-                        safety_mode.hide()
-                        calibration_progress.show()
-                        calibration_progress.text = getString(
-                            R.string.calibration_progress,
-                            (calibrationProgress * 100).toInt()
-                        )
                     }
                 }
             }
@@ -346,9 +350,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val REPLAY_SESSION_PATH by lazy {
+        "${application.getExternalFilesDir(null)!!.absolutePath}/Replays/"
+    }
+    private val RECORD_SESSION_PATH by lazy {
+        "${application.getExternalFilesDir(null)!!.absolutePath}/Records/"
+    }
+
     private fun tryToInitVisionManager() {
         if (isPermissionsGranted && !visionManagerWasInit) {
-            VisionManager.create()
+
+            val replay = VisionManager.VisionMode.SessionReplay(
+                path = REPLAY_SESSION_PATH
+            )
+            replay.setSessionProgress(60000)
+
+            val mode = VisionManager.VisionMode.Default(
+                application = application,
+                videoSource = Camera2VideoSourceImpl(application)
+            )
+
+            val recording = VisionManager.VisionMode.SessionRecord(
+                 path = RECORD_SESSION_PATH
+            )
+
+            VisionManager.createWithMode(mode = replay)
             VisionManager.start(visionEventsListener)
             VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
             VisionManager.setVideoSourceListener(vision_view)
