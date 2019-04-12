@@ -77,6 +77,7 @@ class MainActivity : AppCompatActivity() {
     private var appMode: AppMode = AppMode.Detection
 
     private var isPermissionsGranted = false
+    private var visionManagerWasInit = false
     private lateinit var soundsPlayer: SoundsPlayer
 
     private var appModelPerformanceConfig: ModelPerformanceConfig = ModelPerformanceConfig.Merged(
@@ -330,6 +331,8 @@ class MainActivity : AppCompatActivity() {
 
         }
         fps_info_container.hide()
+
+        tryToInitVisionManager()
     }
 
     override fun onRequestPermissionsResult(
@@ -343,26 +346,32 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        if (isPermissionsGranted) {
+    private fun tryToInitVisionManager() {
+        if (isPermissionsGranted && !visionManagerWasInit) {
             VisionManager.create(visionEventsListener = visionEventsListener)
             VisionManager.start()
             VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
             VisionManager.setVideoSourceListener(vision_view)
 
             VisionSafetyManager.create(VisionManager, visionSafetyListener)
+
+            visionManagerWasInit = true
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        tryToInitVisionManager()
     }
 
     override fun onStop() {
         super.onStop()
 
-        if (isPermissionsGranted) {
+        if (isPermissionsGranted && visionManagerWasInit) {
             VisionSafetyManager.destroy()
             VisionManager.stop()
             VisionManager.destroy()
+            visionManagerWasInit = false
         }
         soundsPlayer.stop()
     }
