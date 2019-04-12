@@ -9,7 +9,12 @@ import android.view.View
 import com.mapbox.vision.mobile.core.models.frame.ImageSize
 import com.mapbox.vision.safety.core.models.CollisionObject
 
-class SafetyModeView : View {
+class SafetyModeView
+@JvmOverloads
+constructor(
+    context: Context,
+    attrs: AttributeSet? = null
+) : View(context, attrs) {
 
     companion object {
         private const val DISTANCE_BASE_RANGE_METERS = 40f
@@ -57,9 +62,7 @@ class SafetyModeView : View {
     private val distanceRectBaseWidthMin: Float
     private val distanceRectBaseWidthMax: Float
 
-    constructor(context: Context) : this(context, null)
-
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+    init {
         alertWidth = pixels(R.dimen.alert_width) / 2
         alertHeight = pixels(R.dimen.alert_height) / 2
         criticalAlertWidth = pixels(R.dimen.critical_alert_width)

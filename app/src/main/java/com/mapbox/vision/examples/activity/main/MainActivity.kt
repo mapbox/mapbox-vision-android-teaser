@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.Html
@@ -51,6 +53,7 @@ import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
 import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -321,6 +324,7 @@ class MainActivity : AppCompatActivity() {
         ar_navigation_button_container.setOnClickListener {
             startActivity(Intent(this, ArMapActivity::class.java))
         }
+        driver_score_button_container.setOnClickListener { setDriveScoreMode() }
         root.setOnLongClickListener {
             if (fps_info_container.visibility == View.GONE) {
                 fps_info_container.show()
@@ -382,6 +386,7 @@ class MainActivity : AppCompatActivity() {
         hideLineDetectionContainer()
         hideSignsContainer()
         safety_mode_container.hide()
+        driver_score_mode.hide()
         back.hide()
     }
 
@@ -560,6 +565,15 @@ class MainActivity : AppCompatActivity() {
         vision_view.visualizationMode = VisualizationMode.Clear
         appMode = MainActivity.AppMode.Lanes
 
+        hideSignsContainer()
+        dashboard_container.hide()
+        lines_detections_container.show()
+        safety_mode_container.hide()
+        back.show()
+    }
+
+    private fun setDriveScoreMode() {
+        driver_score_mode.show()
         hideSignsContainer()
         dashboard_container.hide()
         lines_detections_container.show()
