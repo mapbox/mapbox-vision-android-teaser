@@ -89,8 +89,8 @@ class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteL
         mapboxNavigation.addProgressChangeListener(this)
         mapboxNavigation.locationEngine = arLocationEngine
 
-        VisionManager.create(visionEventsListener = object : VisionEventsListener {})
-        VisionManager.start()
+        VisionManager.create()
+        VisionManager.start(object : VisionEventsListener {})
         VisionManager.setModelPerformanceConfig(
             ModelPerformanceConfig.Merged(
                 performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW)
