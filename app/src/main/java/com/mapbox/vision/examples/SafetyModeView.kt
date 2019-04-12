@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable
 import android.support.annotation.DimenRes
 import android.util.AttributeSet
 import android.view.View
-import com.mapbox.mapboxsdk.utils.MathUtils
 import com.mapbox.vision.mobile.core.models.frame.ImageSize
 import com.mapbox.vision.safety.core.models.CollisionObject
 
@@ -17,7 +16,7 @@ class SafetyModeView : View {
     }
 
     private enum class Mode {
-        DISTANCE,
+        NONE,
         WARNING,
         CRITICAL
     }
@@ -27,7 +26,7 @@ class SafetyModeView : View {
         val radius: Float
     )
 
-    private var mode = Mode.DISTANCE
+    private var mode = Mode.NONE
 
     private var scaleFactor = 1f
     private var scaledSize = ImageSize(1, 1)
@@ -112,46 +111,6 @@ class SafetyModeView : View {
 
     private fun Int.scaleY(): Float = this * scaleFactor - (scaledSize.imageHeight - height) / 2
 
-    fun drawDistanceToCar(car: CollisionObject) {
-        distancePath.reset()
-        mode = Mode.DISTANCE
-        setBackgroundColor(transparent)
-
-        val widthDelta = MathUtils.clamp(
-            (distanceRectBaseWidth / DISTANCE_BASE_RANGE_METERS * car.`object`.position.y).toFloat(),
-            distanceRectBaseWidthMin,
-            distanceRectBaseWidthMax
-        )
-
-        val left = car.lastDetection.boundingBox.left.scaleX() - widthDelta
-        val top = car.lastDetection.boundingBox.bottom.scaleY()
-        val right = car.lastDetection.boundingBox.right.scaleX() + widthDelta
-        val bottom = car.lastDetection.boundingBox.bottom.scaleY() + distanceRectHeight
-
-        if (car.lastDetection.boundingBox.left != 0 && car.lastDetection.boundingBox.right != 0) {
-            distancePath.moveTo(
-                left + widthDelta,
-                top
-            )
-            distancePath.lineTo(
-                left,
-                bottom
-            )
-            distancePath.lineTo(
-                right,
-                bottom
-            )
-            distancePath.lineTo(
-                right - widthDelta,
-                top
-            )
-            distancePath.close()
-            distancePaint.shader = getDistanceShader(top, bottom)
-        }
-
-        invalidate()
-    }
-
     fun drawWarnings(collisions: Array<CollisionObject>) {
         distancePath.reset()
         mode = Mode.WARNING
@@ -180,9 +139,7 @@ class SafetyModeView : View {
 
     override fun onDraw(canvas: Canvas) {
         when (mode) {
-            SafetyModeView.Mode.DISTANCE -> {
-                canvas.drawPath(distancePath, distancePaint)
-            }
+            SafetyModeView.Mode.NONE -> Unit
             SafetyModeView.Mode.WARNING -> {
                 for (warning in warningShapes) {
                     collisionPaint.shader = getWarningShader(

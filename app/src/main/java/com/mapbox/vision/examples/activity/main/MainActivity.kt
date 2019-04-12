@@ -192,16 +192,12 @@ class MainActivity : AppCompatActivity() {
                             distance_to_car_label.text = distanceFormatter.formatDistance(collision.`object`.position.y)
 
                             when (currentDangerLevel) {
-                                CollisionDangerLevel.None -> {
-                                    safety_mode.drawDistanceToCar(collision)
-                                }
+                                CollisionDangerLevel.None -> Unit
                                 CollisionDangerLevel.Warning -> {
                                     safety_mode.drawWarnings(collisions)
-
                                 }
                                 CollisionDangerLevel.Critical -> {
                                     safety_mode.drawCritical()
-
                                 }
                             }
                         }
