@@ -32,7 +32,7 @@ allprojects {
                 basic(BasicAuthentication)
             }
 
-            url 'https://cloudfront-staging.tilestream.net/downloads/v1/vision/maven'
+            url 'https://api.mapbox.com/downloads/v1/vision/android/maven'
         }
     }
 }
