@@ -22,10 +22,6 @@ def envVarOrLocalProperty(String name) {
     return null
 }
 
-if (file("${rootDir}/gradle/versions.gradle").exists()) {
-    apply from: "${rootDir}/gradle/versions.gradle"
-}
-
 android {
     buildToolsVersion build_tools_version
     compileSdkVersion compile_sdk_version
@@ -34,8 +30,8 @@ android {
         applicationId "com.mapbox.vision.examples"
         minSdkVersion min_sdk_version
         targetSdkVersion target_sdk_version
-        versionCode 7
-        versionName "0.2.0"
+        versionCode 8
+        versionName "0.3.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -67,6 +63,7 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
+            manifestPlaceholders = [appName: "Debug Vision Teaser"]
         }
 
         release {
@@ -76,6 +73,8 @@ android {
             if (envVarOrLocalProperty('SIGNING_CONFIG_RELEASE')) {
                 signingConfig signingConfigs.release
             }
+
+            manifestPlaceholders = [appName: "Vision Teaser"]
         }
     }
 }
@@ -95,11 +94,16 @@ dependencies {
     implementation "com.mapbox.mapboxsdk:mapbox-android-core:$mapbox_core"
 
     if (envVarOrLocalProperty('BUILD_CORE_FROM_SOURCE')?.toBoolean()) {
-        implementation project(path: ':MapboxVision')
-        implementation project(path: ':MapboxVisionAndroidAR')
+        implementation project(path: ':Vision')
+        implementation project(path: ':VisionAr')
+        implementation project(path: ':VisionSafety')
+        implementation project(path: ':CoreAr')
+        implementation project(path: ':CoreSdk')
+        implementation project(path: ':CoreSafety')
     } else {
         implementation "com.mapbox.vision:mapbox-android-vision:$vision_sdk"
         implementation "com.mapbox.vision:mapbox-android-vision-ar:$vision_ar"
+        implementation "com.mapbox.vision:mapbox-android-vision-safety:$vision_safety"
     }
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {

@@ -1,7 +1,7 @@
 buildscript {
-    ext {
-        kotlin_version = '1.2.71'
-        gradle_plugin ='3.2.1'
+
+    if (file("${rootDir}/gradle/versions.gradle").exists()) {
+        apply from: "${rootDir}/gradle/versions.gradle"
     }
 
     repositories {
@@ -19,11 +19,20 @@ buildscript {
 
 allprojects {
     repositories {
-        mavenLocal()
-        maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
         google()
         jcenter()
         maven { url 'https://mapbox.bintray.com/mapbox' }
-        maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
+
+        maven {
+            credentials {
+                username project.properties['mapboxMavenUser'] ?: ""
+                password project.properties['mapboxMavenToken'] ?: ""
+            }
+            authentication {
+                basic(BasicAuthentication)
+            }
+
+            url 'https://api.mapbox.com/downloads/v1/vision/android/maven'
+        }
     }
 }

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".activity.map.MapActivity">
 
-    <com.mapbox.vision.ar.view.gl.GlArView
+    <com.mapbox.vision.ar.view.gl.VisionArView
         android:id="@+id/mapbox_ar_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

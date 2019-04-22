@@ -24,17 +24,20 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute
 import com.mapbox.vision.examples.R
+import com.mapbox.vision.examples.R.id.mapView
+import com.mapbox.vision.examples.R.id.start_ar
 import kotlinx.android.synthetic.main.activity_ar_map.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
-        LocationEngineListener, OnMapReadyCallback {
+    LocationEngineListener, OnMapReadyCallback {
 
-    private lateinit var locationLayerPlugin: LocationLayerPlugin
-    private lateinit var locationEngine: LocationEngine
-    private lateinit var originPoint: Point
+    private var locationLayerPlugin: LocationLayerPlugin? = null
+    private var locationEngine: LocationEngine? = null
+    private var originPoint: Point? = null
+
     private lateinit var mapboxMap: MapboxMap
 
     private var destinationMarker: Marker? = null
@@ -63,9 +66,7 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
     override fun onStart() {
         super.onStart()
         mapView.onStart()
-        if (::locationLayerPlugin.isInitialized) {
-            locationLayerPlugin.onStart()
-        }
+        locationLayerPlugin?.onStart()
     }
 
     override fun onResume() {
@@ -81,12 +82,10 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
     override fun onStop() {
         super.onStop()
         mapView.onStop()
-        if (::locationLayerPlugin.isInitialized) {
-            locationLayerPlugin.onStop()
-        }
-        locationEngine.removeLocationEngineListener(this)
-        locationEngine.removeLocationUpdates()
-        locationEngine.deactivate()
+        locationLayerPlugin?.onStop()
+        locationEngine?.removeLocationEngineListener(this)
+        locationEngine?.removeLocationUpdates()
+        locationEngine?.deactivate()
     }
 
     override fun onDestroy() {
@@ -108,14 +107,14 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
         destinationMarker?.let(mapboxMap::removeMarker)
         destinationMarker = mapboxMap.addMarker(MarkerOptions().position(destination))
 
-        if (!::originPoint.isInitialized) {
+        if (originPoint == null) {
             Toast.makeText(this, "Source location is not determined yet!", Toast.LENGTH_LONG).show()
             return
         }
 
         getRoute(
-                origin = originPoint,
-                destination = Point.fromLngLat(destination.longitude, destination.latitude)
+            origin = originPoint!!,
+            destination = Point.fromLngLat(destination.longitude, destination.latitude)
         )
 
         start_ar.visibility = View.VISIBLE
@@ -133,53 +132,52 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
 
     @SuppressLint("MissingPermission")
     override fun onConnected() {
-        locationEngine.requestLocationUpdates()
+        locationEngine?.requestLocationUpdates()
     }
 
     private fun getRoute(origin: Point, destination: Point) {
         NavigationRoute.builder(this)
-                .accessToken(Mapbox.getAccessToken()!!)
-                .origin(origin)
-                .destination(destination)
-                .build()
-                .getRoute(object : Callback<DirectionsResponse> {
-                    override fun onResponse(call: Call<DirectionsResponse>, response: Response<DirectionsResponse>) {
-                        if (response.body() == null || response.body()!!.routes().size < 1) {
-                            return
-                        }
-
-                        currentRoute = response.body()!!.routes()[0]
-
-                        // Draw the route on the map
-                        if (navigationMapRoute != null) {
-                            navigationMapRoute!!.removeRoute()
-                        } else {
-                            navigationMapRoute = NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute)
-                        }
-                        navigationMapRoute!!.addRoute(currentRoute)
+            .accessToken(Mapbox.getAccessToken()!!)
+            .origin(origin)
+            .destination(destination)
+            .build()
+            .getRoute(object : Callback<DirectionsResponse> {
+                override fun onResponse(call: Call<DirectionsResponse>, response: Response<DirectionsResponse>) {
+                    if (response.body() == null || response.body()!!.routes().size < 1) {
+                        return
                     }
 
-                    override fun onFailure(call: Call<DirectionsResponse>, throwable: Throwable) {}
-                })
+                    currentRoute = response.body()!!.routes()[0]
+
+                    // Draw the route on the map
+                    if (navigationMapRoute != null) {
+                        navigationMapRoute!!.removeRoute()
+                    } else {
+                        navigationMapRoute = NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute)
+                    }
+                    navigationMapRoute!!.addRoute(currentRoute)
+                }
+
+                override fun onFailure(call: Call<DirectionsResponse>, throwable: Throwable) {}
+            })
     }
 
     private fun enableLocationPlugin() {
         initializeLocationEngine()
-        locationLayerPlugin = LocationLayerPlugin(mapView, mapboxMap)
-        locationLayerPlugin.cameraMode = CameraMode.TRACKING
-        lifecycle.addObserver(locationLayerPlugin)
+        locationLayerPlugin = LocationLayerPlugin(mapView, mapboxMap).apply {
+            cameraMode = CameraMode.TRACKING
+            lifecycle.addObserver(this)
+        }
     }
 
     @SuppressLint("MissingPermission")
     private fun initializeLocationEngine() {
         locationEngine = LocationEngineProvider(this).obtainBestLocationEngineAvailable()
-        locationEngine.priority = LocationEnginePriority.HIGH_ACCURACY
-        locationEngine.addLocationEngineListener(this)
-        locationEngine.activate()
+        locationEngine?.priority = LocationEnginePriority.HIGH_ACCURACY
+        locationEngine?.addLocationEngineListener(this)
+        locationEngine?.activate()
 
-        val lastLocation = locationEngine.lastLocation
-
-        if (lastLocation != null) {
+        locationEngine?.lastLocation?.let { lastLocation ->
             originPoint = Point.fromLngLat(lastLocation.longitude, lastLocation.latitude)
         }
     }

@@ -1,51 +1,56 @@
 package com.mapbox.vision.examples.utils.classification
 
 import android.content.Context
-import com.mapbox.vision.examples.models.UiSignValueModel
+import com.mapbox.vision.examples.models.UiSign
 
 interface SignResourceMapper {
 
-    fun getSignResource(uiSignValueModel: UiSignValueModel): Int
-    fun getSignResourceForCurrentSpeed(uiSignValueModel: UiSignValueModel, speed: Double): Int
+    fun getSignResource(uiSign: UiSign): Int
+    fun getSignResourceForCurrentSpeed(uiSign: UiSign, speed: Float): Int
 
     class Impl(val context: Context) : SignResourceMapper {
 
         private val numbersTypesArray = arrayOf(
-                UiSignValueModel.SignType.SpeedLimit,
-                UiSignValueModel.SignType.SpeedLimitEnd,
-                UiSignValueModel.SignType.SpeedLimitMin,
-                UiSignValueModel.SignType.SpeedLimitNight,
-                UiSignValueModel.SignType.SpeedLimitTrucks,
-                UiSignValueModel.SignType.SpeedLimitComplementary,
-                UiSignValueModel.SignType.SpeedLimitExit,
-                UiSignValueModel.SignType.SpeedLimitRamp
+                UiSign.SignType.SpeedLimit,
+                UiSign.SignType.SpeedLimitEnd,
+                UiSign.SignType.SpeedLimitMin,
+                UiSign.SignType.SpeedLimitNight,
+                UiSign.SignType.SpeedLimitTrucks,
+                UiSign.SignType.SpeedLimitComplementary,
+                UiSign.SignType.SpeedLimitExit,
+                UiSign.SignType.SpeedLimitRamp,
+                UiSign.SignType.Mass
         )
 
         private val overSpeedArray = arrayOf(
-                UiSignValueModel.SignType.SpeedLimit,
-                UiSignValueModel.SignType.SpeedLimitNight,
-                UiSignValueModel.SignType.SpeedLimitComplementary,
-                UiSignValueModel.SignType.SpeedLimitTrucks
+                UiSign.SignType.SpeedLimit,
+                UiSign.SignType.SpeedLimitNight,
+                UiSign.SignType.SpeedLimitComplementary,
+                UiSign.SignType.SpeedLimitTrucks
         )
 
-        private fun getResourceNameForSign(uiSignValueModel: UiSignValueModel) = if (uiSignValueModel.signType in numbersTypesArray) {
-            uiSignValueModel.signType.resourceName + uiSignValueModel.signNum.value
+        private fun getResourceNameForSign(uiSign: UiSign) = if (uiSign.signType in numbersTypesArray) {
+            uiSign.signType.usResourceName + uiSign.signNum.value
         } else {
-            uiSignValueModel.signType.resourceName
+            uiSign.signType.usResourceName
         }
 
         private fun getResourceId(name: String) = context.resources.getIdentifier(
                 name, "drawable", context.packageName
+        ).also {
+            if (it == 0) {
+
+            }
+        }
+
+        override fun getSignResource(uiSign: UiSign) = getResourceId(
+                name = getResourceNameForSign(uiSign)
         )
 
-        override fun getSignResource(uiSignValueModel: UiSignValueModel) = getResourceId(
-                name = getResourceNameForSign(uiSignValueModel)
-        )
-
-        override fun getSignResourceForCurrentSpeed(uiSignValueModel: UiSignValueModel, speed: Double): Int {
-            val resourceName = getResourceNameForSign(uiSignValueModel)
+        override fun getSignResourceForCurrentSpeed(uiSign: UiSign, speed: Float): Int {
+            val resourceName = getResourceNameForSign(uiSign)
             val fullResourceName =
-                if (uiSignValueModel.signType in overSpeedArray && speed > uiSignValueModel.signNum.value) {
+                if (uiSign.signType in overSpeedArray && speed > uiSign.signNum.value) {
                     "over_$resourceName"
                 } else {
                     resourceName

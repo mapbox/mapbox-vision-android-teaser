@@ -4,12 +4,10 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.support.annotation.DimenRes
-import android.support.v4.math.MathUtils
 import android.util.AttributeSet
 import android.view.View
-import com.mapbox.vision.VisionManager
-import com.mapbox.vision.visionevents.FrameSize
-import com.mapbox.vision.visionevents.events.worlddescription.ObjectDescription
+import com.mapbox.vision.mobile.core.models.frame.ImageSize
+import com.mapbox.vision.safety.core.models.CollisionObject
 
 class SafetyModeView : View {
 
@@ -18,7 +16,7 @@ class SafetyModeView : View {
     }
 
     private enum class Mode {
-        DISTANCE,
+        NONE,
         WARNING,
         CRITICAL
     }
@@ -28,10 +26,10 @@ class SafetyModeView : View {
         val radius: Float
     )
 
-    private var mode = Mode.DISTANCE
+    private var mode = Mode.NONE
 
     private var scaleFactor = 1f
-    private var scaledSize = FrameSize(1, 1)
+    private var scaledSize = ImageSize(1, 1)
 
     private val distancePath = Path()
     private var warningShapes: List<WarningShape> = emptyList()
@@ -96,70 +94,35 @@ class SafetyModeView : View {
     )
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        val frameSize = VisionManager.getFrameSize()
+        // FIXME
+//        val frameSize = VisionManager.getFrameSize()
+        val frameSize = ImageSize(1280, 720)
         scaleFactor = Math.max(
-            width.toFloat() / frameSize.width,
-            height.toFloat() / frameSize.height
+            width.toFloat() / frameSize.imageWidth,
+            height.toFloat() / frameSize.imageHeight
         )
-        scaledSize = frameSize * scaleFactor
+        scaledSize = ImageSize(
+            imageWidth = (frameSize.imageWidth * scaleFactor).toInt(),
+            imageHeight = (frameSize.imageHeight * scaleFactor).toInt()
+        )
     }
 
-    private fun Int.scaleX(): Float = this * scaleFactor - (scaledSize.width - width) / 2
+    private fun Int.scaleX(): Float = this * scaleFactor - (scaledSize.imageWidth - width) / 2
 
-    private fun Int.scaleY(): Float = this * scaleFactor - (scaledSize.height - height) / 2
+    private fun Int.scaleY(): Float = this * scaleFactor - (scaledSize.imageHeight - height) / 2
 
-    fun drawDistanceToCar(car: ObjectDescription) {
-        distancePath.reset()
-        mode = Mode.DISTANCE
-        setBackgroundColor(transparent)
-
-        val widthDelta = MathUtils.clamp(
-            (distanceRectBaseWidth / DISTANCE_BASE_RANGE_METERS * car.distance).toFloat(),
-            distanceRectBaseWidthMin,
-            distanceRectBaseWidthMax
-        )
-
-        val left = car.detection.boundingBox.left.scaleX() - widthDelta
-        val top = car.detection.boundingBox.bottom.scaleY()
-        val right = car.detection.boundingBox.right.scaleX() + widthDelta
-        val bottom = car.detection.boundingBox.bottom.scaleY() + distanceRectHeight
-
-        if (car.detection.boundingBox.left != 0 && car.detection.boundingBox.right != 0) {
-            distancePath.moveTo(
-                left + widthDelta,
-                top
-            )
-            distancePath.lineTo(
-                left,
-                bottom
-            )
-            distancePath.lineTo(
-                right,
-                bottom
-            )
-            distancePath.lineTo(
-                right - widthDelta,
-                top
-            )
-            distancePath.close()
-            distancePaint.shader = getDistanceShader(top, bottom)
-        }
-
-        invalidate()
-    }
-
-    fun drawWarnings(objectDescriptions: List<ObjectDescription>) {
+    fun drawWarnings(collisions: Array<CollisionObject>) {
         distancePath.reset()
         mode = Mode.WARNING
         setBackgroundColor(transparent)
 
-        warningShapes = objectDescriptions.map { objectDescription ->
+        warningShapes = collisions.map { collision ->
             WarningShape(
                 center = PointF(
-                    ((objectDescription.detection.boundingBox.left + objectDescription.detection.boundingBox.right) / 2).scaleX(),
-                    ((objectDescription.detection.boundingBox.bottom + objectDescription.detection.boundingBox.top) / 2).scaleY()
+                    ((collision.lastDetection.boundingBox.left + collision.lastDetection.boundingBox.right) / 2).scaleX(),
+                    ((collision.lastDetection.boundingBox.bottom + collision.lastDetection.boundingBox.top) / 2).scaleY()
                 ),
-                radius = (objectDescription.detection.boundingBox.right - objectDescription.detection.boundingBox.left) * scaleFactor
+                radius = (collision.lastDetection.boundingBox.right - collision.lastDetection.boundingBox.left) * scaleFactor
             )
         }
 
@@ -176,9 +139,7 @@ class SafetyModeView : View {
 
     override fun onDraw(canvas: Canvas) {
         when (mode) {
-            SafetyModeView.Mode.DISTANCE -> {
-                canvas.drawPath(distancePath, distancePaint)
-            }
+            SafetyModeView.Mode.NONE -> Unit
             SafetyModeView.Mode.WARNING -> {
                 for (warning in warningShapes) {
                     collisionPaint.shader = getWarningShader(
