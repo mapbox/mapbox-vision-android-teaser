@@ -5,11 +5,7 @@ apply plugin: 'kotlin-android-extensions'
 
 apply from: 'generate-token.gradle'
 
-def envVarOrLocalProperty(String name) {
-    if (System.getenv(name) != null) {
-        return System.getenv(name)
-    }
-
+def localProperty(String name) {
     Properties properties = new Properties()
     def file = project.rootProject.file('local.properties')
     if (file.exists()) {
@@ -50,12 +46,12 @@ android {
     }
 
     signingConfigs {
-        if (envVarOrLocalProperty('SIGNING_CONFIG_RELEASE')) {
+        if (localProperty('SIGNING_CONFIG_RELEASE')) {
             release {
-                storeFile file(envVarOrLocalProperty('SIGNING_CONFIG_RELEASE'))
-                storePassword envVarOrLocalProperty('SIGNING_CONFIG_RELEASE_PASSWORD')
-                keyAlias envVarOrLocalProperty('SIGNING_CONFIG_RELEASE_ALIAS')
-                keyPassword envVarOrLocalProperty('SIGNING_CONFIG_RELEASE_KEY_PASSWORD')
+                storeFile file(localProperty('SIGNING_CONFIG_RELEASE'))
+                storePassword localProperty('SIGNING_CONFIG_RELEASE_PASSWORD')
+                keyAlias localProperty('SIGNING_CONFIG_RELEASE_ALIAS')
+                keyPassword localProperty('SIGNING_CONFIG_RELEASE_KEY_PASSWORD')
             }
         }
     }
@@ -70,7 +66,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
-            if (envVarOrLocalProperty('SIGNING_CONFIG_RELEASE')) {
+            if (localProperty('SIGNING_CONFIG_RELEASE')) {
                 signingConfig signingConfigs.release
             }
 
@@ -93,7 +89,7 @@ dependencies {
     implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:$mapbox_location_layer"
     implementation "com.mapbox.mapboxsdk:mapbox-android-core:$mapbox_core"
 
-    if (envVarOrLocalProperty('BUILD_CORE_FROM_SOURCE')?.toBoolean()) {
+    if (localProperty('BUILD_CORE_FROM_SOURCE')?.toBoolean()) {
         implementation project(path: ':Vision')
         implementation project(path: ':VisionAr')
         implementation project(path: ':VisionSafety')
@@ -107,11 +103,6 @@ dependencies {
     }
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
-        transitive = true;
+        transitive = true
     }
-
-    testImplementation 'junit:junit:4.12'
-
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
