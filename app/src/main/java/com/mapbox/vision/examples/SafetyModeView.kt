@@ -3,7 +3,7 @@ package com.mapbox.vision.examples
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
-import android.support.annotation.DimenRes
+import androidx.annotation.DimenRes
 import android.util.AttributeSet
 import android.view.View
 import com.mapbox.vision.mobile.core.models.frame.ImageSize

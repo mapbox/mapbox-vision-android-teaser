@@ -6,10 +6,10 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Looper
-import android.support.annotation.ColorInt
-import android.support.constraint.ConstraintLayout
-import android.support.transition.Slide
-import android.support.transition.TransitionManager
+import androidx.annotation.ColorInt
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.transition.Slide
+import androidx.transition.TransitionManager
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View

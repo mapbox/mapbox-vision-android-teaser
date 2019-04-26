@@ -1,6 +1,6 @@
 package com.mapbox.vision.examples
 
-import android.support.multidex.MultiDexApplication
+import androidx.multidex.MultiDexApplication
 import com.crashlytics.android.Crashlytics
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.vision.VisionManager
