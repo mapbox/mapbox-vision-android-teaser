@@ -110,9 +110,9 @@ constructor(
         )
     }
 
-    private fun Int.scaleX(): Float = this * scaleFactor - (scaledSize.imageWidth - width) / 2
+    private fun Float.scaleX(): Float = this * scaleFactor - (scaledSize.imageWidth - width) / 2
 
-    private fun Int.scaleY(): Float = this * scaleFactor - (scaledSize.imageHeight - height) / 2
+    private fun Float.scaleY(): Float = this * scaleFactor - (scaledSize.imageHeight - height) / 2
 
     fun drawWarnings(collisions: Array<CollisionObject>) {
         distancePath.reset()
@@ -142,8 +142,8 @@ constructor(
 
     override fun onDraw(canvas: Canvas) {
         when (mode) {
-            SafetyModeView.Mode.NONE -> Unit
-            SafetyModeView.Mode.WARNING -> {
+            Mode.NONE -> Unit
+            Mode.WARNING -> {
                 for (warning in warningShapes) {
                     collisionPaint.shader = getWarningShader(
                         centerX = warning.center.x,
@@ -170,7 +170,7 @@ constructor(
                 )
                 criticalDrawable.draw(canvas)
             }
-            SafetyModeView.Mode.CRITICAL -> {
+            Mode.CRITICAL -> {
                 criticalDrawable.bounds.set(
                     criticalMarginHorizontal,
                     criticalMarginVertical,
