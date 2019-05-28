@@ -3,20 +3,8 @@ apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-apply from: 'generate-token.gradle'
-
-def localProperty(String name) {
-    Properties properties = new Properties()
-    def file = project.rootProject.file('local.properties')
-    if (file.exists()) {
-        properties.load(file.newDataInputStream())
-        def localProperty = properties.getProperty(name)
-        if (localProperty != null) {
-            return localProperty
-        }
-    }
-    return null
-}
+apply from: '../gradle/generate-token.gradle'
+apply from: "../gradle/utils.gradle"
 
 android {
     buildToolsVersion build_tools_version
@@ -46,12 +34,12 @@ android {
     }
 
     signingConfigs {
-        if (localProperty('SIGNING_CONFIG_RELEASE')) {
+        if (projectOrLocalProperty('SIGNING_CONFIG_RELEASE')) {
             release {
-                storeFile file(localProperty('SIGNING_CONFIG_RELEASE'))
-                storePassword localProperty('SIGNING_CONFIG_RELEASE_PASSWORD')
-                keyAlias localProperty('SIGNING_CONFIG_RELEASE_ALIAS')
-                keyPassword localProperty('SIGNING_CONFIG_RELEASE_KEY_PASSWORD')
+                storeFile file(projectOrLocalProperty('SIGNING_CONFIG_RELEASE'))
+                storePassword projectOrLocalProperty('SIGNING_CONFIG_RELEASE_PASSWORD')
+                keyAlias projectOrLocalProperty('SIGNING_CONFIG_RELEASE_ALIAS')
+                keyPassword projectOrLocalProperty('SIGNING_CONFIG_RELEASE_KEY_PASSWORD')
             }
         }
     }
@@ -66,7 +54,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
-            if (localProperty('SIGNING_CONFIG_RELEASE')) {
+            if (projectOrLocalProperty('SIGNING_CONFIG_RELEASE')) {
                 signingConfig signingConfigs.release
             }
 
@@ -89,7 +77,7 @@ dependencies {
     implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:$mapbox_location_layer"
     implementation "com.mapbox.mapboxsdk:mapbox-android-core:$mapbox_core"
 
-    if (localProperty('BUILD_CORE_FROM_SOURCE')?.toBoolean()) {
+    if (booleanProjectOrLocalProperty('BUILD_CORE_FROM_SOURCE')) {
         implementation project(path: ':Vision')
         implementation project(path: ':VisionAr')
         implementation project(path: ':VisionSafety')
