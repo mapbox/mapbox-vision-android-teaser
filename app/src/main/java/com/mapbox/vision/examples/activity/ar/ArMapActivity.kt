@@ -3,9 +3,9 @@ package com.mapbox.vision.examples.activity.ar
 import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.android.core.location.LocationEngine
 import com.mapbox.android.core.location.LocationEngineListener
 import com.mapbox.android.core.location.LocationEnginePriority
@@ -24,8 +24,6 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute
 import com.mapbox.vision.examples.R
-import com.mapbox.vision.examples.R.id.mapView
-import com.mapbox.vision.examples.R.id.start_ar
 import kotlinx.android.synthetic.main.activity_ar_map.*
 import retrofit2.Call
 import retrofit2.Callback
