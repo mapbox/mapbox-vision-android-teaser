@@ -38,8 +38,8 @@ interface SignResources {
         ): String {
             val resourceName = when (country) {
                 Country.Unknown, Country.USA -> uiSign.signType.usResourceName
-                Country.UK -> uiSign.signType.ukResourceName
-                Country.China, Country.Other -> uiSign.signType.chinaResourceName
+                Country.UK, Country.Other-> uiSign.signType.ukResourceName
+                Country.China -> uiSign.signType.chinaResourceName
             }
 
             return if (uiSign.signType in signsWithNumber) {
