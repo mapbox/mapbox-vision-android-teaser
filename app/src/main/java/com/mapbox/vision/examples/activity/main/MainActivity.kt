@@ -220,61 +220,63 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onRoadRestrictionsUpdated(roadRestrictions: RoadRestrictions) {
-            val imageResource = signResourceMapper.getSignResourceForCurrentSpeed(
-                UiSign(
-                    signType = UiSign.SignType.SpeedLimit,
-                    signNum = UiSign.SignNumber.fromNumber(roadRestrictions.speedLimits.car.max)
-                ),
-                speed = lastSpeed
-            )
+            runOnUiThread {
+                val imageResource = signResourceMapper.getSignResourceForCurrentSpeed(
+                    UiSign(
+                        signType = UiSign.SignType.SpeedLimit,
+                        signNum = UiSign.SignNumber.fromNumber(roadRestrictions.speedLimits.car.max)
+                    ),
+                    speed = lastSpeed
+                )
 
-            speed_limit_current.animate().cancel()
-            speed_limit_next.animate().cancel()
+                speed_limit_current.animate().cancel()
+                speed_limit_next.animate().cancel()
 
-            speed_limit_current.apply {
-                show()
-                translationY = 0f
-                alpha = 1f
-                animate()
-                    .translationY(speedLimitTranslation / 2)
-                    .alpha(0f)
-                    .scaleX(0.5f)
-                    .scaleY(0.5f)
-                    .setDuration(500L)
-                    .setListener(
-                        object : Animator.AnimatorListener {
-                            override fun onAnimationRepeat(animation: Animator?) {}
-
-                            override fun onAnimationEnd(animation: Animator?) {
-                                setImageResource(imageResource)
-                                translationY = 0f
-                                alpha = 1f
-                                scaleX = 1f
-                                scaleY = 1f
-                                speed_limit_next.hide()
-                            }
-
-                            override fun onAnimationCancel(animation: Animator?) {}
-
-                            override fun onAnimationStart(animation: Animator?) {}
-                        }
-                    )
-                    .setInterpolator(AccelerateDecelerateInterpolator())
-                    .start()
-            }
-
-            if (roadRestrictions.speedLimits.car.max != 0f) {
-                speed_limit_next.apply {
-                    translationY = -speedLimitTranslation
-                    setImageResource(imageResource)
+                speed_limit_current.apply {
                     show()
-                    animate().translationY(0f)
+                    translationY = 0f
+                    alpha = 1f
+                    animate()
+                        .translationY(speedLimitTranslation / 2)
+                        .alpha(0f)
+                        .scaleX(0.5f)
+                        .scaleY(0.5f)
                         .setDuration(500L)
+                        .setListener(
+                            object : Animator.AnimatorListener {
+                                override fun onAnimationRepeat(animation: Animator?) {}
+
+                                override fun onAnimationEnd(animation: Animator?) {
+                                    setImageResource(imageResource)
+                                    translationY = 0f
+                                    alpha = 1f
+                                    scaleX = 1f
+                                    scaleY = 1f
+                                    speed_limit_next.hide()
+                                }
+
+                                override fun onAnimationCancel(animation: Animator?) {}
+
+                                override fun onAnimationStart(animation: Animator?) {}
+                            }
+                        )
                         .setInterpolator(AccelerateDecelerateInterpolator())
                         .start()
                 }
-            } else {
-                speed_limit_next.hide()
+
+                if (roadRestrictions.speedLimits.car.max != 0f) {
+                    speed_limit_next.apply {
+                        translationY = -speedLimitTranslation
+                        setImageResource(imageResource)
+                        show()
+                        animate().translationY(0f)
+                            .setDuration(500L)
+                            .setInterpolator(AccelerateDecelerateInterpolator())
+                            .start()
+                    }
+                } else {
+                    speed_limit_next.hide()
+                }
             }
         }
     }
