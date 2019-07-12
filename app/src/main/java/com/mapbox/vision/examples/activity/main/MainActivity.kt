@@ -57,6 +57,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val PERMISSIONS_REQUEST_CODE = 1
+        private const val PERMISSION_FOREGROUND_SERVICE = "android.permission.FOREGROUND_SERVICE"
     }
 
     enum class AppMode {
@@ -560,6 +561,12 @@ class MainActivity : AppCompatActivity() {
     private fun allPermissionsGranted(): Boolean {
         for (permission in getRequiredPermissions()) {
             if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                // PERMISSION_FOREGROUND_SERVICE was added for targetSdkVersion >= 28, it is normal and always granted, but should be added to the Manifest file
+                // on devices with Android < P(9) checkSelfPermission(PERMISSION_FOREGROUND_SERVICE) can return PERMISSION_DENIED, but in fact it is GRANTED, so skip it
+                // https://developer.android.com/guide/components/services#Foreground
+                if (permission == PERMISSION_FOREGROUND_SERVICE) {
+                    continue
+                }
                 return false
             }
         }
