@@ -12,8 +12,7 @@
         android:layout_height="match_parent"
         app:mapbox_cameraTargetLat="53.9"
         app:mapbox_cameraTargetLng="27.56667"
-        app:mapbox_cameraZoom="12"
-        app:mapbox_styleUrl="@string/mapbox_style_dark" />
+        app:mapbox_cameraZoom="12" />
 
     <TextView
         android:id="@+id/select_point"

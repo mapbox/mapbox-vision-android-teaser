@@ -10,8 +10,7 @@
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:mapbox_styleUrl="mapbox://styles/willwhite/cjkmusatv0rox2roea7dz7r1p"/>
+        android:layout_height="match_parent" />
 
     <ImageView
         android:id="@+id/back"
