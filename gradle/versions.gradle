@@ -19,11 +19,8 @@ ext {
     vision_ar = vision
     vision_safety = vision
 
-    mapbox_core = '0.2.1'
-    mapbox_telemetry = '3.5.5'
-    mapbox_navigation = '0.22.0'
-    mapbox_sdk = '6.6.0'
-    mapbox_location_layer = '0.8.2'
+    mapbox_navigation = '0.40.0'
+    mapbox_sdk = '8.1.0'
 
     mannodermaus_junit5_version = '1.4.2.0'
     junit_version = '4.12'

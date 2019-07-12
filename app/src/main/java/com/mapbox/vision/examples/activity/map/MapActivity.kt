@@ -4,8 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
-import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin
-import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode
+import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.vision.examples.R
 import kotlinx.android.synthetic.main.activity_ar_map.mapView
 import kotlinx.android.synthetic.main.activity_map.back
@@ -13,9 +12,9 @@ import kotlinx.android.synthetic.main.activity_map.back
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
-    private var locationLayerPlugin: LocationLayerPlugin? = null
-
-    private lateinit var mapboxMap: MapboxMap
+    companion object {
+        private const val MAP_STYLE = "mapbox://styles/willwhite/cjkmusatv0rox2roea7dz7r1p"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +28,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onStart() {
         super.onStart()
         mapView.onStart()
-        locationLayerPlugin?.onStart()
     }
 
     override fun onResume() {
@@ -45,7 +43,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onStop() {
         super.onStop()
         mapView.onStop()
-        locationLayerPlugin?.onStop()
     }
 
     override fun onDestroy() {
@@ -59,14 +56,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
-        this.mapboxMap = mapboxMap
-        enableLocationPlugin()
-    }
-
-    private fun enableLocationPlugin() {
-        locationLayerPlugin = LocationLayerPlugin(mapView, mapboxMap).apply {
-            cameraMode = CameraMode.TRACKING
-            lifecycle.addObserver(this)
-        }
+        mapboxMap.setStyle(Style.Builder().fromUri(MAP_STYLE))
     }
 }
