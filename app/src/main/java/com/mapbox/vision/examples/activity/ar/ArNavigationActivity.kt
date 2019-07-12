@@ -1,16 +1,16 @@
 package com.mapbox.vision.examples.activity.ar
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.location.Location
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.view.WindowManager
 import android.widget.Toast
-import com.mapbox.android.core.location.LocationEngineListener
-import com.mapbox.android.core.location.LocationEnginePriority
+import androidx.appcompat.app.AppCompatActivity
+import com.mapbox.android.core.location.LocationEngineCallback
 import com.mapbox.android.core.location.LocationEngineProvider
+import com.mapbox.android.core.location.LocationEngineRequest
+import com.mapbox.android.core.location.LocationEngineResult
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation
@@ -32,12 +32,15 @@ import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
 import kotlinx.android.synthetic.main.activity_ar_navigation.*
+import timber.log.Timber
 
-class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteListener, ProgressChangeListener,
+class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeListener,
     OffRouteListener {
 
     companion object {
         private const val EXTRA_ROUTE = "Route"
+        private const val LOCATION_INTERVAL_DEFAULT = 0L
+        private const val LOCATION_INTERVAL_FAST = 1000L
 
         fun start(context: Activity, directionsRoute: DirectionsRoute) {
             context.startActivity(
@@ -48,18 +51,30 @@ class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteL
     }
 
     private val arLocationEngine by lazy {
-        val locationEngineProvider = LocationEngineProvider(this)
-        locationEngineProvider.obtainBestLocationEngineAvailable().apply {
-            priority = LocationEnginePriority.HIGH_ACCURACY
-            interval = 0
-            fastestInterval = 1000
-        }
+        LocationEngineProvider.getBestLocationEngine(this)
+    }
+
+    private val arLocationEngineRequest by lazy {
+        LocationEngineRequest.Builder(LOCATION_INTERVAL_DEFAULT)
+                .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+                .setFastestInterval(LOCATION_INTERVAL_FAST)
+                .build()
     }
 
     private lateinit var mapboxNavigation: MapboxNavigation
     private lateinit var routeFetcher: RouteFetcher
 
     private var lastRouteProgress: RouteProgress? = null
+
+    private val locationCallback by lazy {
+        object : LocationEngineCallback<LocationEngineResult> {
+            override fun onSuccess(result: LocationEngineResult?) {
+            }
+
+            override fun onFailure(exception: Exception) {
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -72,7 +87,7 @@ class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteL
 
         val builder = MapboxNavigationOptions
             .builder()
-            .enableOffRouteDetection(true)
+
         mapboxNavigation = MapboxNavigation(this, getString(R.string.mapbox_access_token), builder.build())
 
         routeFetcher = RouteFetcher(this, getString(R.string.mapbox_access_token))
@@ -81,10 +96,12 @@ class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteL
 
     override fun onResume() {
         super.onResume()
-        arLocationEngine.apply {
-            addLocationEngineListener(this@ArNavigationActivity)
-            activate()
+        try {
+            arLocationEngine.requestLocationUpdates(arLocationEngineRequest, locationCallback, mainLooper)
+        } catch (se: SecurityException) {
+            Timber.d(se.toString())
         }
+
         mapboxNavigation.addOffRouteListener(this)
         mapboxNavigation.addProgressChangeListener(this)
         mapboxNavigation.locationEngine = arLocationEngine
@@ -110,20 +127,11 @@ class ArNavigationActivity : AppCompatActivity(), LocationEngineListener, RouteL
         VisionManager.stop()
         VisionManager.destroy()
 
-        arLocationEngine.apply {
-            removeLocationUpdates()
-            removeLocationEngineListener(this@ArNavigationActivity)
-            deactivate()
-        }
+        arLocationEngine.removeLocationUpdates(locationCallback)
         mapboxNavigation.removeProgressChangeListener(this)
         mapboxNavigation.removeOffRouteListener(this)
         mapboxNavigation.stopNavigation()
     }
-
-    override fun onLocationChanged(location: Location?) {}
-
-    @SuppressLint("MissingPermission")
-    override fun onConnected() = arLocationEngine.requestLocationUpdates()
 
     override fun onErrorReceived(throwable: Throwable?) {
         throwable?.printStackTrace()

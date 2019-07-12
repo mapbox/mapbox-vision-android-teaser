@@ -483,7 +483,7 @@ class MainActivity : AppCompatActivity() {
         soundsPlayer.stop()
 
         vision_view.visualizationMode = VisualizationMode.Clear
-        appMode = MainActivity.AppMode.Classification
+        appMode = AppMode.Classification
 
         tracker = Tracker(5)
 
@@ -498,7 +498,7 @@ class MainActivity : AppCompatActivity() {
         soundsPlayer.stop()
 
         vision_view.visualizationMode = VisualizationMode.Detections
-        appMode = MainActivity.AppMode.Detection
+        appMode = AppMode.Detection
 
         hideLineDetectionContainer()
         hideSignsContainer()
@@ -511,7 +511,7 @@ class MainActivity : AppCompatActivity() {
         soundsPlayer.stop()
 
         vision_view.visualizationMode = VisualizationMode.Segmentation
-        appMode = MainActivity.AppMode.Segmentation
+        appMode = AppMode.Segmentation
 
         hideLineDetectionContainer()
         hideSignsContainer()
@@ -524,7 +524,7 @@ class MainActivity : AppCompatActivity() {
         soundsPlayer.stop()
 
         vision_view.visualizationMode = VisualizationMode.Clear
-        appMode = MainActivity.AppMode.Safety
+        appMode = AppMode.Safety
 
         hideLineDetectionContainer()
         hideSignsContainer()
@@ -540,7 +540,7 @@ class MainActivity : AppCompatActivity() {
         soundsPlayer.stop()
 
         vision_view.visualizationMode = VisualizationMode.Clear
-        appMode = MainActivity.AppMode.Lanes
+        appMode = AppMode.Lanes
 
         hideSignsContainer()
         dashboard_container.hide()

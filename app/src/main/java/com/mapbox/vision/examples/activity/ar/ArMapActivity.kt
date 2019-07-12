@@ -1,15 +1,14 @@
 package com.mapbox.vision.examples.activity.ar
 
 import android.annotation.SuppressLint
-import android.location.Location
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.mapbox.android.core.location.LocationEngine
-import com.mapbox.android.core.location.LocationEngineListener
-import com.mapbox.android.core.location.LocationEnginePriority
+import com.mapbox.android.core.location.LocationEngineCallback
 import com.mapbox.android.core.location.LocationEngineProvider
+import com.mapbox.android.core.location.LocationEngineRequest
+import com.mapbox.android.core.location.LocationEngineResult
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.geojson.Point
@@ -17,10 +16,10 @@ import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
-import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin
-import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode
+import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute
 import com.mapbox.vision.examples.R
@@ -28,12 +27,14 @@ import kotlinx.android.synthetic.main.activity_ar_map.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import timber.log.Timber
 
-class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
-    LocationEngineListener, OnMapReadyCallback {
+class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapReadyCallback {
 
-    private var locationLayerPlugin: LocationLayerPlugin? = null
-    private var locationEngine: LocationEngine? = null
+    companion object {
+        private const val MAP_STYLE = "mapbox://styles/mapbox/dark-v10"
+    }
+
     private var originPoint: Point? = null
 
     private lateinit var mapboxMap: MapboxMap
@@ -42,6 +43,29 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
 
     private var currentRoute: DirectionsRoute? = null
     private var navigationMapRoute: NavigationMapRoute? = null
+
+    private val arLocationEngine by lazy {
+        LocationEngineProvider.getBestLocationEngine(this)
+    }
+
+    private val arLocationEngineRequest by lazy {
+        LocationEngineRequest.Builder(0)
+                .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+                .build()
+    }
+
+    private val locationCallback by lazy {
+        object : LocationEngineCallback<LocationEngineResult> {
+            override fun onSuccess(result: LocationEngineResult?) {
+                with(result as LocationEngineResult) {
+                    originPoint = Point.fromLngLat(lastLocation?.longitude ?: .0, lastLocation?.latitude?: .0)
+                }
+            }
+
+            override fun onFailure(exception: Exception) {
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,7 +88,6 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
     override fun onStart() {
         super.onStart()
         mapView.onStart()
-        locationLayerPlugin?.onStart()
     }
 
     override fun onResume() {
@@ -80,10 +103,7 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
     override fun onStop() {
         super.onStop()
         mapView.onStop()
-        locationLayerPlugin?.onStop()
-        locationEngine?.removeLocationEngineListener(this)
-        locationEngine?.removeLocationUpdates()
-        locationEngine?.deactivate()
+        arLocationEngine.removeLocationUpdates(locationCallback)
     }
 
     override fun onDestroy() {
@@ -101,13 +121,13 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
         overridePendingTransition(0, 0)
     }
 
-    override fun onMapClick(destination: LatLng) {
+    override fun onMapClick(destination: LatLng): Boolean {
         destinationMarker?.let(mapboxMap::removeMarker)
         destinationMarker = mapboxMap.addMarker(MarkerOptions().position(destination))
 
         if (originPoint == null) {
             Toast.makeText(this, "Source location is not determined yet!", Toast.LENGTH_LONG).show()
-            return
+            return false
         }
 
         getRoute(
@@ -116,21 +136,17 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
         )
 
         start_ar.visibility = View.VISIBLE
+
+        return true
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
-        enableLocationPlugin()
+        mapboxMap.setStyle(Style.Builder().fromUri(MAP_STYLE)) {
+            enableLocationComponent()
+        }
+
         mapboxMap.addOnMapClickListener(this)
-    }
-
-    override fun onLocationChanged(location: Location) {
-        originPoint = Point.fromLngLat(location.longitude, location.latitude)
-    }
-
-    @SuppressLint("MissingPermission")
-    override fun onConnected() {
-        locationEngine?.requestLocationUpdates()
     }
 
     private fun getRoute(origin: Point, destination: Point) {
@@ -149,7 +165,7 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
 
                     // Draw the route on the map
                     if (navigationMapRoute != null) {
-                        navigationMapRoute!!.removeRoute()
+                        navigationMapRoute!!.updateRouteVisibilityTo(false)
                     } else {
                         navigationMapRoute = NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute)
                     }
@@ -160,23 +176,25 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
             })
     }
 
-    private fun enableLocationPlugin() {
+    private fun enableLocationComponent() {
         initializeLocationEngine()
-        locationLayerPlugin = LocationLayerPlugin(mapView, mapboxMap).apply {
-            cameraMode = CameraMode.TRACKING
-            lifecycle.addObserver(this)
-        }
+
+        val locationComponentActivationOptions = LocationComponentActivationOptions
+                .builder(this, mapboxMap.style!!)
+                .locationEngine(arLocationEngine)
+                .build()
+
+        mapboxMap.locationComponent.activateLocationComponent(locationComponentActivationOptions)
     }
 
     @SuppressLint("MissingPermission")
     private fun initializeLocationEngine() {
-        locationEngine = LocationEngineProvider(this).obtainBestLocationEngineAvailable()
-        locationEngine?.priority = LocationEnginePriority.HIGH_ACCURACY
-        locationEngine?.addLocationEngineListener(this)
-        locationEngine?.activate()
-
-        locationEngine?.lastLocation?.let { lastLocation ->
-            originPoint = Point.fromLngLat(lastLocation.longitude, lastLocation.latitude)
+        try {
+            arLocationEngine.requestLocationUpdates(arLocationEngineRequest, locationCallback, mainLooper)
+        } catch (se: SecurityException) {
+            Timber.d(se.toString())
         }
+
+        arLocationEngine.getLastLocation(locationCallback)
     }
 }
