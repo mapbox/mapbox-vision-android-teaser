@@ -31,13 +31,15 @@ import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
+import com.mapbox.vision.utils.VisionLogger
 import kotlinx.android.synthetic.main.activity_ar_navigation.*
-import timber.log.Timber
 
 class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeListener,
     OffRouteListener {
 
     companion object {
+        private var TAG = ArNavigationActivity::class.java.simpleName
+
         private const val EXTRA_ROUTE = "Route"
         private const val LOCATION_INTERVAL_DEFAULT = 0L
         private const val LOCATION_INTERVAL_FAST = 1000L
@@ -99,7 +101,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
         try {
             arLocationEngine.requestLocationUpdates(arLocationEngineRequest, locationCallback, mainLooper)
         } catch (se: SecurityException) {
-            Timber.d(se.toString())
+            VisionLogger.d(TAG, se.toString())
         }
 
         mapboxNavigation.addOffRouteListener(this)
