@@ -23,15 +23,16 @@ import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute
 import com.mapbox.vision.examples.R
+import com.mapbox.vision.utils.VisionLogger
 import kotlinx.android.synthetic.main.activity_ar_map.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import timber.log.Timber
 
 class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapReadyCallback {
 
     companion object {
+        private var TAG = ArMapActivity::class.java.simpleName
         private const val MAP_STYLE = "mapbox://styles/mapbox/dark-v10"
     }
 
@@ -75,7 +76,6 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
             onBackPressed()
         }
         mapView.onCreate(savedInstanceState)
-        mapView.getMapAsync(this)
         start_ar.setOnClickListener {
             if (currentRoute == null) {
                 Toast.makeText(this, "Route is not ready yet!", Toast.LENGTH_LONG).show()
@@ -88,6 +88,7 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
     override fun onStart() {
         super.onStart()
         mapView.onStart()
+        mapView.getMapAsync(this)
     }
 
     override fun onResume() {
@@ -192,7 +193,7 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
         try {
             arLocationEngine.requestLocationUpdates(arLocationEngineRequest, locationCallback, mainLooper)
         } catch (se: SecurityException) {
-            Timber.d(se.toString())
+            VisionLogger.d(TAG, se.toString())
         }
 
         arLocationEngine.getLastLocation(locationCallback)
