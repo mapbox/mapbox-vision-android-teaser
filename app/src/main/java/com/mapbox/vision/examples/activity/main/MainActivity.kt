@@ -48,6 +48,7 @@ import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.safety.core.VisionSafetyListener
 import com.mapbox.vision.safety.core.models.CollisionDangerLevel
+import com.mapbox.vision.safety.core.models.CollisionDangerLevel.*
 import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
 import com.mapbox.vision.view.VisualizationMode
@@ -153,7 +154,7 @@ class MainActivity : AppCompatActivity() {
 
     private val visionSafetyListener = object : VisionSafetyListener {
 
-        private var currentDangerLevel: CollisionDangerLevel = CollisionDangerLevel.None
+        private var currentDangerLevel: CollisionDangerLevel = None
 
         private val distanceFormatter by lazy {
             LocaleUtils().let { localeUtils ->
@@ -176,7 +177,7 @@ class MainActivity : AppCompatActivity() {
                         val collision = collisions.firstOrNull { it.`object`.objectClass == DetectionClass.Car }
                         if (collision == null) {
                             soundsPlayer.stop()
-                            currentDangerLevel = CollisionDangerLevel.None
+                            currentDangerLevel = None
                             distance_to_car_label.hide()
                             safety_mode.hide()
                         } else {
@@ -184,14 +185,9 @@ class MainActivity : AppCompatActivity() {
                             if (currentDangerLevel != collision.dangerLevel) {
                                 soundsPlayer.stop()
                                 when (collision.dangerLevel) {
-                                    CollisionDangerLevel.Warning -> {
-                                        soundsPlayer.playWarning()
-                                    }
-                                    CollisionDangerLevel.Critical -> {
-                                        soundsPlayer.playCritical()
-                                    }
-                                    else -> {
-                                    }
+                                    None -> Unit
+                                    Warning -> soundsPlayer.playWarning()
+                                    Critical -> soundsPlayer.playCritical()
                                 }
                                 currentDangerLevel = collision.dangerLevel
                             }
@@ -201,13 +197,9 @@ class MainActivity : AppCompatActivity() {
                             distance_to_car_label.text = distanceFormatter.formatDistance(collision.`object`.position.y)
 
                             when (currentDangerLevel) {
-                                CollisionDangerLevel.None -> Unit
-                                CollisionDangerLevel.Warning -> {
-                                    safety_mode.drawWarnings(collisions)
-                                }
-                                CollisionDangerLevel.Critical -> {
-                                    safety_mode.drawCritical()
-                                }
+                                None -> safety_mode.clean()
+                                Warning -> safety_mode.drawWarnings(collisions)
+                                Critical -> safety_mode.drawCritical()
                             }
                         }
                     } else {

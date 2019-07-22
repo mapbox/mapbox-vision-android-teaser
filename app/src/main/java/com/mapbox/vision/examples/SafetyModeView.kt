@@ -183,4 +183,10 @@ constructor(
 
         super.onDraw(canvas)
     }
+
+    fun clean() {
+        mode = Mode.NONE
+        setBackgroundColor(transparent)
+        invalidate()
+    }
 }
