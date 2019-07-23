@@ -16,10 +16,6 @@ constructor(
     attrs: AttributeSet? = null
 ) : View(context, attrs) {
 
-    companion object {
-        private const val DISTANCE_BASE_RANGE_METERS = 40f
-    }
-
     private enum class Mode {
         NONE,
         WARNING,
@@ -36,12 +32,8 @@ constructor(
     private var scaleFactor = 1f
     private var scaledSize = ImageSize(1, 1)
 
-    private val distancePath = Path()
     private var warningShapes: List<WarningShape> = emptyList()
 
-    private val distancePaint = Paint().apply {
-        style = Paint.Style.FILL
-    }
     private val collisionPaint = Paint().apply {
         style = Paint.Style.FILL
     }
@@ -57,11 +49,6 @@ constructor(
     private val criticalMarginHorizontal: Int
     private val criticalMarginVertical: Int
 
-    private val distanceRectHeight: Float
-    private val distanceRectBaseWidth: Float
-    private val distanceRectBaseWidthMin: Float
-    private val distanceRectBaseWidthMax: Float
-
     init {
         alertWidth = pixels(R.dimen.alert_width) / 2
         alertHeight = pixels(R.dimen.alert_height) / 2
@@ -70,24 +57,12 @@ constructor(
         criticalAlertMargin = pixels(R.dimen.critical_alert_margin)
         criticalMarginHorizontal = pixels(R.dimen.critical_margin_horizontal)
         criticalMarginVertical = pixels(R.dimen.critical_margin_vertical)
-
-        distanceRectHeight = pixels(R.dimen.distance_rect_height).toFloat()
-        distanceRectBaseWidth = pixels(R.dimen.distance_rect_base).toFloat()
-        distanceRectBaseWidthMin = pixels(R.dimen.distance_rect_base_width_min).toFloat()
-        distanceRectBaseWidthMax = pixels(R.dimen.distance_rect_base_width_max).toFloat()
     }
 
     private fun View.pixels(@DimenRes res: Int) = context.resources.getDimensionPixelSize(res)
 
     private val transparent = resources.getColor(android.R.color.transparent, null)
     private val dark = resources.getColor(R.color.black_70_transparent, null)
-
-    private fun getDistanceShader(top: Float, bottom: Float) = LinearGradient(
-        0f, top, 0f, bottom,
-        resources.getColor(R.color.minty_green, null),
-        transparent,
-        Shader.TileMode.REPEAT
-    )
 
     private fun getWarningShader(centerX: Float, centerY: Float, radius: Float) = RadialGradient(
         centerX, centerY, radius,
@@ -110,12 +85,11 @@ constructor(
         )
     }
 
-    private fun Float.scaleX(): Float = this * scaleFactor - (scaledSize.imageWidth - width) / 2
+    private fun Float.scaleX(): Float = this * scaledSize.imageWidth - (scaledSize.imageWidth - width) / 2
 
-    private fun Float.scaleY(): Float = this * scaleFactor - (scaledSize.imageHeight - height) / 2
+    private fun Float.scaleY(): Float = this * scaledSize.imageHeight - (scaledSize.imageHeight - height) / 2
 
     fun drawWarnings(collisions: Array<CollisionObject>) {
-        distancePath.reset()
         mode = Mode.WARNING
         setBackgroundColor(transparent)
 
@@ -125,7 +99,7 @@ constructor(
                     ((collision.lastDetection.boundingBox.left + collision.lastDetection.boundingBox.right) / 2).scaleX(),
                     ((collision.lastDetection.boundingBox.bottom + collision.lastDetection.boundingBox.top) / 2).scaleY()
                 ),
-                radius = (collision.lastDetection.boundingBox.right - collision.lastDetection.boundingBox.left) * scaleFactor
+                radius = (collision.lastDetection.boundingBox.right - collision.lastDetection.boundingBox.left) * scaledSize.imageWidth
             )
         }
 
@@ -133,7 +107,6 @@ constructor(
     }
 
     fun drawCritical() {
-        distancePath.reset()
         setBackgroundColor(dark)
         mode = Mode.CRITICAL
 
@@ -145,21 +118,22 @@ constructor(
             Mode.NONE -> Unit
             Mode.WARNING -> {
                 for (warning in warningShapes) {
-                    collisionPaint.shader = getWarningShader(
-                        centerX = warning.center.x,
-                        centerY = warning.center.y,
-                        radius = warning.radius
-                    )
-                    canvas.drawCircle(
-                        warning.center.x, warning.center.y, warning.radius, collisionPaint
-                    )
-                    alertDrawable.bounds.set(
-                        warning.center.x.toInt() - alertWidth,
-                        warning.center.y.toInt() - alertHeight,
-                        warning.center.x.toInt() + alertWidth,
-                        warning.center.y.toInt() + alertHeight
-                    )
-                    alertDrawable.draw(canvas)
+                    with(warning) {
+                        collisionPaint.shader = getWarningShader(
+                                centerX = center.x,
+                                centerY = center.y,
+                                radius = radius
+                        )
+                        canvas.drawCircle(center.x, center.y, radius, collisionPaint)
+
+                        alertDrawable.bounds.set(
+                                center.x.toInt() - alertWidth,
+                                center.y.toInt() - alertHeight,
+                                center.x.toInt() + alertWidth,
+                                center.y.toInt() + alertHeight
+                        )
+                        alertDrawable.draw(canvas)
+                    }
                 }
 
                 criticalDrawable.bounds.set(
