@@ -24,12 +24,13 @@ import com.mapbox.vision.examples.activity.ar.ArMapActivity
 import com.mapbox.vision.examples.activity.map.MapActivity
 import com.mapbox.vision.examples.models.UiSign
 import com.mapbox.vision.examples.utils.SoundsPlayer
-import com.mapbox.vision.examples.utils.classification.SignResourceMapper
+import com.mapbox.vision.examples.utils.classification.SignResources
 import com.mapbox.vision.examples.utils.classification.Tracker
 import com.mapbox.vision.examples.utils.hide
 import com.mapbox.vision.examples.utils.show
 import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.Camera
+import com.mapbox.vision.mobile.core.models.Country
 import com.mapbox.vision.mobile.core.models.FrameSegmentation
 import com.mapbox.vision.mobile.core.models.classification.FrameSignClassifications
 import com.mapbox.vision.mobile.core.models.detection.DetectionClass
@@ -47,6 +48,7 @@ import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.safety.core.VisionSafetyListener
 import com.mapbox.vision.safety.core.models.CollisionDangerLevel
+import com.mapbox.vision.safety.core.models.CollisionDangerLevel.*
 import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
 import com.mapbox.vision.view.VisualizationMode
@@ -67,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         Lanes
     }
 
-    private val signResourceMapper: SignResourceMapper = SignResourceMapper.Impl(this)
+    private val signResources: SignResources = SignResources.Impl(this)
 
     private var signSize = 0
     private var margin = 0
@@ -81,6 +83,8 @@ class MainActivity : AppCompatActivity() {
     private var visionManagerWasInit = false
     private lateinit var soundsPlayer: SoundsPlayer
 
+    private var country = Country.Unknown
+
     private var appModelPerformanceConfig: ModelPerformanceConfig = ModelPerformanceConfig.Merged(
         performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
     )
@@ -89,6 +93,10 @@ class MainActivity : AppCompatActivity() {
     private var calibrationProgress = 0f
 
     private val visionEventsListener = object : VisionEventsListener {
+
+        override fun onCountryUpdated(country: Country) {
+            this@MainActivity.country = country
+        }
 
         override fun onFrameDetectionsUpdated(frameDetections: FrameDetections) {
             vision_view.setDetections(frameDetections)
@@ -146,7 +154,7 @@ class MainActivity : AppCompatActivity() {
 
     private val visionSafetyListener = object : VisionSafetyListener {
 
-        private var currentDangerLevel: CollisionDangerLevel = CollisionDangerLevel.None
+        private var currentDangerLevel: CollisionDangerLevel = None
 
         private val distanceFormatter by lazy {
             LocaleUtils().let { localeUtils ->
@@ -169,7 +177,7 @@ class MainActivity : AppCompatActivity() {
                         val collision = collisions.firstOrNull { it.`object`.objectClass == DetectionClass.Car }
                         if (collision == null) {
                             soundsPlayer.stop()
-                            currentDangerLevel = CollisionDangerLevel.None
+                            currentDangerLevel = None
                             distance_to_car_label.hide()
                             safety_mode.hide()
                         } else {
@@ -177,14 +185,9 @@ class MainActivity : AppCompatActivity() {
                             if (currentDangerLevel != collision.dangerLevel) {
                                 soundsPlayer.stop()
                                 when (collision.dangerLevel) {
-                                    CollisionDangerLevel.Warning -> {
-                                        soundsPlayer.playWarning()
-                                    }
-                                    CollisionDangerLevel.Critical -> {
-                                        soundsPlayer.playCritical()
-                                    }
-                                    else -> {
-                                    }
+                                    None -> Unit
+                                    Warning -> soundsPlayer.playWarning()
+                                    Critical -> soundsPlayer.playCritical()
                                 }
                                 currentDangerLevel = collision.dangerLevel
                             }
@@ -194,13 +197,9 @@ class MainActivity : AppCompatActivity() {
                             distance_to_car_label.text = distanceFormatter.formatDistance(collision.`object`.position.y)
 
                             when (currentDangerLevel) {
-                                CollisionDangerLevel.None -> Unit
-                                CollisionDangerLevel.Warning -> {
-                                    safety_mode.drawWarnings(collisions)
-                                }
-                                CollisionDangerLevel.Critical -> {
-                                    safety_mode.drawCritical()
-                                }
+                                None -> safety_mode.clean()
+                                Warning -> safety_mode.drawWarnings(collisions)
+                                Critical -> safety_mode.drawCritical()
                             }
                         }
                     } else {
@@ -222,12 +221,13 @@ class MainActivity : AppCompatActivity() {
 
         override fun onRoadRestrictionsUpdated(roadRestrictions: RoadRestrictions) {
             runOnUiThread {
-                val imageResource = signResourceMapper.getSignResourceForCurrentSpeed(
+                val imageResource = signResources.getSpeedSignResource(
                     UiSign(
                         signType = UiSign.SignType.SpeedLimit,
                         signNum = UiSign.SignNumber.fromNumber(roadRestrictions.speedLimits.car.max)
                     ),
-                    speed = lastSpeed
+                    speed = lastSpeed,
+                    country = country
                 )
 
                 speed_limit_current.animate().cancel()
@@ -398,7 +398,7 @@ class MainActivity : AppCompatActivity() {
                     layoutParams = ViewGroup.MarginLayoutParams(signSize, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                         leftMargin = margin
                     }
-                    setImageResource(signResourceMapper.getSignResource(signValue))
+                    setImageResource(signResources.getSignResource(signValue, country))
                 }
             )
         }
@@ -473,12 +473,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setSignClassificationMode() {
         soundsPlayer.stop()
-        appModelPerformanceConfig = ModelPerformanceConfig.Merged(
-            performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-        )
-        VisionManager.setModelPerformanceConfig(
-            appModelPerformanceConfig
-        )
+
         vision_view.visualizationMode = VisualizationMode.Clear
         appMode = AppMode.Classification
 
@@ -493,12 +488,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun setDetectionMode() {
         soundsPlayer.stop()
-        appModelPerformanceConfig = ModelPerformanceConfig.Merged(
-            performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-        )
-        VisionManager.setModelPerformanceConfig(
-            appModelPerformanceConfig
-        )
 
         vision_view.visualizationMode = VisualizationMode.Detections
         appMode = AppMode.Detection
@@ -512,12 +501,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun setSegmentationMode() {
         soundsPlayer.stop()
-        appModelPerformanceConfig = ModelPerformanceConfig.Merged(
-            performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-        )
-        VisionManager.setModelPerformanceConfig(
-            appModelPerformanceConfig
-        )
 
         vision_view.visualizationMode = VisualizationMode.Segmentation
         appMode = AppMode.Segmentation
@@ -531,13 +514,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun setSafetyMode() {
         soundsPlayer.stop()
-        appModelPerformanceConfig = ModelPerformanceConfig.Separate(
-            detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH),
-            segmentationPerformance = ModelPerformance.Off
-        )
-        VisionManager.setModelPerformanceConfig(
-            appModelPerformanceConfig
-        )
 
         vision_view.visualizationMode = VisualizationMode.Clear
         appMode = AppMode.Safety
@@ -554,13 +530,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun setLaneDetectionMode() {
         soundsPlayer.stop()
-        appModelPerformanceConfig = ModelPerformanceConfig.Separate(
-            detectionPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW),
-            segmentationPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-        )
-        VisionManager.setModelPerformanceConfig(
-            appModelPerformanceConfig
-        )
 
         vision_view.visualizationMode = VisualizationMode.Clear
         appMode = AppMode.Lanes
