@@ -188,11 +188,11 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
                 routePoints.add(maneuverPoint)
 
                 step.intersections()
-                    ?.map {
+                    ?.map { intersection ->
                         RoutePoint(
                             GeoCoordinate(
-                                latitude = step.maneuver().location().latitude(),
-                                longitude = step.maneuver().location().longitude()
+                                latitude = intersection.location().latitude(),
+                                longitude = intersection.location().longitude()
                             )
                         )
                     }
