@@ -21,6 +21,7 @@ ext {
 
     mapbox_navigation = '0.40.0'
     mapbox_sdk = '8.1.0'
+    mapbox_telemetry = '4.4.1'
 
     mannodermaus_junit5_version = '1.4.2.0'
     junit_version = '4.12'
