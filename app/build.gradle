@@ -75,6 +75,10 @@ dependencies {
     implementation "com.mapbox.mapboxsdk:mapbox-android-navigation:$mapbox_navigation"
     implementation "com.mapbox.mapboxsdk:mapbox-android-navigation-ui:$mapbox_navigation"
 
+    implementation ("com.mapbox.mapboxsdk:mapbox-android-telemetry:$mapbox_telemetry") {
+        force = true
+    }
+
     if (booleanProjectOrLocalProperty('BUILD_CORE_FROM_SOURCE')) {
         implementation project(path: ':Vision')
         implementation project(path: ':VisionAr')
