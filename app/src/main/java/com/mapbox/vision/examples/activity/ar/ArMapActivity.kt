@@ -16,7 +16,10 @@ import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.location.LocationComponent
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
+import com.mapbox.mapboxsdk.location.LocationComponentOptions
+import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
@@ -44,6 +47,7 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
 
     private var currentRoute: DirectionsRoute? = null
     private var navigationMapRoute: NavigationMapRoute? = null
+    private var locationComponent: LocationComponent? = null
 
     private val arLocationEngine by lazy {
         LocationEngineProvider.getBestLocationEngine(this)
@@ -177,15 +181,25 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
             })
     }
 
+    @SuppressLint("MissingPermission")
     private fun enableLocationComponent() {
         initializeLocationEngine()
+
+        val locationComponentOptions = LocationComponentOptions.builder(this)
+                .build()
+        locationComponent = mapboxMap.locationComponent
 
         val locationComponentActivationOptions = LocationComponentActivationOptions
                 .builder(this, mapboxMap.style!!)
                 .locationEngine(arLocationEngine)
+                .locationComponentOptions(locationComponentOptions)
                 .build()
 
-        mapboxMap.locationComponent.activateLocationComponent(locationComponentActivationOptions)
+        locationComponent?.let {
+            it.activateLocationComponent(locationComponentActivationOptions)
+            it.isLocationComponentEnabled = true
+            it.cameraMode = CameraMode.TRACKING
+        }
     }
 
     @SuppressLint("MissingPermission")
