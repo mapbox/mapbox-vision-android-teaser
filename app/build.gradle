@@ -14,8 +14,8 @@ android {
         applicationId "com.mapbox.vision.teaser"
         minSdkVersion min_sdk_version
         targetSdkVersion target_sdk_version
-        versionCode 11
-        versionName "0.4.2"
+        versionCode 13
+        versionName "0.5.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
