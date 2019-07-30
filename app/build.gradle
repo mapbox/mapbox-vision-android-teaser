@@ -11,7 +11,7 @@ android {
     compileSdkVersion compile_sdk_version
 
     defaultConfig {
-        applicationId "com.mapbox.vision.examples"
+        applicationId "com.mapbox.vision.teaser"
         minSdkVersion min_sdk_version
         targetSdkVersion target_sdk_version
         versionCode 12
