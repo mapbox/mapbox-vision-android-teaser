@@ -75,6 +75,8 @@ dependencies {
     implementation "com.mapbox.mapboxsdk:mapbox-android-navigation:$mapbox_navigation"
     implementation "com.mapbox.mapboxsdk:mapbox-android-navigation-ui:$mapbox_navigation"
 
+    // don't use telemetry 4.5.1
+    // https://github.com/mapbox/mapbox-navigation-android/issues/1984
     implementation ("com.mapbox.mapboxsdk:mapbox-android-telemetry:$mapbox_telemetry") {
         force = true
     }
