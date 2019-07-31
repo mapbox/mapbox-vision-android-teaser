@@ -77,7 +77,13 @@ dependencies {
 
     // don't use telemetry 4.5.1
     // https://github.com/mapbox/mapbox-navigation-android/issues/1984
+    // TODO remove when fix is no more necessary
     implementation ("com.mapbox.mapboxsdk:mapbox-android-telemetry:$mapbox_telemetry") {
+        force = true
+    }
+    // need 0.3.0 instead of 0.2.0 that maps 8.1.0 depends on to access `obtainVisionSkuUserToken` method
+    // TODO remove when fix is no more necessary
+    implementation ("com.mapbox.mapboxsdk:mapbox-android-accounts:0.3.0") {
         force = true
     }
 
