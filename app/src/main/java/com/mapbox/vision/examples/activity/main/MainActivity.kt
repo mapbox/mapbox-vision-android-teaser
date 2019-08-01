@@ -294,7 +294,7 @@ class MainActivity : AppCompatActivity() {
             val text =
                 Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
             Toast.makeText(this, text, Toast.LENGTH_LONG).show()
-            VisionLogger.e("NotSupportedBoard", "Current board is {\"$board\"}")
+            VisionLogger.e("NotSupportedBoard", "Current board is {\"$board\"}, Supported Boards: [${enumValues<SupportedSnapdragonBoards>().joinToString { it.name }}]; System Info: [${SystemInfoUtils.obtainSystemInfo()}]")
             finish()
             return
         }
