@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.0
+
+- AR Lane drawing improved
+
 ## 0.5.0
 
 - Fixed collision bound calculation in `SafetyModeView`
