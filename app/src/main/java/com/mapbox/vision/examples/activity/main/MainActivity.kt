@@ -130,25 +130,16 @@ class MainActivity : AppCompatActivity() {
 
         override fun onCameraUpdated(camera: Camera) {
             calibrationProgress = camera.calibrationProgress
+            runOnUiThread {
+                fps_performance_view.setCalibrationProgress(calibrationProgress)
+            }
         }
 
         @SuppressLint("SetTextI18n")
         override fun onUpdateCompleted() {
             val frameStatistics = VisionManager.getFrameStatistics()
             runOnUiThread {
-                when (appModelPerformanceConfig) {
-                    is ModelPerformanceConfig.Merged -> {
-                        segmentation_fps.text = "S: 0"
-                        detection_fps.text = "D: 0"
-                        merge_model_fps.text = "MM: ${frameStatistics.segmentationDetectionFPS}"
-                    }
-                    is ModelPerformanceConfig.Separate -> {
-                        segmentation_fps.text = "S: ${frameStatistics.segmentationFPS}"
-                        detection_fps.text = "D: ${frameStatistics.detectionFPS}"
-                        merge_model_fps.text = "MM: 0"
-                    }
-                }
-                core_update_fps.text = "CU: ${frameStatistics.coreUpdateFPS}"
+                fps_performance_view.showInfo(frameStatistics, appModelPerformanceConfig)
             }
         }
     }
@@ -294,7 +285,10 @@ class MainActivity : AppCompatActivity() {
             val text =
                 Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
             Toast.makeText(this, text, Toast.LENGTH_LONG).show()
-            VisionLogger.e("NotSupportedBoard", "Current board is {\"$board\"}, Supported Boards: [${enumValues<SupportedSnapdragonBoards>().joinToString { it.name }}]; System Info: [${SystemInfoUtils.obtainSystemInfo()}]")
+            VisionLogger.e(
+                "NotSupportedBoard",
+                "Current board is {\"$board\"}, Supported Boards: [${enumValues<SupportedSnapdragonBoards>().joinToString { it.name }}]; System Info: [${SystemInfoUtils.obtainSystemInfo()}]"
+            )
             finish()
             return
         }
@@ -316,12 +310,12 @@ class MainActivity : AppCompatActivity() {
         margin = resources.getDimension(R.dimen.dp8).toInt()
 
         back.setOnClickListener { onBackClick() }
-        segm_container.setOnClickListener { setSegmentationMode() }
-        sign_detection_container.setOnClickListener { setSignClassificationMode() }
-        det_container.setOnClickListener { setDetectionMode() }
-        distance_container.setOnClickListener { setSafetyMode() }
+        segm_container.setOnClickListener { setAppMode(AppMode.Segmentation) }
+        sign_detection_container.setOnClickListener { setAppMode(AppMode.Classification) }
+        det_container.setOnClickListener { setAppMode(AppMode.Detection) }
+        distance_container.setOnClickListener { setAppMode(AppMode.Safety) }
         safety_mode_container.hide()
-        line_detection_container.setOnClickListener { setLaneDetectionMode() }
+        line_detection_container.setOnClickListener { setAppMode(AppMode.Lanes) }
         object_mapping_button_container.setOnClickListener {
             startActivity(Intent(this, MapActivity::class.java))
         }
@@ -330,15 +324,15 @@ class MainActivity : AppCompatActivity() {
         }
         driver_score_button_container.setOnClickListener { setDriveScoreMode() }
         root.setOnLongClickListener {
-            if (fps_info_container.visibility == View.GONE) {
-                fps_info_container.show()
+            if (fps_performance_view.visibility == View.GONE) {
+                fps_performance_view.show()
             } else {
-                fps_info_container.hide()
+                fps_performance_view.hide()
             }
             return@setOnLongClickListener true
 
         }
-        fps_info_container.hide()
+        fps_performance_view.hide()
 
         tryToInitVisionManager()
     }
@@ -475,74 +469,42 @@ class MainActivity : AppCompatActivity() {
         lines_detections_container.hide()
     }
 
-    private fun setSignClassificationMode() {
+    private fun setAppMode(mode: AppMode) {
+        fps_performance_view.resetAverageFps()
         soundsPlayer.stop()
 
-        vision_view.visualizationMode = VisualizationMode.Clear
-        appMode = AppMode.Classification
-
-        tracker = Tracker(5)
-
-        hideLineDetectionContainer()
-        sign_info_container.show()
+        back.show()
         dashboard_container.hide()
         safety_mode_container.hide()
-        back.show()
-    }
-
-    private fun setDetectionMode() {
-        soundsPlayer.stop()
-
-        vision_view.visualizationMode = VisualizationMode.Detections
-        appMode = AppMode.Detection
-
         hideLineDetectionContainer()
         hideSignsContainer()
-        dashboard_container.hide()
-        safety_mode_container.hide()
-        back.show()
-    }
 
-    private fun setSegmentationMode() {
-        soundsPlayer.stop()
+        appMode = mode
+        when (appMode) {
+            AppMode.Classification -> {
+                vision_view.visualizationMode = VisualizationMode.Clear
+                tracker = Tracker(5)
+                sign_info_container.show()
+            }
+            AppMode.Detection -> {
+                vision_view.visualizationMode = VisualizationMode.Detections
+            }
+            AppMode.Segmentation -> {
+                vision_view.visualizationMode = VisualizationMode.Segmentation
 
-        vision_view.visualizationMode = VisualizationMode.Segmentation
-        appMode = AppMode.Segmentation
-
-        hideLineDetectionContainer()
-        hideSignsContainer()
-        dashboard_container.hide()
-        safety_mode_container.hide()
-        back.show()
-    }
-
-    private fun setSafetyMode() {
-        soundsPlayer.stop()
-
-        vision_view.visualizationMode = VisualizationMode.Clear
-        appMode = AppMode.Safety
-
-        hideLineDetectionContainer()
-        hideSignsContainer()
-        dashboard_container.hide()
-        safety_mode_container.show()
-        calibration_progress.hide()
-        distance_to_car_label.hide()
-        safety_mode.hide()
-        back.show()
-    }
-
-    private fun setLaneDetectionMode() {
-        soundsPlayer.stop()
-
-        vision_view.visualizationMode = VisualizationMode.Clear
-        appMode = AppMode.Lanes
-
-        hideSignsContainer()
-        dashboard_container.hide()
-        lines_detections_container.show()
-        safety_mode_container.hide()
-        back.show()
+            }
+            AppMode.Safety -> {
+                vision_view.visualizationMode = VisualizationMode.Clear
+                safety_mode_container.show()
+                safety_mode.hide()
+                calibration_progress.hide()
+                distance_to_car_label.hide()
+            }
+            AppMode.Lanes -> {
+                vision_view.visualizationMode = VisualizationMode.Clear
+                lines_detections_container.show()
+            }
+        }
     }
 
     private fun setDriveScoreMode() {
