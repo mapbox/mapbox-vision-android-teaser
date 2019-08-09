@@ -322,7 +322,6 @@ class MainActivity : AppCompatActivity() {
         ar_navigation_button_container.setOnClickListener {
             startActivity(Intent(this, ArMapActivity::class.java))
         }
-        driver_score_button_container.setOnClickListener { setDriveScoreMode() }
         root.setOnLongClickListener {
             if (fps_performance_view.visibility == View.GONE) {
                 fps_performance_view.show()
@@ -384,7 +383,6 @@ class MainActivity : AppCompatActivity() {
         hideLineDetectionContainer()
         hideSignsContainer()
         safety_mode_container.hide()
-        driver_score_mode.hide()
         back.hide()
     }
 
@@ -505,15 +503,6 @@ class MainActivity : AppCompatActivity() {
                 lines_detections_container.show()
             }
         }
-    }
-
-    private fun setDriveScoreMode() {
-        driver_score_mode.show()
-        hideSignsContainer()
-        dashboard_container.hide()
-        lines_detections_container.show()
-        safety_mode_container.hide()
-        back.show()
     }
 
     private fun allPermissionsGranted(): Boolean {
