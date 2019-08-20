@@ -117,51 +117,18 @@
 
     </FrameLayout>
 
-    <LinearLayout
-        android:id="@+id/fps_info_container"
+    <com.mapbox.vision.examples.FpsPerformanceView
+        android:id="@+id/fps_performance_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        android:padding="16dp"
         android:background="@color/white_70_transparent"
         android:minWidth="250dp"
         android:orientation="vertical"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <TextView
-            android:id="@+id/segmentation_fps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            tools:text="segmentation fps"/>
-
-        <TextView
-            android:id="@+id/detection_fps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            tools:text="lane_detection fps"/>
-
-        <TextView
-            android:id="@+id/merge_model_fps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            tools:text="merge model fps"/>
-
-        <TextView
-            android:id="@+id/core_update_fps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            tools:text="core update fps"/>
-
-    </LinearLayout>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <com.mapbox.vision.examples.ScoreProgressView
         android:id="@+id/driver_score_mode"
@@ -453,34 +420,6 @@
                 android:layout_height="match_parent"
                 android:visibility="gone"
                 android:background="@drawable/menu_line_gradient_rotated_bg"/>
-
-            <LinearLayout
-                android:id="@+id/driver_score_button_container"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:visibility="gone"
-                android:layout_weight="1"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/driver_score"
-                    android:layout_width="68dp"
-                    android:layout_height="68dp"
-                    android:src="@drawable/ic_driver_score"/>
-
-                <TextView
-                    android:id="@+id/driver_score_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/driver_score"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold"/>
-
-            </LinearLayout>
 
         </LinearLayout>
 

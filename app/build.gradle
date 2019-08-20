@@ -14,8 +14,8 @@ android {
         applicationId "com.mapbox.vision.teaser"
         minSdkVersion min_sdk_version
         targetSdkVersion target_sdk_version
-        versionCode 14
-        versionName "0.6.0"
+        versionCode teaser_version_code
+        versionName teaser_version_name
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -75,12 +75,6 @@ dependencies {
     implementation "com.mapbox.mapboxsdk:mapbox-android-navigation:$mapbox_navigation"
     implementation "com.mapbox.mapboxsdk:mapbox-android-navigation-ui:$mapbox_navigation"
 
-    // don't use telemetry 4.5.1
-    // https://github.com/mapbox/mapbox-navigation-android/issues/1984
-    // TODO remove when fix is no more necessary
-    implementation ("com.mapbox.mapboxsdk:mapbox-android-telemetry:$mapbox_telemetry") {
-        force = true
-    }
     // need 0.3.0 instead of 0.2.0 that maps 8.1.0 depends on to access `obtainVisionSkuUserToken` method
     // TODO remove when fix is no more necessary
     implementation ("com.mapbox.mapboxsdk:mapbox-android-accounts:0.3.0") {
@@ -95,9 +89,9 @@ dependencies {
         implementation project(path: ':CoreSdk')
         implementation project(path: ':CoreSafety')
     } else {
-        implementation "com.mapbox.vision:mapbox-android-vision:$vision_sdk"
-        implementation "com.mapbox.vision:mapbox-android-vision-ar:$vision_ar"
-        implementation "com.mapbox.vision:mapbox-android-vision-safety:$vision_safety"
+        implementation "com.mapbox.vision:mapbox-android-vision:$vision"
+        implementation "com.mapbox.vision:mapbox-android-vision-ar:$vision"
+        implementation "com.mapbox.vision:mapbox-android-vision-safety:$vision"
     }
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
