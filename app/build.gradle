@@ -14,8 +14,8 @@ android {
         applicationId "com.mapbox.vision.teaser"
         minSdkVersion min_sdk_version
         targetSdkVersion target_sdk_version
-        versionCode 14
-        versionName "0.6.0"
+        versionCode teaser_version_code
+        versionName teaser_version_name
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -89,9 +89,9 @@ dependencies {
         implementation project(path: ':CoreSdk')
         implementation project(path: ':CoreSafety')
     } else {
-        implementation "com.mapbox.vision:mapbox-android-vision:$vision_sdk"
-        implementation "com.mapbox.vision:mapbox-android-vision-ar:$vision_ar"
-        implementation "com.mapbox.vision:mapbox-android-vision-safety:$vision_safety"
+        implementation "com.mapbox.vision:mapbox-android-vision:$vision"
+        implementation "com.mapbox.vision:mapbox-android-vision-ar:$vision"
+        implementation "com.mapbox.vision:mapbox-android-vision-safety:$vision"
     }
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
