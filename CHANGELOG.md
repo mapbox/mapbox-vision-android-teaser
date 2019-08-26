@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.7.1
+
+- Fixed detections of sign objects
+
+## v0.7.0
+
+- Improved lane detection
+
 ## 0.6.0
 
 - AR Lane drawing improved
