@@ -1,0 +1,6 @@
+[submodule "source/mapbox-vision"]
+	path = source/mapbox-vision
+	url = git@github.com:mapbox/mapbox-vision.git
+[submodule "source/mapbox-vision-android"]
+	path = source/mapbox-vision-android
+	url = git@github.com:mapbox/mapbox-vision-android.git

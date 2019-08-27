@@ -1,16 +1,11 @@
-if (hasProperty("VISION_SDK")) {
+gradle.ext.BUILD_CORE_FROM_SOURCE = true
+if (gradle.ext.BUILD_CORE_FROM_SOURCE) {
     include ':Vision'
-    project(':Vision').projectDir = new File(VISION_SDK)
-}
-
-if (hasProperty("VISION_AR")) {
+    project(':Vision').projectDir = new File("./source/mapbox-vision-android/MapboxVision")
     include ':VisionAr'
-    project(':VisionAr').projectDir = new File(VISION_AR)
-}
-
-if (hasProperty("VISION_SAFETY")) {
+    project(':VisionAr').projectDir = new File("./source/mapbox-vision-android/MapboxVisionAR")
     include ':VisionSafety'
-    project(':VisionSafety').projectDir = new File(VISION_SAFETY)
+    project(':VisionSafety').projectDir = new File("./source/mapbox-vision-android/MapboxVisionSafety")
 }
 
 include ':app'
