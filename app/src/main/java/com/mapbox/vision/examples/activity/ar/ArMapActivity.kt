@@ -84,7 +84,8 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
             if (currentRoute == null) {
                 Toast.makeText(this, "Route is not ready yet!", Toast.LENGTH_LONG).show()
             } else {
-                ArNavigationActivity.start(this, currentRoute!!)
+                ArNavigationActivity.directionsRoute = currentRoute
+                ArNavigationActivity.start(this)
             }
         }
     }

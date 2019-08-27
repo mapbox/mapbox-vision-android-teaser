@@ -43,15 +43,13 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
     companion object {
         private var TAG = ArNavigationActivity::class.java.simpleName
 
-        private const val EXTRA_ROUTE = "Route"
         private const val LOCATION_INTERVAL_DEFAULT = 0L
         private const val LOCATION_INTERVAL_FAST = 1000L
 
-        fun start(context: Activity, directionsRoute: DirectionsRoute) {
-            context.startActivity(
-                Intent(context, ArNavigationActivity::class.java)
-                    .putExtra(EXTRA_ROUTE, directionsRoute)
-            )
+        var directionsRoute: DirectionsRoute? = null
+
+        fun start(context: Activity) {
+            context.startActivity(Intent(context, ArNavigationActivity::class.java))
         }
     }
 
@@ -61,9 +59,9 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
 
     private val arLocationEngineRequest by lazy {
         LocationEngineRequest.Builder(LOCATION_INTERVAL_DEFAULT)
-                .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
-                .setFastestInterval(LOCATION_INTERVAL_FAST)
-                .build()
+            .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+            .setFastestInterval(LOCATION_INTERVAL_FAST)
+            .build()
     }
 
     private lateinit var mapboxNavigation: MapboxNavigation
@@ -122,7 +120,14 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
 
         VisionArManager.create(VisionManager, mapbox_ar_view)
 
-        setRoute(intent.getSerializableExtra(EXTRA_ROUTE) as DirectionsRoute)
+        directionsRoute.let {
+            if (it == null) {
+                Toast.makeText(this, "Route is not set!", Toast.LENGTH_LONG).show()
+                finish()
+            } else {
+                setRoute(it)
+            }
+        }
     }
 
     override fun onPause() {
@@ -180,7 +185,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
 
     private fun DirectionsRoute.getRoutePoints(): Array<RoutePoint> {
         val routePoints = arrayListOf<RoutePoint>()
-        legs()?.forEach {leg ->
+        legs()?.forEach { leg ->
             leg.steps()?.forEach { step ->
                 val maneuverPoint = RoutePoint(
                     GeoCoordinate(
