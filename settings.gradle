@@ -1,4 +1,4 @@
-gradle.ext.BUILD_CORE_FROM_SOURCE = true
+gradle.ext.BUILD_CORE_FROM_SOURCE = false
 if (gradle.ext.BUILD_CORE_FROM_SOURCE) {
     include ':Vision'
     project(':Vision').projectDir = new File("./source/mapbox-vision-android/MapboxVision")
