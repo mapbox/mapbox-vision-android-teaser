@@ -1,4 +1,14 @@
-gradle.ext.BUILD_CORE_FROM_SOURCE = false
+File secretPropsFile = file('./local.properties')
+if (secretPropsFile.exists()) {
+    Properties p = new Properties()
+    p.load(new FileInputStream(secretPropsFile))
+    p.each { name, value ->
+        gradle.ext.set name, value
+    }
+} else {
+    throw new IllegalStateException("secret.properties could not be located for build process")
+}
+
 if (gradle.ext.BUILD_CORE_FROM_SOURCE) {
     include ':Vision'
     project(':Vision').projectDir = new File("./source/mapbox-vision-android/MapboxVision")
