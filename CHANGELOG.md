@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.8.0
+
+- Start monitoring performance related device info
+
 ## v0.7.1
 
 - Fixed detections of sign objects
