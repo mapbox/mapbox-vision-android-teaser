@@ -70,3 +70,6 @@ fastlane/readme.md
 # Keystore
 *.jks
 keystore.*
+
+# Python
+*.pyc
