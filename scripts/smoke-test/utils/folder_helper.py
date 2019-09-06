@@ -7,9 +7,10 @@ class FolderHelper:
     def __init__(self):
         pass
 
-    def create_folders_if_not_exist(self, directories):
+    @staticmethod
+    def create_folders_if_not_exist(directories):
         for directory in directories:
-            self.create_folder_if_not_exist(directory)
+            FolderHelper.create_folder_if_not_exist(directory)
 
     @staticmethod
     def create_folder_if_not_exist(directory):

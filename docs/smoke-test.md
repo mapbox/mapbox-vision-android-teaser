@@ -9,6 +9,6 @@ python teaser_smoke_test.py
 
 #### You can add such params:
 
-_b_ - Build new Teaser version. Can be **true** or **false**
+_-b_ - Build new Teaser version. Can be **true** or **false**. By default **true**
 
-_t_ - Time before taking screenshot. By default **3** seconds. 
+_-t_ - Time before taking screenshot. By default **3** seconds. 
