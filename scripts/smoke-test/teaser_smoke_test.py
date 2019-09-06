@@ -93,7 +93,6 @@ def open_all_screens(device_executor, screen_list, args):
         open_screen_by_name(device_executor, screen_list, screen_name)
         sleep(args.time_before_screenshot)
         device_executor.take_screenshot(OUTPUT_FOLDER, screen_name)
-        device_executor.remove_screenshot_tmp_file()
         sleep(2000)
         log_message_to_console("Close application for %s" % device_serial_name)
         device_executor.close_app(PACKAGE_NAME)
@@ -138,7 +137,7 @@ def prepare_screen_coordinates(device_executor):
     new_point_x = int(size_x * 0.7)
     new_point_y = int(size_y * 0.6)
 
-    device_executor.tap(screen_list[AR_ROUTING_SCREEN][0][0], screen_list[AR_ROUTING_SCREEN][0][1])
+    open_screen_by_name(device_executor, screen_list, AR_ROUTING_SCREEN)
     sleep(4000)
     device_executor.tap(new_point_x, new_point_y)
     sleep(3000)
