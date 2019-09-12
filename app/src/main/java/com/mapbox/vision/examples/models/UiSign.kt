@@ -414,7 +414,14 @@ data class UiSign(val signType: SignType, val signNum: SignNumber) {
         WarningLowFlyingAircraft(ukResourceName = "warning_low_flying_aircraft_uk"),
         WarningOpeningOrSwingBridge(ukResourceName = "warning_opening_or_swing_bridge_uk"),
         WarningRailwayCrossingWithBarriers(ukResourceName = "warning_railway_crossing_with_barriers_uk"),
-        WarningTrafficQueues(ukResourceName = "warning_traffic_queues_uk")
+        WarningTrafficQueues(ukResourceName = "warning_traffic_queues_uk"),
+
+        RegulatoryKeepLeftPicture(usResourceName = "regulatory_keep_left_picture"),
+        RegulatoryKeepLeftText(usResourceName = "regulatory_keep_left_text"),
+        AheadSpeedLimit(usResourceName = "ahead_speedlimit"),
+        WarningSpeedLimit(usResourceName = "warning_speedlimit"),
+        RegulatoryNoUTurnRight(usResourceName = "regulatory_no_u_turn_right"),
+        WarningTurnRightOnlyArrow(usResourceName = "warning_turn_right_only_arrow")
     }
 
     @Suppress("EnumEntryName")
