@@ -17,13 +17,13 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
         android:visibility="gone"
-        app:visualization_mode="detection"/>
+        app:visualization_mode="segmentation"/>
 
     <com.mapbox.vision.view.VisionGLView
         android:id="@+id/vision_gl_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        app:visualization_mode="detection"/>
+        app:visualization_mode="segmentation"/>
 
 </FrameLayout>

@@ -60,7 +60,9 @@ class VisionSampleActivity : AppCompatActivity() {
 
         override fun onAuthorizationStatusUpdated(authorizationStatus: AuthorizationStatus) {}
 
-        override fun onFrameSegmentationUpdated(frameSegmentation: FrameSegmentation) {}
+        override fun onFrameSegmentationUpdated(frameSegmentation: FrameSegmentation) {
+            visionView.setSegmentation(frameSegmentation)
+        }
 
         override fun onFrameDetectionsUpdated(frameDetections: FrameDetections) {
             visionView.setDetections(frameDetections)
