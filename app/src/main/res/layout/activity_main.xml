@@ -8,8 +8,8 @@
     android:layout_height="match_parent"
     tools:context=".activity.main.MainActivity">
 
-    <com.mapbox.vision.view.VisionView
-        android:id="@+id/vision_view"
+    <com.mapbox.vision.view.VisionBitmapView
+        android:id="@+id/vision_bitmap_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"

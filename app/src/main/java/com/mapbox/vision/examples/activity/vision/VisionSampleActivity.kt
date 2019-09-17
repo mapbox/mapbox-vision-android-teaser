@@ -6,7 +6,7 @@ import android.os.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
-import com.mapbox.vision.view.VisionViewListener
+import com.mapbox.vision.view.VisionView
 import kotlinx.android.synthetic.main.activity_vision_sample.*
 import com.mapbox.vision.VisionManager
 import com.mapbox.vision.examples.R
@@ -31,12 +31,12 @@ import java.util.concurrent.TimeUnit
 class VisionSampleActivity : AppCompatActivity() {
 
     // replace with your own path to video file
-//    private val PATH_TO_VIDEO_FILE = Environment.getExternalStorageDirectory().path + "/Telemetry/2019-08-27_09-48-52+0800/video0.mp4"
+    // private val PATH_TO_VIDEO_FILE = Environment.getExternalStorageDirectory().path + "/Telemetry/2019-08-27_09-48-52+0800/video0.mp4"
     private val PATH_TO_VIDEO_FILE = "path_to_your_video_file"
 
     private var videoSourceListener: VideoSourceListener? = null
     private val handlerThread = HandlerThread("VideoDecode")
-    private var visionViewListener: VisionViewListener? = null
+    private lateinit var visionView: VisionView
     private var visionManagerWasInit = false
 
     private var mIsGlView = true
@@ -63,7 +63,7 @@ class VisionSampleActivity : AppCompatActivity() {
         override fun onFrameSegmentationUpdated(frameSegmentation: FrameSegmentation) {}
 
         override fun onFrameDetectionsUpdated(frameDetections: FrameDetections) {
-            visionViewListener?.setDetections(frameDetections)
+            visionView.setDetections(frameDetections)
         }
 
         override fun onFrameSignClassificationsUpdated(frameSignClassifications: FrameSignClassifications) {}
@@ -88,15 +88,15 @@ class VisionSampleActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_vision_sample)
         if (mIsGlView) {
-            visionViewListener = vision_gl_view
+            visionView = vision_gl_view
             btn_switch_view.text = "Switch to Bitmap view"
             vision_gl_view.visibility = VISIBLE
-            vision_view.visibility = GONE
+            vision_bitmap_view.visibility = GONE
         } else {
-            visionViewListener = vision_view
+            visionView = vision_bitmap_view
             btn_switch_view.text = "Switch to GL view"
             vision_gl_view.visibility = GONE
-            vision_view.visibility = VISIBLE
+            vision_bitmap_view.visibility = VISIBLE
         }
         btn_switch_view.setOnClickListener { recreate() }
     }
@@ -119,8 +119,9 @@ class VisionSampleActivity : AppCompatActivity() {
     private fun startVisionManager() {
         if (!visionManagerWasInit) {
             VisionManager.create(customVideoSource)
-            VisionManager.start(visionEventsListener)
-            visionViewListener?.let { VisionManager.setVideoSourceListener(it) }
+            VisionManager.start()
+            VisionManager.visionEventsListener = visionEventsListener
+            VisionManager.setVideoSourceListener(visionView)
             visionManagerWasInit = true
         }
     }
@@ -129,7 +130,7 @@ class VisionSampleActivity : AppCompatActivity() {
         if (visionManagerWasInit) {
             VisionManager.stop()
             VisionManager.destroy()
-            visionViewListener?.release()
+            visionView.release()
             visionManagerWasInit = false
         }
     }
