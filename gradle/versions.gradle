@@ -15,8 +15,8 @@ ext {
 
     vision = '0.9.0'
     vision_native = vision
-    teaser_version_name = vision
-    teaser_version_code = 17
+    teaser_version_name = '0.9.0'
+    teaser_version_code = 18
 
     mapbox_navigation = '0.41.0'
     mapbox_sdk = '8.1.0'
