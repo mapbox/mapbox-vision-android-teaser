@@ -4,9 +4,12 @@ import android.animation.Animator
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.text.Html
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -35,6 +38,8 @@ import com.mapbox.vision.mobile.core.models.FrameSegmentation
 import com.mapbox.vision.mobile.core.models.classification.FrameSignClassifications
 import com.mapbox.vision.mobile.core.models.detection.DetectionClass
 import com.mapbox.vision.mobile.core.models.detection.FrameDetections
+import com.mapbox.vision.mobile.core.models.frame.ImageFormat
+import com.mapbox.vision.mobile.core.models.frame.ImageSize
 import com.mapbox.vision.mobile.core.models.position.VehicleState
 import com.mapbox.vision.mobile.core.models.road.LaneDirection
 import com.mapbox.vision.mobile.core.models.road.LaneEdgeType
@@ -52,8 +57,18 @@ import com.mapbox.vision.safety.core.models.CollisionDangerLevel.*
 import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
 import com.mapbox.vision.utils.VisionLogger
+import com.mapbox.vision.video.videosource.VideoSource
+import com.mapbox.vision.video.videosource.VideoSourceListener
 import com.mapbox.vision.view.VisualizationMode
+import com.shuyu.gsyvideoplayer.GSYVideoManager
+import com.shuyu.gsyvideoplayer.listener.GSYVideoShotListener
+import com.shuyu.gsyvideoplayer.model.VideoOptionModel
+import com.shuyu.gsyvideoplayer.utils.GSYVideoType
+import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import kotlinx.android.synthetic.main.activity_main.*
+import tv.danmaku.ijk.media.player.IjkMediaPlayer
+import java.nio.ByteBuffer
+import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
@@ -274,12 +289,80 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private var videoSourceListener : VideoSourceListener? = null
+    private val customVideoSource = object : VideoSource {
+
+        override fun attach(videoSourceListener: VideoSourceListener) {
+            Log.e("Vision", "attach")
+            this@MainActivity.videoSourceListener = videoSourceListener
+
+        }
+
+        override fun detach() {
+            Log.e("Vision", "detach")
+//            this@MainActivity.videoSourceListener = null
+        }
+    }
+
+    private lateinit var handler : Handler
+    private lateinit var videoPlayer: StandardGSYVideoPlayer
+    private lateinit var runnable: Runnable
+
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val board = SystemInfoUtils.getSnpeSupportedBoard()
+
+        videoPlayer = video_player
+//        VisionLogger.e("MainActivity", "Params before: ${GSYVideoType.getRenderType()}, ${GSYVideoType.getShowType()}")
+        GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_16_9)
+        videoPlayer.setUp("rtsp://192.72.1.1/liveRTSP/v1", false, "Camera")
+        val list = ArrayList<VideoOptionModel>()
+        list.add(VideoOptionModel(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", 0))
+        // new flags
+
+        list.add(VideoOptionModel(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "fflags", "nobuffer"))
+        list.add(VideoOptionModel(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "flush_packets", 1))
+        list.add(VideoOptionModel(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "max_delay", 400000))
+
+        GSYVideoManager.instance().optionModelList = list
+        videoPlayer.backButton.visibility = View.GONE
+        videoPlayer.startPlayLogic()
+//        VisionLogger.e("MainActivity", "Params after: ${GSYVideoType.getRenderType()}, ${GSYVideoType.getShowType()}")
+
+        runnable = Runnable {
+            videoPlayer.taskShotPic(GSYVideoShotListener { bitmap ->
+                if (bitmap == null) {
+                    handler.postDelayed(runnable, 33)
+                    return@GSYVideoShotListener
+                }
+                val frameWidth = bitmap.width
+                val frameHeight = bitmap.height
+
+//                VisionLogger.e("MainActivity", "Dims: $frameWidth, $frameHeight")
+
+
+                //                    float facalLength = 2.7f;
+                //                    float facalInpixelsX = facalLength * frameWidth / 4.8f;
+                //                    float facalInpixelsY = facalLength * frameHeight / 3.6f;
+                //
+                //                    CameraParameters cameraParameters = new CameraParameters(frameWidth, frameHeight, facalInpixelsX, facalInpixelsY);
+                //                    videoSourceListener.onNewCameraParameters(cameraParameters);
+
+                val imageSize = ImageSize(frameWidth, frameHeight)
+                val rgbaByteBuffer = ByteBuffer.wrap(ByteArray(frameWidth * frameHeight * 4))
+                bitmap.copyPixelsToBuffer(rgbaByteBuffer)
+                videoSourceListener!!.onNewFrame(
+                    rgbaByteBuffer.array(),
+                    ImageFormat.RGBA,
+                    imageSize
+                )
+
+                handler.postDelayed(runnable, 33)
+            }, true)
+        }
 
         if (!SupportedSnapdragonBoards.isBoardSupported(board)) {
             val text =
@@ -352,11 +435,19 @@ class MainActivity : AppCompatActivity() {
             VisionManager.create()
             VisionManager.visionEventsListener = visionEventsListener
             VisionManager.start()
+//            VisionManager.create()
+            VisionManager.create(customVideoSource)
+
+            VisionManager.start(visionEventsListener)
             VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
             VisionManager.setVideoSourceListener(vision_view)
 
             VisionSafetyManager.create(VisionManager)
             VisionSafetyManager.visionSafetyListener = visionSafetyListener
+            VisionSafetyManager.create(VisionManager, visionSafetyListener)
+            handler = Handler()
+            Log.e("Vision", "init")
+            handler.postDelayed(runnable, 3000L)
 
             visionManagerWasInit = true
         }
@@ -534,5 +625,20 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             emptyArray()
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        videoPlayer.onVideoPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        videoPlayer.onVideoResume()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        GSYVideoManager.releaseAllVideos()
     }
 }

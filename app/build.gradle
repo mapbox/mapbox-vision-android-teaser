@@ -94,4 +94,7 @@ dependencies {
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
         transitive = true
     }
+    implementation 'com.shuyu:gsyVideoPlayer-java:7.0.1'
+    implementation 'com.shuyu:GSYVideoPlayer-exo2:7.0.1'
+    implementation 'com.shuyu:gsyVideoPlayer-ex_so:7.0.1'
 }

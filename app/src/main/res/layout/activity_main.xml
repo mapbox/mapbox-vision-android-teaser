@@ -8,6 +8,14 @@
     android:layout_height="match_parent"
     tools:context=".activity.main.MainActivity">
 
+    <com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
+        android:id="@+id/video_player"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:translationZ="1dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <com.mapbox.vision.view.VisionView
         android:id="@+id/vision_view"
         android:layout_width="match_parent"
