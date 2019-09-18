@@ -85,9 +85,6 @@ dependencies {
         implementation project(path: ':Vision')
         implementation project(path: ':VisionAr')
         implementation project(path: ':VisionSafety')
-        implementation project(path: ':CoreAr')
-        implementation project(path: ':CoreSdk')
-        implementation project(path: ':CoreSafety')
     } else {
         implementation "com.mapbox.vision:mapbox-android-vision:$vision"
         implementation "com.mapbox.vision:mapbox-android-vision-ar:$vision"

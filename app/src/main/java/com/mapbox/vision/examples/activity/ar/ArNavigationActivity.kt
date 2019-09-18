@@ -110,15 +110,15 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
         mapboxNavigation.locationEngine = arLocationEngine
 
         VisionManager.create()
-        VisionManager.start(object : VisionEventsListener {})
+        VisionManager.start()
         VisionManager.setModelPerformanceConfig(
             ModelPerformanceConfig.Merged(
                 performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW)
             )
         )
-        VisionManager.setVideoSourceListener(mapbox_ar_view)
 
-        VisionArManager.create(VisionManager, mapbox_ar_view)
+        VisionArManager.create(VisionManager)
+        mapbox_ar_view.setArManager(VisionArManager)
 
         directionsRoute.let {
             if (it == null) {
