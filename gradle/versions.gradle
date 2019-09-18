@@ -14,7 +14,6 @@ ext {
     android_x_multidex = '2.0.1'
 
     vision = '0.9.0'
-    vision_native = vision
     teaser_version_name = '0.9.0'
     teaser_version_code = 18
 
