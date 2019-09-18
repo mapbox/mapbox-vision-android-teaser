@@ -350,11 +350,13 @@ class MainActivity : AppCompatActivity() {
     private fun tryToInitVisionManager() {
         if (isPermissionsGranted && !visionManagerWasInit) {
             VisionManager.create()
-            VisionManager.start(visionEventsListener)
+            VisionManager.visionEventsListener = visionEventsListener
+            VisionManager.start()
             VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
             VisionManager.setVideoSourceListener(vision_view)
 
-            VisionSafetyManager.create(VisionManager, visionSafetyListener)
+            VisionSafetyManager.create(VisionManager)
+            VisionSafetyManager.visionSafetyListener = visionSafetyListener
 
             visionManagerWasInit = true
         }
