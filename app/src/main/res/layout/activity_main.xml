@@ -10,9 +10,9 @@
 
     <com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
         android:id="@+id/video_player"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:translationZ="1dp"
+        android:layout_width="1280px"
+        android:layout_height="720px"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
@@ -25,7 +25,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:visualization_mode="detection"/>
+        app:visualization_mode="clear"/>
 
     <LinearLayout
         android:id="@+id/sign_info_container"

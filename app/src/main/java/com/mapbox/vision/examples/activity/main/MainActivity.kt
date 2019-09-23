@@ -318,6 +318,7 @@ class MainActivity : AppCompatActivity() {
         videoPlayer = video_player
 //        VisionLogger.e("MainActivity", "Params before: ${GSYVideoType.getRenderType()}, ${GSYVideoType.getShowType()}")
         GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_16_9)
+        GSYVideoType.setRenderType(GSYVideoType.GLSURFACE)
         videoPlayer.setUp("rtsp://192.72.1.1/liveRTSP/v1", false, "Camera")
         val list = ArrayList<VideoOptionModel>()
         list.add(VideoOptionModel(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", 0))
