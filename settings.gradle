@@ -11,11 +11,11 @@ if (secretPropsFile.exists()) {
 
 if (gradle.ext.BUILD_CORE_FROM_SOURCE) {
     include ':Vision'
-    project(':Vision').projectDir = new File("./source/mapbox-vision-android/MapboxVision")
-    include ':VisionAr'
-    project(':VisionAr').projectDir = new File("./source/mapbox-vision-android/MapboxVisionAR")
+    project(':Vision').projectDir = new File("./source/mapbox-vision/SDK/Platforms/Android/sdk")
     include ':VisionSafety'
-    project(':VisionSafety').projectDir = new File("./source/mapbox-vision-android/MapboxVisionSafety")
+    project(':VisionSafety').projectDir = new File("./source/mapbox-vision/SDK/Platforms/Android/safety")
+    include ':VisionAr'
+    project(':VisionAr').projectDir = new File("./source/mapbox-vision/SDK/Platforms/Android/ar")
 }
 
 include ':app'
