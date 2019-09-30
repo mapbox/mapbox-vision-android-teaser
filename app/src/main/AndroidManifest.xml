@@ -49,10 +49,6 @@
         <activity
             android:name="com.mapbox.vision.examples.activity.ar.ArNavigationActivity"
             android:screenOrientation="landscape" />
-
-        <activity android:name="com.mapbox.vision.examples.activity.vision.VisionSampleActivity"
-            android:exported="true"
-            android:screenOrientation="landscape"/>
     </application>
 
 </manifest>

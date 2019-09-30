@@ -100,11 +100,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onFrameDetectionsUpdated(frameDetections: FrameDetections) {
-            vision_bitmap_view.setDetections(frameDetections)
+            vision_view.setDetections(frameDetections)
         }
 
         override fun onFrameSegmentationUpdated(frameSegmentation: FrameSegmentation) {
-            vision_bitmap_view.setSegmentation(frameSegmentation)
+            vision_view.setSegmentation(frameSegmentation)
         }
 
         override fun onFrameSignClassificationsUpdated(frameSignClassifications: FrameSignClassifications) {
@@ -352,7 +352,7 @@ class MainActivity : AppCompatActivity() {
             VisionManager.create()
             VisionManager.start(visionEventsListener)
             VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
-            VisionManager.setVideoSourceListener(vision_bitmap_view)
+            VisionManager.setVideoSourceListener(vision_view)
 
             VisionSafetyManager.create(VisionManager, visionSafetyListener)
 
@@ -480,26 +480,26 @@ class MainActivity : AppCompatActivity() {
         appMode = mode
         when (appMode) {
             AppMode.Classification -> {
-                vision_bitmap_view.visualizationMode = VisualizationMode.Clear
+                vision_view.visualizationMode = VisualizationMode.Clear
                 tracker = Tracker(5)
                 sign_info_container.show()
             }
             AppMode.Detection -> {
-                vision_bitmap_view.visualizationMode = VisualizationMode.Detections
+                vision_view.visualizationMode = VisualizationMode.Detections
             }
             AppMode.Segmentation -> {
-                vision_bitmap_view.visualizationMode = VisualizationMode.Segmentation
+                vision_view.visualizationMode = VisualizationMode.Segmentation
 
             }
             AppMode.Safety -> {
-                vision_bitmap_view.visualizationMode = VisualizationMode.Clear
+                vision_view.visualizationMode = VisualizationMode.Clear
                 safety_mode_container.show()
                 safety_mode.hide()
                 calibration_progress.hide()
                 distance_to_car_label.hide()
             }
             AppMode.Lanes -> {
-                vision_bitmap_view.visualizationMode = VisualizationMode.Clear
+                vision_view.visualizationMode = VisualizationMode.Clear
                 lines_detections_container.show()
             }
         }
