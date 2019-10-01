@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     tools:context=".activity.main.MainActivity">
 
-    <com.mapbox.vision.view.VisionView
+    <com.mapbox.vision.view.VisionGLView
         android:id="@+id/vision_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -17,7 +17,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:visualization_mode="detection"/>
+        app:visualization_mode="clear"/>
 
     <LinearLayout
         android:id="@+id/sign_info_container"
