@@ -2,7 +2,9 @@ package com.mapbox.vision.examples.models
 
 import com.mapbox.vision.mobile.core.models.classification.FrameSignClassifications
 
-data class UiSign(val signType: SignType, val signNum: SignNumber) {
+sealed class UiSign {
+
+    abstract val signType: SignType
 
     companion object {
         fun getUiSigns(frameSignClassifications: FrameSignClassifications): List<UiSign> {
@@ -10,50 +12,55 @@ data class UiSign(val signType: SignType, val signNum: SignNumber) {
 
             return frameSignClassifications.signs.map { signClassification ->
                 val signTypeIndex = signClassification.sign.type.ordinal
-                if (signTypeIndex >= signTypeValues.size) {
-                    throw IllegalStateException("Illegal sign! ${signClassification.sign}")
-                }
+
+                check(signTypeIndex < signTypeValues.size) { "Illegal sign! ${signClassification.sign}" }
 
                 val signType = signTypeValues[signTypeIndex]
 
-                val signNumber = if (signTypeIndex > SignType.SpeedLimitRamp.ordinal) {
-                    SignNumber.Unknown
+                if (signType.hasNumber) {
+                    WithNumber(signType, SignNumber.fromNumber(signClassification.sign.number))
                 } else {
-                    SignNumber.fromNumber(signClassification.sign.number)
+                    Simple(signType)
                 }
-
-                UiSign(signType, signNumber)
             }
         }
     }
 
+    data class WithNumber(override val signType: SignType, val signNumber: SignNumber) : UiSign()
+
+    data class Simple(override val signType: SignType) : UiSign()
+
     enum class SignType(
         val usResourceName: String = "",
         val chinaResourceName: String = usResourceName,
-        val ukResourceName: String = usResourceName
+        val ukResourceName: String = usResourceName,
+        val hasNumber: Boolean = false
     ) {
         Unknown(usResourceName = "unknown"),
         SpeedLimit(
             usResourceName = "speed_limit_us_",
             chinaResourceName = "speed_limit_cn_",
-            ukResourceName = "speed_limit_uk_"
+            ukResourceName = "speed_limit_uk_",
+            hasNumber = true
         ),
         SpeedLimitEnd(
             usResourceName = "speed_limit_end_us_",
             chinaResourceName = "speed_limit_end_cn_",
-            ukResourceName = "speed_limit_end_uk_"
+            ukResourceName = "speed_limit_end_uk_",
+            hasNumber = true
         ),
         SpeedLimitMin(
             usResourceName = "speed_limit_min_us_",
             chinaResourceName = "speed_limit_min_cn_",
-            ukResourceName = "speed_limit_min_uk_"
+            ukResourceName = "speed_limit_min_uk_",
+            hasNumber = true
         ),
-        SpeedLimitNight(usResourceName = "speed_limit_night_us_"),
-        SpeedLimitTrucks(usResourceName = "speed_limit_trucks_us_"),
-        Mass(chinaResourceName = "mass_cn_"),
-        SpeedLimitComplementary(usResourceName = "speed_limit_comp_us_"),
-        SpeedLimitExit(usResourceName = "warning_exit_us_"),
-        SpeedLimitRamp(usResourceName = "warning_ramp_us_"),
+        SpeedLimitNight(usResourceName = "speed_limit_night_us_", hasNumber = true),
+        SpeedLimitTrucks(usResourceName = "speed_limit_trucks_us_", hasNumber = true),
+        Mass(chinaResourceName = "mass_cn_", hasNumber = true),
+        SpeedLimitComplementary(usResourceName = "speed_limit_comp_us_", hasNumber = true),
+        SpeedLimitExit(usResourceName = "warning_exit_us_", hasNumber = true),
+        SpeedLimitRamp(usResourceName = "warning_ramp_us_", hasNumber = true),
         WarningTurnLeft(usResourceName = "warning_turn_left_us"),
         WarningTurnRight(usResourceName = "warning_turn_right_us"),
         WarningHairpinCurveLeft(usResourceName = "warning_hairpin_curve_left_us"),
@@ -418,8 +425,8 @@ data class UiSign(val signType: SignType, val signNum: SignNumber) {
 
         RegulatoryKeepLeftPicture(usResourceName = "regulatory_keep_left_picture"),
         RegulatoryKeepLeftText(usResourceName = "regulatory_keep_left_text"),
-        AheadSpeedLimit(usResourceName = "ahead_speedlimit"),
-        WarningSpeedLimit(usResourceName = "warning_speedlimit"),
+        AheadSpeedLimit(usResourceName = "ahead_speedlimit", hasNumber = true),
+        WarningSpeedLimit(usResourceName = "warning_speedlimit", hasNumber = true),
         RegulatoryNoUTurnRight(usResourceName = "regulatory_no_u_turn_right"),
         WarningTurnRightOnlyArrow(usResourceName = "warning_turn_right_only_arrow")
     }

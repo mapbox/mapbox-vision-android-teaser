@@ -48,7 +48,9 @@ import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.safety.core.VisionSafetyListener
 import com.mapbox.vision.safety.core.models.CollisionDangerLevel
-import com.mapbox.vision.safety.core.models.CollisionDangerLevel.*
+import com.mapbox.vision.safety.core.models.CollisionDangerLevel.Critical
+import com.mapbox.vision.safety.core.models.CollisionDangerLevel.None
+import com.mapbox.vision.safety.core.models.CollisionDangerLevel.Warning
 import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
 import com.mapbox.vision.utils.VisionLogger
@@ -214,9 +216,9 @@ class MainActivity : AppCompatActivity() {
         override fun onRoadRestrictionsUpdated(roadRestrictions: RoadRestrictions) {
             runOnUiThread {
                 val imageResource = signResources.getSpeedSignResource(
-                    UiSign(
+                    UiSign.WithNumber(
                         signType = UiSign.SignType.SpeedLimit,
-                        signNum = UiSign.SignNumber.fromNumber(roadRestrictions.speedLimits.car.max)
+                        signNumber = UiSign.SignNumber.fromNumber(roadRestrictions.speedLimits.car.max)
                     ),
                     speed = lastSpeed,
                     country = country
