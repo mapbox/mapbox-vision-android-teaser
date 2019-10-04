@@ -31,10 +31,8 @@ import com.mapbox.vision.examples.utils.show
 import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.Camera
 import com.mapbox.vision.mobile.core.models.Country
-import com.mapbox.vision.mobile.core.models.FrameSegmentation
 import com.mapbox.vision.mobile.core.models.classification.FrameSignClassifications
 import com.mapbox.vision.mobile.core.models.detection.DetectionClass
-import com.mapbox.vision.mobile.core.models.detection.FrameDetections
 import com.mapbox.vision.mobile.core.models.position.VehicleState
 import com.mapbox.vision.mobile.core.models.road.LaneDirection
 import com.mapbox.vision.mobile.core.models.road.LaneEdgeType
@@ -99,14 +97,6 @@ class MainActivity : AppCompatActivity() {
 
         override fun onCountryUpdated(country: Country) {
             this@MainActivity.country = country
-        }
-
-        override fun onFrameDetectionsUpdated(frameDetections: FrameDetections) {
-            vision_view.setDetections(frameDetections)
-        }
-
-        override fun onFrameSegmentationUpdated(frameSegmentation: FrameSegmentation) {
-            vision_view.setSegmentation(frameSegmentation)
         }
 
         override fun onFrameSignClassificationsUpdated(frameSignClassifications: FrameSignClassifications) {
@@ -355,7 +345,7 @@ class MainActivity : AppCompatActivity() {
             VisionManager.visionEventsListener = visionEventsListener
             VisionManager.start()
             VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
-            VisionManager.setVideoSourceListener(vision_view)
+            vision_view.setVisionManager(VisionManager)
 
             VisionSafetyManager.create(VisionManager)
             VisionSafetyManager.visionSafetyListener = visionSafetyListener
