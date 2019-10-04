@@ -13,19 +13,7 @@ interface SignResources {
 
     class Impl(val context: Context) : SignResources {
 
-        private val signsWithNumber = arrayOf(
-            UiSign.SignType.SpeedLimit,
-            UiSign.SignType.SpeedLimitEnd,
-            UiSign.SignType.SpeedLimitMin,
-            UiSign.SignType.SpeedLimitNight,
-            UiSign.SignType.SpeedLimitTrucks,
-            UiSign.SignType.SpeedLimitComplementary,
-            UiSign.SignType.SpeedLimitExit,
-            UiSign.SignType.SpeedLimitRamp,
-            UiSign.SignType.Mass
-        )
-
-        private val speedLimitSigns = arrayOf(
+        private val speedLimitWithOverspeeding = arrayOf(
             UiSign.SignType.SpeedLimit,
             UiSign.SignType.SpeedLimitNight,
             UiSign.SignType.SpeedLimitComplementary,
@@ -38,12 +26,12 @@ interface SignResources {
         ): String {
             val resourceName = when (country) {
                 Country.Unknown, Country.USA -> uiSign.signType.usResourceName
-                Country.UK, Country.Other-> uiSign.signType.ukResourceName
+                Country.UK, Country.Other -> uiSign.signType.ukResourceName
                 Country.China -> uiSign.signType.chinaResourceName
             }
 
-            return if (uiSign.signType in signsWithNumber) {
-                resourceName + uiSign.signNum.value
+            return if (uiSign is UiSign.WithNumber) {
+                resourceName + uiSign.signNumber.value
             } else {
                 resourceName
             }
@@ -57,7 +45,7 @@ interface SignResources {
 
             return if (resId == 0) {
                 context.getResId(
-                    name = getResourceNameForSign(UiSign(UiSign.SignType.Unknown, UiSign.SignNumber.Unknown), country),
+                    name = getResourceNameForSign(UiSign.Simple(UiSign.SignType.Unknown), country),
                     type = ResourceType.Drawable
                 )
             } else {
@@ -72,7 +60,11 @@ interface SignResources {
 
         override fun getSpeedSignResource(uiSign: UiSign, speed: Float, country: Country): Int {
             val resourceName = getResourceNameForSign(uiSign, country)
-            val fullResourceName = if (uiSign.signType in speedLimitSigns && speed > uiSign.signNum.value) {
+            val fullResourceName = if (
+                uiSign is UiSign.WithNumber &&
+                uiSign.signType in speedLimitWithOverspeeding &&
+                speed > uiSign.signNumber.value
+            ) {
                 "over_$resourceName"
             } else {
                 resourceName
