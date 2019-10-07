@@ -117,7 +117,7 @@
 
     </FrameLayout>
 
-    <com.mapbox.vision.examples.FpsPerformanceView
+    <com.mapbox.vision.view.FpsPerformanceView
         android:id="@+id/fps_performance_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
