@@ -345,6 +345,7 @@ class MainActivity : AppCompatActivity() {
             VisionManager.visionEventsListener = visionEventsListener
             VisionManager.start()
             VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
+            vision_view.onResume()
             vision_view.setVisionManager(VisionManager)
 
             VisionSafetyManager.create(VisionManager)
@@ -366,6 +367,7 @@ class MainActivity : AppCompatActivity() {
             VisionSafetyManager.destroy()
             VisionManager.stop()
             VisionManager.destroy()
+            vision_view.onPause()
             visionManagerWasInit = false
         }
         soundsPlayer.stop()
