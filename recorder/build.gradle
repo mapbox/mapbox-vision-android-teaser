@@ -41,22 +41,5 @@ android {
 }
 
 dependencies {
-    implementation "androidx.appcompat:appcompat:$android_x_appcompat"
-    implementation "androidx.constraintlayout:constraintlayout:$android_x_constraint_layout"
-
-    implementation "androidx.multidex:multidex:$android_x_multidex"
-
-    if (booleanProjectOrLocalProperty('BUILD_CORE_FROM_SOURCE')) {
-        implementation project(path: ':Vision')
-        implementation project(path: ':VisionAr')
-        implementation project(path: ':VisionSafety')
-    } else {
-        implementation "com.mapbox.vision:mapbox-android-vision:$vision"
-        implementation "com.mapbox.vision:mapbox-android-vision-ar:$vision"
-        implementation "com.mapbox.vision:mapbox-android-vision-safety:$vision"
-    }
-
-    implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
-        transitive = true
-    }
+    implementation project(':common')
 }

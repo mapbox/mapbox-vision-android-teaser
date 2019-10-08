@@ -64,12 +64,7 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-
-    implementation "androidx.appcompat:appcompat:$android_x_appcompat"
-    implementation "androidx.constraintlayout:constraintlayout:$android_x_constraint_layout"
-
-    implementation "androidx.multidex:multidex:$android_x_multidex"
+    implementation project(':common')
 
     implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:$mapbox_sdk"
     implementation "com.mapbox.mapboxsdk:mapbox-android-navigation:$mapbox_navigation"
@@ -79,19 +74,5 @@ dependencies {
     // TODO remove when fix is no more necessary
     implementation ("com.mapbox.mapboxsdk:mapbox-android-accounts:0.3.0") {
         force = true
-    }
-
-    if (gradle.ext.BUILD_CORE_FROM_SOURCE) {
-        implementation project(path: ':Vision')
-        implementation project(path: ':VisionAr')
-        implementation project(path: ':VisionSafety')
-    } else {
-        implementation "com.mapbox.vision:mapbox-android-vision:$vision"
-        implementation "com.mapbox.vision:mapbox-android-vision-ar:$vision"
-        implementation "com.mapbox.vision:mapbox-android-vision-safety:$vision"
-    }
-
-    implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
-        transitive = true
     }
 }

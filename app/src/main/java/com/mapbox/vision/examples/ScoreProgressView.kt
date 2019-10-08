@@ -15,8 +15,8 @@ import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
 import com.mapbox.vision.examples.utils.dpToPx
-import com.mapbox.vision.examples.utils.hide
-import com.mapbox.vision.examples.utils.show
+import com.mapbox.vision.common.view.hide
+import com.mapbox.vision.common.view.show
 import kotlinx.android.synthetic.main.score_progress_view.view.*
 
 class ScoreProgressView
