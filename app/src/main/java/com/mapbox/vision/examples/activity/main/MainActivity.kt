@@ -19,6 +19,7 @@ import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
 import com.mapbox.vision.VisionManager
+import com.mapbox.vision.common.BaseActivity
 import com.mapbox.vision.examples.R
 import com.mapbox.vision.examples.activity.ar.ArMapActivity
 import com.mapbox.vision.examples.activity.map.MapActivity
@@ -55,12 +56,7 @@ import com.mapbox.vision.utils.VisionLogger
 import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
-
-    companion object {
-        private const val PERMISSIONS_REQUEST_CODE = 1
-        private const val PERMISSION_FOREGROUND_SERVICE = "android.permission.FOREGROUND_SERVICE"
-    }
+class MainActivity : BaseActivity() {
 
     enum class AppMode {
         Segmentation,
@@ -267,34 +263,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        val board = SystemInfoUtils.getSnpeSupportedBoard()
-
-        if (!SupportedSnapdragonBoards.isBoardSupported(board)) {
-            val text =
-                Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
-            Toast.makeText(this, text, Toast.LENGTH_LONG).show()
-            VisionLogger.e(
-                "NotSupportedBoard",
-                "Current board is {\"$board\"}, Supported Boards: [${enumValues<SupportedSnapdragonBoards>().joinToString { it.name }}]; System Info: [${SystemInfoUtils.obtainSystemInfo()}]"
-            )
-            finish()
-            return
-        }
 
         soundsPlayer = SoundsPlayer(this)
-
-        if (!allPermissionsGranted() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(getRequiredPermissions(), PERMISSIONS_REQUEST_CODE)
-        } else {
-            onPermissionsGranted()
-        }
     }
 
-    private fun onPermissionsGranted() {
+    override fun initViews() {
+        setContentView(R.layout.activity_main)
+    }
+
+    public override fun onPermissionsGranted() {
         isPermissionsGranted = true
 
         signSize = resources.getDimension(R.dimen.dp64).toInt()
@@ -326,17 +304,6 @@ class MainActivity : AppCompatActivity() {
         fps_performance_view.hide()
 
         tryToInitVisionManager()
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (allPermissionsGranted() && requestCode == PERMISSIONS_REQUEST_CODE) {
-            onPermissionsGranted()
-        }
     }
 
     private fun tryToInitVisionManager() {
@@ -498,35 +465,6 @@ class MainActivity : AppCompatActivity() {
                 vision_view.visualizationMode = VisualizationMode.Clear
                 lines_detections_container.show()
             }
-        }
-    }
-
-    private fun allPermissionsGranted(): Boolean {
-        for (permission in getRequiredPermissions()) {
-            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                // PERMISSION_FOREGROUND_SERVICE was added for targetSdkVersion >= 28, it is normal and always granted, but should be added to the Manifest file
-                // on devices with Android < P(9) checkSelfPermission(PERMISSION_FOREGROUND_SERVICE) can return PERMISSION_DENIED, but in fact it is GRANTED, so skip it
-                // https://developer.android.com/guide/components/services#Foreground
-                if (permission == PERMISSION_FOREGROUND_SERVICE) {
-                    continue
-                }
-                return false
-            }
-        }
-        return true
-    }
-
-    private fun getRequiredPermissions(): Array<String> {
-        return try {
-            val info = packageManager?.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
-            val ps = info!!.requestedPermissions
-            if (ps != null && ps.isNotEmpty()) {
-                ps
-            } else {
-                emptyArray()
-            }
-        } catch (e: Exception) {
-            emptyArray()
         }
     }
 }
