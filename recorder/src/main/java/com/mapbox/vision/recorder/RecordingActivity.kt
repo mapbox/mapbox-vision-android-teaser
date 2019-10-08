@@ -121,9 +121,12 @@ class RecordingActivity : AppCompatActivity() {
     private fun tryToInitVisionManager() {
         if (isPermissionsGranted && !visionManagerWasInit) {
             VisionManager.create()
-            VisionManager.start(visionEventsListener)
+            VisionManager.start()
+            VisionManager.visionEventsListener = visionEventsListener
             VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
-            VisionManager.setVideoSourceListener(vision_view)
+
+            vision_view.onResume()
+            vision_view.setVisionManager(VisionManager)
 
             visionManagerWasInit = true
         }
@@ -154,6 +157,7 @@ class RecordingActivity : AppCompatActivity() {
             VisionManager.stopRecording()
             VisionManager.stop()
             VisionManager.destroy()
+            vision_view.onPause()
             visionManagerWasInit = false
         }
     }

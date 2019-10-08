@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Utils</string>
+    <string name="calibration_progress">Calibration: %d%%</string>
+</resources>
