@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 apply from: "../gradle/utils.gradle"
+apply from: "../gradle/ktlint.gradle"
 
 android {
     buildToolsVersion build_tools_version
@@ -42,4 +43,6 @@ android {
 
 dependencies {
     implementation project(':common')
+
+    ktlint "com.pinterest:ktlint:$ktlint_version"
 }
