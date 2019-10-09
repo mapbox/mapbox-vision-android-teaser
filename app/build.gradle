@@ -5,6 +5,7 @@ apply plugin: 'kotlin-android-extensions'
 
 apply from: '../gradle/generate-token.gradle'
 apply from: "../gradle/utils.gradle"
+apply from: "../gradle/ktlint.gradle"
 
 android {
     buildToolsVersion build_tools_version
@@ -75,4 +76,6 @@ dependencies {
     implementation ("com.mapbox.mapboxsdk:mapbox-android-accounts:0.3.0") {
         force = true
     }
+
+    ktlint "com.pinterest:ktlint:$ktlint_version"
 }

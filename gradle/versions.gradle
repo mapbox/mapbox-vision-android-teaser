@@ -26,4 +26,6 @@ ext {
     test_runner_version = '1.0.2'
     espresso_version = '3.0.2'
     gradle_pitest_plugin_version = '0.2.1'
+
+    ktlint_version = '0.34.2'
 }

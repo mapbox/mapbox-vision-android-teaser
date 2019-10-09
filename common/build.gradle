@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 apply from: "../gradle/utils.gradle"
+apply from: "../gradle/ktlint.gradle"
 
 android {
     buildToolsVersion build_tools_version
@@ -52,4 +53,6 @@ dependencies {
     api('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
         transitive = true
     }
+
+    ktlint "com.pinterest:ktlint:$ktlint_version"
 }
