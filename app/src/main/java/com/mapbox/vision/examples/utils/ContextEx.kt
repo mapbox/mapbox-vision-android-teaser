@@ -11,6 +11,6 @@ enum class ResourceType(val typeName: kotlin.String) {
     String("string")
 }
 
-fun Context.getResId(name: String, type : ResourceType) = resources.getIdentifier(
+fun Context.getResId(name: String, type: ResourceType) = resources.getIdentifier(
     name, type.typeName, packageName
 )

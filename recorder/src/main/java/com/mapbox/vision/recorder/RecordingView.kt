@@ -15,10 +15,7 @@ class RecordingView @JvmOverloads constructor(
     defStyleRes: Int = 0
 ) : LinearLayout(context, attrs, defStyle, defStyleRes) {
 
-    companion object {
-    }
-
-    enum class State(@DrawableRes val imageId: Int, @StringRes val textId : Int) {
+    enum class State(@DrawableRes val imageId: Int, @StringRes val textId: Int) {
         Recording(
             imageId = R.drawable.ic_stop_recording,
             textId = R.string.stop_recording
@@ -29,7 +26,7 @@ class RecordingView @JvmOverloads constructor(
         )
     }
 
-    var state : State =
+    var state: State =
         State.NotRecording
         set(value) {
             field = value

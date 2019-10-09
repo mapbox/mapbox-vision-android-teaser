@@ -1,6 +1,5 @@
 package com.mapbox.vision.examples.utils.classification
 
-
 class Tracker<T : Any>(private val maxCapacity: Int) {
 
     private var items = mutableMapOf<Int, Item<T>>()

@@ -1,16 +1,8 @@
 package com.mapbox.vision.recorder
 
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
-import android.os.Build
-import android.os.Bundle
 import android.os.Environment
-import android.text.Html
 import android.view.View
-import android.view.WindowManager
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.mapbox.vision.VisionManager
 import com.mapbox.vision.common.BaseActivity
 import com.mapbox.vision.common.view.hide
@@ -18,15 +10,12 @@ import com.mapbox.vision.common.view.show
 import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.Camera
 import com.mapbox.vision.mobile.core.models.Country
-import com.mapbox.vision.mobile.core.utils.SystemInfoUtils
-import com.mapbox.vision.mobile.core.utils.snapdragon.SupportedSnapdragonBoards
 import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
-import com.mapbox.vision.utils.VisionLogger
-import kotlinx.android.synthetic.main.activity_recording.*
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.android.synthetic.main.activity_recording.*
 
 class RecordingActivity : BaseActivity() {
 
@@ -67,7 +56,7 @@ class RecordingActivity : BaseActivity() {
         setContentView(R.layout.activity_recording)
     }
 
-    public override fun onPermissionsGranted() {
+    override fun onPermissionsGranted() {
         isPermissionsGranted = true
 
         root.setOnLongClickListener {
@@ -77,7 +66,6 @@ class RecordingActivity : BaseActivity() {
                 fps_performance_view.hide()
             }
             return@setOnLongClickListener true
-
         }
         recording_view.setOnClickListener { toggleRecording() }
         fps_performance_view.hide()
