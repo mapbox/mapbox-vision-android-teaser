@@ -9,7 +9,6 @@ import com.mapbox.vision.examples.R
 import kotlinx.android.synthetic.main.activity_ar_map.mapView
 import kotlinx.android.synthetic.main.activity_map.back
 
-
 class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {

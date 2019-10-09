@@ -3,23 +3,18 @@ package com.mapbox.vision.examples.activity.main
 import android.animation.Animator
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import android.text.Html
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
 import com.mapbox.vision.VisionManager
 import com.mapbox.vision.common.BaseActivity
+import com.mapbox.vision.common.view.hide
+import com.mapbox.vision.common.view.show
 import com.mapbox.vision.examples.R
 import com.mapbox.vision.examples.activity.ar.ArMapActivity
 import com.mapbox.vision.examples.activity.map.MapActivity
@@ -27,8 +22,6 @@ import com.mapbox.vision.examples.models.UiSign
 import com.mapbox.vision.examples.utils.SoundsPlayer
 import com.mapbox.vision.examples.utils.classification.SignResources
 import com.mapbox.vision.examples.utils.classification.Tracker
-import com.mapbox.vision.common.view.hide
-import com.mapbox.vision.common.view.show
 import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.Camera
 import com.mapbox.vision.mobile.core.models.Country
@@ -38,8 +31,6 @@ import com.mapbox.vision.mobile.core.models.position.VehicleState
 import com.mapbox.vision.mobile.core.models.road.LaneDirection
 import com.mapbox.vision.mobile.core.models.road.LaneEdgeType
 import com.mapbox.vision.mobile.core.models.road.RoadDescription
-import com.mapbox.vision.mobile.core.utils.SystemInfoUtils
-import com.mapbox.vision.mobile.core.utils.snapdragon.SupportedSnapdragonBoards
 import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
@@ -52,7 +43,6 @@ import com.mapbox.vision.safety.core.models.CollisionDangerLevel.None
 import com.mapbox.vision.safety.core.models.CollisionDangerLevel.Warning
 import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
-import com.mapbox.vision.utils.VisionLogger
 import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -272,7 +262,7 @@ class MainActivity : BaseActivity() {
         setContentView(R.layout.activity_main)
     }
 
-    public override fun onPermissionsGranted() {
+    override fun onPermissionsGranted() {
         isPermissionsGranted = true
 
         signSize = resources.getDimension(R.dimen.dp64).toInt()
@@ -299,7 +289,6 @@ class MainActivity : BaseActivity() {
                 fps_performance_view.hide()
             }
             return@setOnLongClickListener true
-
         }
         fps_performance_view.hide()
 
@@ -452,7 +441,6 @@ class MainActivity : BaseActivity() {
             }
             AppMode.Segmentation -> {
                 vision_view.visualizationMode = VisualizationMode.Segmentation
-
             }
             AppMode.Safety -> {
                 vision_view.visualizationMode = VisualizationMode.Clear

@@ -6,17 +6,17 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Looper
-import androidx.annotation.ColorInt
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.transition.Slide
-import androidx.transition.TransitionManager
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
-import com.mapbox.vision.examples.utils.dpToPx
+import androidx.annotation.ColorInt
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.transition.Slide
+import androidx.transition.TransitionManager
 import com.mapbox.vision.common.view.hide
 import com.mapbox.vision.common.view.show
+import com.mapbox.vision.examples.utils.dpToPx
 import kotlinx.android.synthetic.main.score_progress_view.view.*
 
 class ScoreProgressView
@@ -78,11 +78,9 @@ constructor(
                         gradientColors[1],
                         gradientColors[0]
                     ) as Int
-
                 }
                 else -> gradientColors[1]
             }
-
 
     private val progressGradientWidth by lazy(LazyThreadSafetyMode.NONE) { progress_gradient.width }
 
@@ -137,7 +135,6 @@ constructor(
                     showWarningScore(nextScore.score)
                 }
             }
-
         }, delayMills)
     }
 

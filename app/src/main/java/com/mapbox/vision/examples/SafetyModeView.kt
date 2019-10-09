@@ -1,11 +1,15 @@
 package com.mapbox.vision.examples
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PointF
+import android.graphics.RadialGradient
+import android.graphics.Shader
 import android.graphics.drawable.Drawable
-import androidx.annotation.DimenRes
 import android.util.AttributeSet
 import android.view.View
+import androidx.annotation.DimenRes
 import com.mapbox.vision.mobile.core.models.frame.ImageSize
 import com.mapbox.vision.safety.core.models.CollisionObject
 
