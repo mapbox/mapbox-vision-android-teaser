@@ -1,12 +1,12 @@
-File secretPropsFile = file('./local.properties')
-if (secretPropsFile.exists()) {
+File localPropsFile = file('./local.properties')
+if (localPropsFile.exists()) {
     Properties p = new Properties()
-    p.load(new FileInputStream(secretPropsFile))
+    p.load(new FileInputStream(localPropsFile))
     p.each { name, value ->
         gradle.ext.set name, value
     }
 } else {
-    throw new IllegalStateException("secret.properties could not be located for build process")
+    throw new IllegalStateException("local.properties could not be located for build process")
 }
 
 if (gradle.ext.BUILD_CORE_FROM_SOURCE) {
