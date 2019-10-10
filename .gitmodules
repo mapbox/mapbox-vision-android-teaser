@@ -1,0 +1,3 @@
+[submodule "source/mapbox-vision"]
+	path = source/mapbox-vision
+	url = git@github.com:mapbox/mapbox-vision.git

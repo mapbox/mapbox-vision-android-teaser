@@ -81,7 +81,7 @@ dependencies {
         force = true
     }
 
-    if (booleanProjectOrLocalProperty('BUILD_CORE_FROM_SOURCE')) {
+    if (gradle.ext.BUILD_CORE_FROM_SOURCE) {
         implementation project(path: ':Vision')
         implementation project(path: ':VisionAr')
         implementation project(path: ':VisionSafety')
