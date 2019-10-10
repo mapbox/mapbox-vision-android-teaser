@@ -301,7 +301,6 @@ class MainActivity : BaseVisionActivity() {
             VisionManager.visionEventsListener = visionEventsListener
             VisionManager.start()
             VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
-            vision_view.onResume()
             vision_view.setVisionManager(VisionManager)
 
             VisionSafetyManager.create(VisionManager)
@@ -316,6 +315,16 @@ class MainActivity : BaseVisionActivity() {
         tryToInitVisionManager()
     }
 
+    override fun onResume() {
+        super.onResume()
+        vision_view.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        vision_view.onPause()
+    }
+
     override fun onStop() {
         super.onStop()
 
@@ -323,7 +332,6 @@ class MainActivity : BaseVisionActivity() {
             VisionSafetyManager.destroy()
             VisionManager.stop()
             VisionManager.destroy()
-            vision_view.onPause()
             visionManagerWasInit = false
         }
         soundsPlayer.stop()
