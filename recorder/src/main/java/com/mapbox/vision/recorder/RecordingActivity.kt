@@ -78,8 +78,6 @@ class RecordingActivity : BaseVisionActivity() {
             VisionManager.start()
             VisionManager.visionEventsListener = visionEventsListener
             VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
-
-            vision_view.onResume()
             vision_view.setVisionManager(VisionManager)
 
             visionManagerWasInit = true
@@ -91,6 +89,16 @@ class RecordingActivity : BaseVisionActivity() {
         tryToInitVisionManager()
     }
 
+    override fun onResume() {
+        super.onResume()
+        vision_view.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        vision_view.onPause()
+    }
+
     override fun onStop() {
         super.onStop()
 
@@ -98,7 +106,6 @@ class RecordingActivity : BaseVisionActivity() {
             VisionManager.stopRecording()
             VisionManager.stop()
             VisionManager.destroy()
-            vision_view.onPause()
             visionManagerWasInit = false
         }
     }
