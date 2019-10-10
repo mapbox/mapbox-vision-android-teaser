@@ -12,7 +12,7 @@ import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
 import com.mapbox.vision.VisionManager
-import com.mapbox.vision.common.BaseActivity
+import com.mapbox.vision.common.BaseVisionActivity
 import com.mapbox.vision.common.view.hide
 import com.mapbox.vision.common.view.show
 import com.mapbox.vision.examples.R
@@ -46,7 +46,7 @@ import com.mapbox.vision.safety.core.models.RoadRestrictions
 import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : BaseActivity() {
+class MainActivity : BaseVisionActivity() {
 
     enum class AppMode {
         Segmentation,
