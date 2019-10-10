@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.10.0
+
+- Added a new `recorder` module to build `Session Recorder` app
+- Added a new `common` module to share code between `app` and `recorder` modules
+
+## v0.9.0
+
+- New AR Lane
+
 ## v0.8.0
 
 - Start monitoring performance related device info
