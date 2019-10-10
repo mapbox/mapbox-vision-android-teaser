@@ -12,7 +12,7 @@ import com.mapbox.vision.mobile.core.utils.SystemInfoUtils
 import com.mapbox.vision.mobile.core.utils.snapdragon.SupportedSnapdragonBoards
 import com.mapbox.vision.utils.VisionLogger
 
-abstract class BaseActivity : AppCompatActivity() {
+abstract class BaseVisionActivity : AppCompatActivity() {
 
     companion object {
         private const val PERMISSION_FOREGROUND_SERVICE = "android.permission.FOREGROUND_SERVICE"

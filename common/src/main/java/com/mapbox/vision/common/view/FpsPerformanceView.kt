@@ -5,7 +5,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
-import com.mabpox.vision.common.R
+import com.mabpox.vision.teaser.common.R
 import com.mapbox.vision.mobile.core.models.FrameStatistics
 import com.mapbox.vision.performance.ModelPerformanceConfig
 import java.util.concurrent.TimeUnit

@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Environment
 import android.view.View
 import com.mapbox.vision.VisionManager
-import com.mapbox.vision.common.BaseActivity
+import com.mapbox.vision.common.BaseVisionActivity
 import com.mapbox.vision.common.view.hide
 import com.mapbox.vision.common.view.show
 import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
@@ -17,10 +17,10 @@ import java.util.Date
 import java.util.Locale
 import kotlinx.android.synthetic.main.activity_recording.*
 
-class RecordingActivity : BaseActivity() {
+class RecordingActivity : BaseVisionActivity() {
 
     companion object {
-        private val BASE_SESSION_PATH = "${Environment.getExternalStorageDirectory().absolutePath}/Telemetry"
+        private val BASE_SESSION_PATH = "${Environment.getExternalStorageDirectory().absolutePath}/MapboxVisionTelemetry"
         private val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ssZ", Locale.US)
     }
 
@@ -34,7 +34,6 @@ class RecordingActivity : BaseActivity() {
     private val visionEventsListener = object : VisionEventsListener {
 
         override fun onCountryUpdated(country: Country) {
-            println("Country $country")
         }
 
         override fun onCameraUpdated(camera: Camera) {
