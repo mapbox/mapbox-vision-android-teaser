@@ -1,17 +1,18 @@
-package com.mapbox.vision.examples.activity.main
+package com.mapbox.vision.replayer
 
 import android.animation.Animator
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
+import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
-import com.mapbox.vision.VisionManager
+import com.mapbox.vision.VisionReplayManager
 import com.mapbox.vision.common.BaseVisionActivity
 import com.mapbox.vision.common.models.UiSign
 import com.mapbox.vision.common.utils.SoundsPlayer
@@ -19,9 +20,6 @@ import com.mapbox.vision.common.utils.classification.SignResources
 import com.mapbox.vision.common.utils.classification.Tracker
 import com.mapbox.vision.common.view.hide
 import com.mapbox.vision.common.view.show
-import com.mapbox.vision.examples.R
-import com.mapbox.vision.examples.activity.ar.ArMapActivity
-import com.mapbox.vision.examples.activity.map.MapActivity
 import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.Camera
 import com.mapbox.vision.mobile.core.models.Country
@@ -44,9 +42,9 @@ import com.mapbox.vision.safety.core.models.CollisionDangerLevel.Warning
 import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
 import com.mapbox.vision.view.VisualizationMode
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_replay.*
 
-class MainActivity : BaseVisionActivity() {
+class ReplayActivity : BaseVisionActivity(), SessionsFragment.ISessionChangeListener {
 
     enum class AppMode {
         Segmentation,
@@ -79,10 +77,15 @@ class MainActivity : BaseVisionActivity() {
     private var lastSpeed: Float = 0f
     private var calibrationProgress = 0f
 
+    private var sessionPath: String? = null
+        set(value) {
+            field = "$BASE_SESSION_PATH/$value/"
+        }
+
     private val visionEventsListener = object : VisionEventsListener {
 
         override fun onCountryUpdated(country: Country) {
-            this@MainActivity.country = country
+            this@ReplayActivity.country = country
         }
 
         override fun onFrameSignClassificationsUpdated(frameSignClassifications: FrameSignClassifications) {
@@ -115,7 +118,7 @@ class MainActivity : BaseVisionActivity() {
 
         @SuppressLint("SetTextI18n")
         override fun onUpdateCompleted() {
-            val frameStatistics = VisionManager.getFrameStatistics()
+            val frameStatistics = VisionReplayManager.getFrameStatistics()
             runOnUiThread {
                 fps_performance_view.showInfo(frameStatistics, appModelPerformanceConfig)
             }
@@ -128,10 +131,10 @@ class MainActivity : BaseVisionActivity() {
 
         private val distanceFormatter by lazy {
             LocaleUtils().let { localeUtils ->
-                val language = localeUtils.inferDeviceLanguage(this@MainActivity)
-                val unitType = localeUtils.getUnitTypeForDeviceLocale(this@MainActivity)
+                val language = localeUtils.inferDeviceLanguage(this@ReplayActivity)
+                val unitType = localeUtils.getUnitTypeForDeviceLocale(this@ReplayActivity)
                 val roundingIncrement = NavigationConstants.ROUNDING_INCREMENT_FIVE
-                DistanceFormatter(this@MainActivity, language, unitType, roundingIncrement)
+                DistanceFormatter(this@ReplayActivity, language, unitType, roundingIncrement)
             }
         }
 
@@ -144,7 +147,8 @@ class MainActivity : BaseVisionActivity() {
                         safety_mode.show()
                         calibration_progress.hide()
 
-                        val collision = collisions.firstOrNull { it.`object`.objectClass == DetectionClass.Car }
+                        val collision =
+                            collisions.firstOrNull { it.`object`.objectClass == DetectionClass.Car }
                         if (collision == null) {
                             soundsPlayer.stop()
                             currentDangerLevel = None
@@ -164,7 +168,8 @@ class MainActivity : BaseVisionActivity() {
 
                             distance_to_car_label.show()
                             safety_mode.show()
-                            distance_to_car_label.text = distanceFormatter.formatDistance(collision.`object`.position.y)
+                            distance_to_car_label.text =
+                                distanceFormatter.formatDistance(collision.`object`.position.y)
 
                             when (currentDangerLevel) {
                                 None -> safety_mode.clean()
@@ -259,7 +264,7 @@ class MainActivity : BaseVisionActivity() {
     }
 
     override fun initViews() {
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_replay)
     }
 
     override fun onPermissionsGranted() {
@@ -276,12 +281,15 @@ class MainActivity : BaseVisionActivity() {
         distance_container.setOnClickListener { setAppMode(AppMode.Safety) }
         safety_mode_container.hide()
         line_detection_container.setOnClickListener { setAppMode(AppMode.Lanes) }
-        object_mapping_button_container.setOnClickListener {
-            startActivity(Intent(this, MapActivity::class.java))
+        sessions_container.setOnClickListener { showSessionsDialog() }
+        ar_container.setOnClickListener {
+            if (sessionPath.isNullOrEmpty()) {
+                Toast.makeText(this, "Select a session first.", LENGTH_SHORT).show()
+            } else {
+                ArReplayNavigationActivity.start(this, sessionPath!!)
+            }
         }
-        ar_navigation_button_container.setOnClickListener {
-            startActivity(Intent(this, ArMapActivity::class.java))
-        }
+
         root.setOnLongClickListener {
             if (fps_performance_view.visibility == View.GONE) {
                 fps_performance_view.show()
@@ -296,14 +304,18 @@ class MainActivity : BaseVisionActivity() {
     }
 
     private fun tryToInitVisionManager() {
-        if (isPermissionsGranted && !visionManagerWasInit) {
-            VisionManager.create()
-            vision_view.setVisionManager(VisionManager)
-            VisionManager.visionEventsListener = visionEventsListener
-            VisionManager.start()
-            VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
+        if (sessionPath.isNullOrEmpty()) {
+            return
+        }
 
-            VisionSafetyManager.create(VisionManager)
+        if (isPermissionsGranted && !visionManagerWasInit) {
+            VisionReplayManager.create(sessionPath!!)
+            VisionReplayManager.visionEventsListener = visionEventsListener
+            VisionReplayManager.start()
+            VisionReplayManager.setModelPerformanceConfig(appModelPerformanceConfig)
+            vision_view.setVisionManager(VisionReplayManager)
+
+            VisionSafetyManager.create(VisionReplayManager)
             VisionSafetyManager.visionSafetyListener = visionSafetyListener
 
             visionManagerWasInit = true
@@ -323,18 +335,17 @@ class MainActivity : BaseVisionActivity() {
     override fun onPause() {
         super.onPause()
         vision_view.onPause()
+        stopVisionManager()
+        soundsPlayer.stop()
     }
 
-    override fun onStop() {
-        super.onStop()
-
+    private fun stopVisionManager() {
         if (isPermissionsGranted && visionManagerWasInit) {
             VisionSafetyManager.destroy()
-            VisionManager.stop()
-            VisionManager.destroy()
+            VisionReplayManager.stop()
+            VisionReplayManager.destroy()
             visionManagerWasInit = false
         }
-        soundsPlayer.stop()
     }
 
     private fun onBackClick() {
@@ -351,9 +362,11 @@ class MainActivity : BaseVisionActivity() {
         for (signValue in signsValueUis) {
             sign_info_container.addView(
                 ImageView(this).apply {
-                    layoutParams = ViewGroup.MarginLayoutParams(signSize, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                        leftMargin = margin
-                    }
+                    layoutParams =
+                        ViewGroup.MarginLayoutParams(signSize, ViewGroup.LayoutParams.WRAP_CONTENT)
+                            .apply {
+                                leftMargin = margin
+                            }
                     setImageResource(signResources.getSignResource(signValue, country))
                 }
             )
@@ -445,7 +458,7 @@ class MainActivity : BaseVisionActivity() {
                 sign_info_container.show()
             }
             AppMode.Detection -> {
-                vision_view.visualizationMode = VisualizationMode.Detection
+                vision_view.visualizationMode = VisualizationMode.Detections
             }
             AppMode.Segmentation -> {
                 vision_view.visualizationMode = VisualizationMode.Segmentation
@@ -462,5 +475,15 @@ class MainActivity : BaseVisionActivity() {
                 lines_detections_container.show()
             }
         }
+    }
+
+    private fun showSessionsDialog() {
+        SessionsFragment().show(supportFragmentManager, "sessions_fragment")
+    }
+
+    override fun onSessionChanged(dirName: String) {
+        sessionPath = dirName
+        stopVisionManager()
+        tryToInitVisionManager()
     }
 }

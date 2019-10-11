@@ -1,7 +1,6 @@
 package com.mapbox.vision.recorder
 
 import android.annotation.SuppressLint
-import android.os.Environment
 import android.view.View
 import com.mapbox.vision.VisionManager
 import com.mapbox.vision.common.BaseVisionActivity
@@ -20,7 +19,6 @@ import kotlinx.android.synthetic.main.activity_recording.*
 class RecordingActivity : BaseVisionActivity() {
 
     companion object {
-        private val BASE_SESSION_PATH = "${Environment.getExternalStorageDirectory().absolutePath}/MapboxVisionTelemetry"
         private val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ssZ", Locale.US)
     }
 

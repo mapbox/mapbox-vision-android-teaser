@@ -14,9 +14,9 @@ import androidx.annotation.ColorInt
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
+import com.mapbox.vision.common.utils.dpToPx
 import com.mapbox.vision.common.view.hide
 import com.mapbox.vision.common.view.show
-import com.mapbox.vision.common.utils.dpToPx
 import kotlinx.android.synthetic.main.score_progress_view.view.*
 
 class ScoreProgressView
