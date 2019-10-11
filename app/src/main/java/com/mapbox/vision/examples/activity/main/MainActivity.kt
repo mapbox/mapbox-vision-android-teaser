@@ -18,10 +18,10 @@ import com.mapbox.vision.common.view.show
 import com.mapbox.vision.examples.R
 import com.mapbox.vision.examples.activity.ar.ArMapActivity
 import com.mapbox.vision.examples.activity.map.MapActivity
-import com.mapbox.vision.examples.models.UiSign
-import com.mapbox.vision.examples.utils.SoundsPlayer
-import com.mapbox.vision.examples.utils.classification.SignResources
-import com.mapbox.vision.examples.utils.classification.Tracker
+import com.mapbox.vision.common.models.UiSign
+import com.mapbox.vision.common.utils.SoundsPlayer
+import com.mapbox.vision.common.utils.classification.SignResources
+import com.mapbox.vision.common.utils.classification.Tracker
 import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.Camera
 import com.mapbox.vision.mobile.core.models.Country

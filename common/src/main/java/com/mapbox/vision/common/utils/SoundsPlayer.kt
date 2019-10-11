@@ -1,8 +1,8 @@
-package com.mapbox.vision.examples.utils
+package com.mapbox.vision.common.utils
 
 import android.content.Context
 import android.media.SoundPool
-import com.mapbox.vision.examples.R
+import com.mabpox.vision.teaser.common.R
 
 class SoundsPlayer(context: Context) {
     private var soundPoolActiveStreamId: Int = 0

@@ -1,4 +1,4 @@
-package com.mapbox.vision.examples.models
+package com.mapbox.vision.common.models
 
 import com.mapbox.vision.mobile.core.models.classification.FrameSignClassifications
 

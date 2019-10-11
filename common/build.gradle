@@ -54,5 +54,15 @@ dependencies {
         transitive = true
     }
 
+    api "com.mapbox.mapboxsdk:mapbox-android-sdk:$mapbox_sdk"
+    api "com.mapbox.mapboxsdk:mapbox-android-navigation:$mapbox_navigation"
+    api "com.mapbox.mapboxsdk:mapbox-android-navigation-ui:$mapbox_navigation"
+
+    // need 0.3.0 instead of 0.2.0 that maps 8.1.0 depends on to access `obtainVisionSkuUserToken` method
+    // TODO remove when fix is no more necessary
+    api ("com.mapbox.mapboxsdk:mapbox-android-accounts:0.3.0") {
+        force = true
+    }
+
     ktlint "com.pinterest:ktlint:$ktlint_version"
 }

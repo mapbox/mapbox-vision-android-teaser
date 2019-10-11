@@ -1,4 +1,4 @@
-package com.mapbox.vision.examples.utils
+package com.mapbox.vision.common.utils
 
 import android.content.Context
 

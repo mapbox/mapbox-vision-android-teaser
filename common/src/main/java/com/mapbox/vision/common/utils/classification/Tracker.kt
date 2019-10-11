@@ -1,4 +1,4 @@
-package com.mapbox.vision.examples.utils.classification
+package com.mapbox.vision.common.utils.classification
 
 class Tracker<T : Any>(private val maxCapacity: Int) {
 

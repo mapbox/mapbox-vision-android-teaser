@@ -1,9 +1,9 @@
-package com.mapbox.vision.examples.utils.classification
+package com.mapbox.vision.common.utils.classification
 
 import android.content.Context
-import com.mapbox.vision.examples.models.UiSign
-import com.mapbox.vision.examples.utils.ResourceType
-import com.mapbox.vision.examples.utils.getResId
+import com.mapbox.vision.common.models.UiSign
+import com.mapbox.vision.common.utils.ResourceType
+import com.mapbox.vision.common.utils.getResId
 import com.mapbox.vision.mobile.core.models.Country
 
 interface SignResources {
