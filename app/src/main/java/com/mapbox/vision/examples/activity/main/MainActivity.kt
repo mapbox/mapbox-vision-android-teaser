@@ -298,10 +298,10 @@ class MainActivity : BaseVisionActivity() {
     private fun tryToInitVisionManager() {
         if (isPermissionsGranted && !visionManagerWasInit) {
             VisionManager.create()
+            vision_view.setVisionManager(VisionManager)
             VisionManager.visionEventsListener = visionEventsListener
             VisionManager.start()
             VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
-            vision_view.setVisionManager(VisionManager)
 
             VisionSafetyManager.create(VisionManager)
             VisionSafetyManager.visionSafetyListener = visionSafetyListener
