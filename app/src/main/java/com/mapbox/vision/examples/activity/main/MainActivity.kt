@@ -445,7 +445,7 @@ class MainActivity : BaseVisionActivity() {
                 sign_info_container.show()
             }
             AppMode.Detection -> {
-                vision_view.visualizationMode = VisualizationMode.Detections
+                vision_view.visualizationMode = VisualizationMode.Detection
             }
             AppMode.Segmentation -> {
                 vision_view.visualizationMode = VisualizationMode.Segmentation
