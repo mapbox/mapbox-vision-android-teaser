@@ -87,7 +87,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/progressViewContainer">
 
-        <com.mapbox.vision.examples.CircleView
+        <com.mapbox.vision.common.view.CircleView
             android:id="@+id/score_amount_circle"
             android:layout_width="62dp"
             android:layout_height="62dp"

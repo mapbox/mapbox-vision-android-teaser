@@ -1,4 +1,4 @@
-package com.mapbox.vision.examples
+package com.mapbox.vision.common.view
 
 import android.animation.ArgbEvaluator
 import android.content.Context
@@ -14,9 +14,8 @@ import androidx.annotation.ColorInt
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
+import com.mabpox.vision.teaser.common.R
 import com.mapbox.vision.common.utils.dpToPx
-import com.mapbox.vision.common.view.hide
-import com.mapbox.vision.common.view.show
 import kotlinx.android.synthetic.main.score_progress_view.view.*
 
 class ScoreProgressView
@@ -109,9 +108,18 @@ constructor(
             (init_score_mark.layoutParams as ConstraintLayout.LayoutParams).apply { horizontalBias = markFactor }
     }
 
-    fun plusScore(amount: Int) = onNewScore(DriverScore.Positive(amount))
+    fun plusScore(amount: Int) = onNewScore(
+        DriverScore.Positive(
+            amount
+        )
+    )
 
-    fun minusScore(amount: Int, reason: String) = onNewScore(DriverScore.Negative(amount, reason))
+    fun minusScore(amount: Int, reason: String) = onNewScore(
+        DriverScore.Negative(
+            amount,
+            reason
+        )
+    )
 
     private fun onNewScore(nextScore: DriverScore) {
         val delta = (animationWillEndAt - System.currentTimeMillis()).let { if (it < 0) 0 else it }
