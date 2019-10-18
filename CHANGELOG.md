@@ -2,8 +2,20 @@
 
 ## v0.10.0
 
-- Added a new `recorder` module to build `Session Recorder` app
-- Added a new `common` module to share code between `app` and `recorder` modules
+### Technical improvements
+
+- Added new `recorder` module to build `Session Recorder` app
+- Added new `common` module to share code between `app` and `recorder` modules
+- `VisionView` renders with OpenGL ES
+- Improved `VisionView` lifecycle management
+
+### User experience
+
+- Added Snapdragon 855 support
+- Added detection of construction cones
+- Improved quality of detection/segmentation, especially at night
+- Improved segmentation, now it's more focused on road specific elements. New segmentation model recognizes the following classes: Crosswalk, Hood, MarkupDashed, MarkupDouble, MarkupOther, MarkupSolid, Other, Road, RoadEdge, Sidewalk
+- Bug fixes
 
 ## v0.9.0
 
