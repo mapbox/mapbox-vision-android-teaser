@@ -4,7 +4,7 @@
 
 - Added new `recorder` module to build `Session Recorder` app
 - Added new `common` module to share code between `app` and `recorder` modules
-- Added better lifecycle handling of `VisionView`
+- Improved `VisionView` lifecycle management
 
 ## v0.9.0
 
