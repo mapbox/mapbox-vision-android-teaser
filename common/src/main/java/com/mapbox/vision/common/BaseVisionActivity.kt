@@ -23,7 +23,7 @@ abstract class BaseVisionActivity : AppCompatActivity() {
 
     protected abstract fun onPermissionsGranted()
 
-    protected abstract fun initViews()
+    protected abstract fun setLayout()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -43,7 +43,7 @@ abstract class BaseVisionActivity : AppCompatActivity() {
             return
         }
 
-        initViews()
+        setLayout()
 
         if (!allPermissionsGranted() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(getRequiredPermissions(), PERMISSIONS_REQUEST_CODE)

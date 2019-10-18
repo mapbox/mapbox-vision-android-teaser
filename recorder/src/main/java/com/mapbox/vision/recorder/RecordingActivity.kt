@@ -49,7 +49,7 @@ class RecordingActivity : BaseVisionActivity() {
         }
     }
 
-    override fun initViews() {
+    override fun setLayout() {
         setContentView(R.layout.activity_recording)
     }
 

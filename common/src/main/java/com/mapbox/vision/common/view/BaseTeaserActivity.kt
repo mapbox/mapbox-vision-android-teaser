@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
-import androidx.core.content.ContextCompat
 import com.mabpox.vision.teaser.common.R
 import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
@@ -41,17 +40,13 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 abstract class BaseTeaserActivity : BaseVisionActivity() {
 
-    abstract val view1Click: () -> Unit
-
-    abstract val view2Click: () -> Unit
-
-    protected abstract fun getAppType(): AppType
-
     protected abstract fun initVisionManager(visionView: VisionView): Boolean
 
     protected abstract fun destroyVisionManager()
 
     protected abstract fun getFrameStatistics(): FrameStatistics
+
+    protected abstract fun initViews(root: View)
 
     enum class AppMode {
         Segmentation,
@@ -59,11 +54,6 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         Detection,
         Safety,
         Lanes
-    }
-
-    enum class AppType {
-        Teaser,
-        Replayer
     }
 
     private val signResources: SignResources = SignResources.Impl(this)
@@ -271,7 +261,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         soundsPlayer = SoundsPlayer(this)
     }
 
-    override fun initViews() {
+    override fun setLayout() {
         setContentView(R.layout.activity_main)
     }
 
@@ -302,30 +292,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
 
         tryToInitVisionManager()
 
-        object_mapping_button_container.setOnClickListener { view1Click.invoke() }
-        ar_navigation_button_container.setOnClickListener { view2Click.invoke() }
-
-        when (getAppType()) {
-            AppType.Teaser -> {
-            }
-            AppType.Replayer -> {
-                object_mapping.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        this,
-                        R.drawable.ic_section_routing
-                    )
-                )
-                object_mapping_text.setText(R.string.start_ar_session)
-
-                ar_navigation.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        this,
-                        R.drawable.ic_select_session
-                    )
-                )
-                ar_navigation_text.setText(R.string.choose_session)
-            }
-        }
+        initViews(root)
     }
 
     private fun tryToInitVisionManager() {

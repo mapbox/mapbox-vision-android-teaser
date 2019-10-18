@@ -141,10 +141,26 @@
         android:background="@color/black_70_transparent">
 
         <ImageView
+            android:id="@+id/title_teaser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
             android:src="@drawable/ic_mapbox_vision_teaser"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/title_replayer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            tools:text="Vision Teaser Replayer"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:textSize="32dp"
+            android:textColor="@android:color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>

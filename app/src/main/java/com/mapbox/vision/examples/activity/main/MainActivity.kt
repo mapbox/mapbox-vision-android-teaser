@@ -1,8 +1,13 @@
 package com.mapbox.vision.examples.activity.main
 
 import android.content.Intent
+import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
 import com.mapbox.vision.VisionManager
 import com.mapbox.vision.common.view.BaseTeaserActivity
+import com.mapbox.vision.common.view.show
+import com.mapbox.vision.examples.R
 import com.mapbox.vision.examples.activity.ar.ArMapActivity
 import com.mapbox.vision.examples.activity.map.MapActivity
 import com.mapbox.vision.safety.VisionSafetyManager
@@ -10,11 +15,19 @@ import com.mapbox.vision.view.VisionView
 
 class MainActivity : BaseTeaserActivity() {
 
-    override val view1Click = { startActivity(Intent(this, MapActivity::class.java)) }
+    override fun initViews(root: View) {
+        root.findViewById<LinearLayout>(R.id.object_mapping_button_container).apply {
+            setOnClickListener { startActivity(Intent(this@MainActivity, MapActivity::class.java)) }
+        }
 
-    override val view2Click = { startActivity(Intent(this, ArMapActivity::class.java)) }
+        root.findViewById<LinearLayout>(R.id.ar_navigation_button_container).apply {
+            setOnClickListener { startActivity(Intent(this@MainActivity, ArMapActivity::class.java)) }
+        }
 
-    override fun getAppType() = AppType.Teaser
+        root.findViewById<ImageView>(R.id.title_teaser).apply {
+            show()
+        }
+    }
 
     override fun getFrameStatistics() = VisionManager.getFrameStatistics()
 

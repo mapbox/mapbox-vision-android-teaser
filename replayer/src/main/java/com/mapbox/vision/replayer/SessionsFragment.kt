@@ -12,9 +12,9 @@ import kotlinx.android.synthetic.main.fragment_sessions.*
 
 class SessionsFragment : DialogFragment() {
 
-    private lateinit var sessionListener: ISessionChangeListener
+    private lateinit var sessionListener: SessionChangeListener
 
-    interface ISessionChangeListener {
+    interface SessionChangeListener {
         fun onSessionChanged(dirName: String)
     }
 
@@ -45,7 +45,7 @@ class SessionsFragment : DialogFragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        sessionListener = context as ISessionChangeListener
+        sessionListener = context as SessionChangeListener
     }
 
     private fun close() {
