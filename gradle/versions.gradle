@@ -18,7 +18,7 @@ ext {
     teaser_version_name = '0.10.0'
     teaser_version_code = 19
 
-    mapbox_navigation = '0.41.0'
+    mapbox_navigation = '0.42.0'
     mapbox_sdk = '8.1.0'
 
     mannodermaus_junit5_version = '1.4.2.0'

@@ -3,6 +3,7 @@ package com.mapbox.vision.common
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.text.Html
 import android.view.WindowManager
 import android.widget.Toast
@@ -15,13 +16,14 @@ import com.mapbox.vision.utils.VisionLogger
 abstract class BaseVisionActivity : AppCompatActivity() {
 
     companion object {
+        public val BASE_SESSION_PATH = "${Environment.getExternalStorageDirectory().absolutePath}/MapboxVisionTelemetry"
         private const val PERMISSION_FOREGROUND_SERVICE = "android.permission.FOREGROUND_SERVICE"
         private const val PERMISSIONS_REQUEST_CODE = 123
     }
 
     protected abstract fun onPermissionsGranted()
 
-    protected abstract fun initViews()
+    protected abstract fun setLayout()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -41,7 +43,7 @@ abstract class BaseVisionActivity : AppCompatActivity() {
             return
         }
 
-        initViews()
+        setLayout()
 
         if (!allPermissionsGranted() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(getRequiredPermissions(), PERMISSIONS_REQUEST_CODE)

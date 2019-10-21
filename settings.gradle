@@ -18,4 +18,4 @@ if (gradle.ext.BUILD_CORE_FROM_SOURCE.toBoolean()) {
     project(':VisionAr').projectDir = new File("./source/mapbox-vision/SDK/Platforms/Android/ar")
 }
 
-include ':app', ':recorder', ':common'
+include ':app', ':recorder', ':replayer', ':common'
