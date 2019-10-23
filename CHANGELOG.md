@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.10.1
+
+### Technical improvements
+
+- Fixed bug with session not being recorded
+
+### User experience
+
+- Hotfix for v0.10.0 
+
 ## v0.10.0
 
 ### Technical improvements
