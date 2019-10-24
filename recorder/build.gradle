@@ -32,10 +32,29 @@ android {
         sourceCompatibility 1.8
     }
 
+    signingConfigs {
+        if (gradle.ext.has('SIGNING_CONFIG_RELEASE')) {
+            release {
+                storeFile file(gradle.ext.SIGNING_CONFIG_RELEASE)
+                storePassword gradle.ext.SIGNING_CONFIG_RELEASE_PASSWORD
+                keyAlias gradle.ext.SIGNING_CONFIG_RELEASE_ALIAS
+                keyPassword gradle.ext.SIGNING_CONFIG_RELEASE_KEY_PASSWORD
+            }
+        }
+    }
+
     buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            if (gradle.ext.has('SIGNING_CONFIG_RELEASE')) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
