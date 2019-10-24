@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-apply from: "../gradle/utils.gradle"
 apply from: "../gradle/ktlint.gradle"
 
 android {

@@ -4,7 +4,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 apply from: '../gradle/generate-token.gradle'
-apply from: "../gradle/utils.gradle"
 apply from: "../gradle/ktlint.gradle"
 
 android {
@@ -35,12 +34,12 @@ android {
     }
 
     signingConfigs {
-        if (projectOrLocalProperty('SIGNING_CONFIG_RELEASE')) {
+        if (gradle.ext.has('SIGNING_CONFIG_RELEASE')) {
             release {
-                storeFile file(projectOrLocalProperty('SIGNING_CONFIG_RELEASE'))
-                storePassword projectOrLocalProperty('SIGNING_CONFIG_RELEASE_PASSWORD')
-                keyAlias projectOrLocalProperty('SIGNING_CONFIG_RELEASE_ALIAS')
-                keyPassword projectOrLocalProperty('SIGNING_CONFIG_RELEASE_KEY_PASSWORD')
+                storeFile file(gradle.ext.SIGNING_CONFIG_RELEASE)
+                storePassword gradle.ext.SIGNING_CONFIG_RELEASE_PASSWORD
+                keyAlias gradle.ext.SIGNING_CONFIG_RELEASE_ALIAS
+                keyPassword gradle.ext.SIGNING_CONFIG_RELEASE_KEY_PASSWORD
             }
         }
     }
@@ -55,7 +54,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
-            if (projectOrLocalProperty('SIGNING_CONFIG_RELEASE')) {
+            if (gradle.ext.has('SIGNING_CONFIG_RELEASE')) {
                 signingConfig signingConfigs.release
             }
 
