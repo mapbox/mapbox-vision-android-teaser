@@ -237,6 +237,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
         return true
     }
 
+    @SuppressLint("MissingPermission")
     private fun requestLocationUpdates() {
         visionLocationEngine.requestLocationUpdates(
             LocationEngineRequest.Builder(1).build(),
