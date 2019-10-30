@@ -34,6 +34,7 @@ sealed class UiSign {
         val usResourceName: String = "",
         val chinaResourceName: String = usResourceName,
         val ukResourceName: String = usResourceName,
+        val deResourceName: String = usResourceName,
         val hasNumber: Boolean = false
     ) {
         Unknown(usResourceName = "unknown"),
@@ -428,7 +429,20 @@ sealed class UiSign {
         AheadSpeedLimit(usResourceName = "ahead_speedlimit", hasNumber = true),
         WarningSpeedLimit(usResourceName = "warning_speedlimit", hasNumber = true),
         RegulatoryNoUTurnRight(usResourceName = "regulatory_no_u_turn_right"),
-        WarningTurnRightOnlyArrow(usResourceName = "warning_turn_right_only_arrow")
+        WarningTurnRightOnlyArrow(usResourceName = "warning_turn_right_only_arrow"),
+
+        InformationCarWashing,
+        InformationBusStop,
+        RegulatoryPedestriansCrossingUp,
+        RegulatoryPedestriansCrossingDown,
+        InformationAutoService,
+        InformationFood,
+        InformationTown,
+        InformationTownEnd,
+        RegulatoryControl,
+        RegulatoryDoubleUTurn,
+        SpeedLimitZone,
+        SpeedLimitEndZone
     }
 
     @Suppress("EnumEntryName")

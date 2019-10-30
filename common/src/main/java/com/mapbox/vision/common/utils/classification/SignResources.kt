@@ -28,6 +28,7 @@ interface SignResources {
                 Country.Unknown, Country.USA -> uiSign.signType.usResourceName
                 Country.UK, Country.Other -> uiSign.signType.ukResourceName
                 Country.China -> uiSign.signType.chinaResourceName
+                Country.Germany -> uiSign.signType.deResourceName
             }
 
             return if (uiSign is UiSign.WithNumber) {
