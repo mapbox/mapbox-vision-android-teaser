@@ -269,11 +269,13 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
 
         VisionArManager.create(VisionReplayManager)
         ar_view.setArManager(VisionArManager)
+        ar_view.onResume()
     }
 
     override fun onPause() {
         super.onPause()
         mapView.onPause()
+        ar_view.onPause()
 
         VisionArManager.destroy()
 
@@ -373,7 +375,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
                     GeoCoordinate(
                         latitude = step.maneuver().location().latitude(),
                         longitude = step.maneuver().location().longitude()
-                    )
+                    ), step.maneuver().type()
                 )
                 routePoints.add(maneuverPoint)
 
@@ -384,7 +386,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
                             GeoCoordinate(
                                 latitude = geometryStep.latitude(),
                                 longitude = geometryStep.longitude()
-                            )
+                            ), null
                         )
                     }
                     ?.let { stepPoints ->
