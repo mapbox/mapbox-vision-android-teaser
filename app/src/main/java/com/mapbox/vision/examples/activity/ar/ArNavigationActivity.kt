@@ -35,6 +35,8 @@ import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.utils.VisionLogger
 import kotlinx.android.synthetic.main.activity_ar_navigation.*
+import kotlinx.android.synthetic.main.activity_ar_navigation.back
+import kotlinx.android.synthetic.main.activity_main.*
 
 class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeListener,
     OffRouteListener {
@@ -118,6 +120,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
 
         VisionArManager.create(VisionManager)
         mapbox_ar_view.setArManager(VisionArManager)
+        mapbox_ar_view.onResume()
 
         directionsRoute.let {
             if (it == null) {
@@ -131,6 +134,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
 
     override fun onPause() {
         super.onPause()
+        mapbox_ar_view.onPause()
         VisionArManager.destroy()
 
         VisionManager.stop()
@@ -190,7 +194,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
                     GeoCoordinate(
                         latitude = step.maneuver().location().latitude(),
                         longitude = step.maneuver().location().longitude()
-                    )
+                    ), step.maneuver().type()
                 )
                 routePoints.add(maneuverPoint)
 
@@ -201,7 +205,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
                             GeoCoordinate(
                                 latitude = geometryStep.latitude(),
                                 longitude = geometryStep.longitude()
-                            )
+                            ), null
                         )
                     }
                     ?.let { stepPoints ->
