@@ -16,9 +16,7 @@ import com.mapbox.android.core.location.LocationEngineRequest
 import com.mapbox.android.core.location.LocationEngineResult
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
-import com.mapbox.core.constants.Constants.PRECISION_6
 import com.mapbox.geojson.Point
-import com.mapbox.geojson.utils.PolylineUtils
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdate
@@ -41,6 +39,8 @@ import com.mapbox.vision.VisionReplayManager
 import com.mapbox.vision.ar.VisionArManager
 import com.mapbox.vision.ar.core.models.Route
 import com.mapbox.vision.ar.core.models.RoutePoint
+import com.mapbox.vision.common.utils.buildStepPointsFromGeometry
+import com.mapbox.vision.common.utils.mapToManeuverType
 import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.position.GeoCoordinate
 import com.mapbox.vision.mobile.core.models.position.VehicleState
@@ -269,11 +269,14 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
 
         VisionArManager.create(VisionReplayManager)
         ar_view.setArManager(VisionArManager)
+        ar_view.setFenceVisible(true)
+        ar_view.onResume()
     }
 
     override fun onPause() {
         super.onPause()
         mapView.onPause()
+        ar_view.onPause()
 
         VisionArManager.destroy()
 
@@ -358,9 +361,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
         VisionArManager.setRoute(
             Route(
                 points = route.getRoutePoints(),
-                eta = route.duration()?.toFloat() ?: 0f,
-                sourceStreetName = "TODO()",
-                targetStreetName = "TODO()"
+                eta = route.duration()?.toFloat() ?: 0f
             )
         )
     }
@@ -373,7 +374,8 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
                     GeoCoordinate(
                         latitude = step.maneuver().location().latitude(),
                         longitude = step.maneuver().location().longitude()
-                    )
+                    ),
+                    step.maneuver().type().mapToManeuverType()
                 )
                 routePoints.add(maneuverPoint)
 
@@ -392,12 +394,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
                     }
             }
         }
-
         return routePoints.toTypedArray()
-    }
-
-    private fun String.buildStepPointsFromGeometry(): List<Point> {
-        return PolylineUtils.decode(this, PRECISION_6)
     }
 
     private fun hideMapView() {
