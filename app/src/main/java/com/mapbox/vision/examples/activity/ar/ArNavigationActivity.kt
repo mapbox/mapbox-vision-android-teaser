@@ -36,7 +36,6 @@ import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.utils.VisionLogger
 import kotlinx.android.synthetic.main.activity_ar_navigation.*
 import kotlinx.android.synthetic.main.activity_ar_navigation.back
-import kotlinx.android.synthetic.main.activity_main.*
 
 class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeListener,
     OffRouteListener {
