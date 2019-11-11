@@ -207,7 +207,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
                                 latitude = geometryStep.latitude(),
                                 longitude = geometryStep.longitude()
                             ),
-                            null.mapToManeuverType()
+                            ManeuverType.None
                         )
                     }
                     ?.let { stepPoints ->

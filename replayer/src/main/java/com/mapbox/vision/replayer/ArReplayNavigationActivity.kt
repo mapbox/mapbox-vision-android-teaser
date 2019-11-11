@@ -389,7 +389,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
                                 latitude = geometryStep.latitude(),
                                 longitude = geometryStep.longitude()
                             ),
-                            null.mapToManeuverType()
+                            ManeuverType.None
                         )
                     }
                     ?.let { stepPoints ->
