@@ -16,7 +16,7 @@ import com.mapbox.vision.utils.VisionLogger
 abstract class BaseVisionActivity : AppCompatActivity() {
 
     companion object {
-        public val BASE_SESSION_PATH = "${Environment.getExternalStorageDirectory().absolutePath}/MapboxVisionTelemetry"
+        val BASE_SESSION_PATH = "${Environment.getExternalStorageDirectory().absolutePath}/MapboxVisionTelemetry"
         private const val PERMISSION_FOREGROUND_SERVICE = "android.permission.FOREGROUND_SERVICE"
         private const val PERMISSIONS_REQUEST_CODE = 123
     }

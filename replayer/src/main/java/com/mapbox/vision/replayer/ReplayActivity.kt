@@ -11,6 +11,7 @@ import com.mapbox.vision.common.view.BaseTeaserActivity
 import com.mapbox.vision.common.view.show
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.view.VisionView
+import java.io.File
 
 class ReplayActivity : BaseTeaserActivity(), SessionsFragment.SessionChangeListener {
 
@@ -52,11 +53,12 @@ class ReplayActivity : BaseTeaserActivity(), SessionsFragment.SessionChangeListe
     override fun getFrameStatistics() = VisionReplayManager.getFrameStatistics()
 
     override fun initVisionManager(visionView: VisionView): Boolean {
-        if (sessionPath.isNullOrEmpty()) {
+        if (sessionPath.isEmpty() || !File(sessionPath).exists() || File(sessionPath).list().isEmpty()) {
+            showSessionsList()
             return false
         }
 
-        VisionReplayManager.create(sessionPath!!)
+        VisionReplayManager.create(sessionPath)
         VisionReplayManager.visionEventsListener = visionEventsListener
         VisionReplayManager.start()
         VisionReplayManager.setModelPerformanceConfig(appModelPerformanceConfig)
@@ -74,16 +76,16 @@ class ReplayActivity : BaseTeaserActivity(), SessionsFragment.SessionChangeListe
         VisionReplayManager.destroy()
     }
 
-    private var sessionPath: String? = null
+    private var sessionPath: String = "$BASE_SESSION_PATH/default/"
         set(value) {
             field = "$BASE_SESSION_PATH/$value/"
         }
 
     private fun startArSession() {
-        if (sessionPath.isNullOrEmpty()) {
+        if (sessionPath.isEmpty()) {
             Toast.makeText(this, "Select a session first.", Toast.LENGTH_SHORT).show()
         } else {
-            ArReplayNavigationActivity.start(this, sessionPath!!)
+            ArReplayNavigationActivity.start(this, sessionPath)
         }
     }
 
