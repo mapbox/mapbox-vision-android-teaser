@@ -33,6 +33,7 @@ class MainActivity : BaseTeaserActivity() {
 
     override fun initVisionManager(visionView: VisionView): Boolean {
         VisionManager.create()
+        VisionManager.enableVisionFleet("Yunik")
         visionView.setVisionManager(VisionManager)
         VisionManager.visionEventsListener = visionEventsListener
         VisionManager.start()
