@@ -4,14 +4,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.text.Html
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.mapbox.vision.mobile.core.utils.SystemInfoUtils
-import com.mapbox.vision.mobile.core.utils.snapdragon.SupportedSnapdragonBoards
-import com.mapbox.vision.utils.VisionLogger
 
 abstract class BaseVisionActivity : AppCompatActivity() {
 
@@ -28,20 +23,6 @@ abstract class BaseVisionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onCreate(savedInstanceState)
-
-        val board = SystemInfoUtils.getSnpeSupportedBoard()
-
-        if (!SupportedSnapdragonBoards.isBoardSupported(board)) {
-            val text =
-                Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
-            Toast.makeText(this, text, Toast.LENGTH_LONG).show()
-            VisionLogger.e(
-                "NotSupportedBoard",
-                "Current board is {\"$board\"}, Supported Boards: [${enumValues<SupportedSnapdragonBoards>().joinToString { it.name }}]; System Info: [${SystemInfoUtils.obtainSystemInfo()}]"
-            )
-            finish()
-            return
-        }
 
         setLayout()
 
