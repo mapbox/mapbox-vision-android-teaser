@@ -11,7 +11,7 @@ class DemoApplication : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         Fabric.with(this, Crashlytics())
-        Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
-        VisionManager.init(this, getString(R.string.mapbox_access_token))
+        Mapbox.getInstance(this, getString(R.string.staging_mapbox_access_token))
+        VisionManager.init(this, getString(R.string.staging_mapbox_access_token))
     }
 }

@@ -28,6 +28,10 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
+        <meta-data
+            android:name="com.mapbox.TestEventsServer"
+            android:value="api-events-staging.tilestream.net" />
+
         <activity
             android:name="com.mapbox.vision.examples.activity.main.MainActivity"
             android:screenOrientation="landscape">
