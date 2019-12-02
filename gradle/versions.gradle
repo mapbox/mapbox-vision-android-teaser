@@ -28,4 +28,5 @@ ext {
     gradle_pitest_plugin_version = '0.2.1'
 
     ktlint_version = '0.34.2'
+    android_sdk_versions_plugin = "1.0.0"
 }
