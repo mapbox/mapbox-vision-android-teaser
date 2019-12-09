@@ -49,6 +49,7 @@ import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
+import com.mapbox.vision.performance.ModelType
 import kotlinx.android.synthetic.main.activity_ar_navigation.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -258,7 +259,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
         super.onResume()
         mapView.onResume()
 
-        VisionReplayManager.create(sessionPath)
+        VisionReplayManager.create(sessionPath, modelType = ModelType.NEW)
         VisionReplayManager.visionEventsListener = visionListener
         VisionReplayManager.start()
 
@@ -274,6 +275,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
         VisionArManager.create(VisionReplayManager)
         ar_view.setArManager(VisionArManager)
         ar_view.onResume()
+        ar_view.setFenceVisible(true)
     }
 
     override fun onPause() {

@@ -36,7 +36,6 @@ import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.utils.VisionLogger
 import kotlinx.android.synthetic.main.activity_ar_navigation.*
-import kotlinx.android.synthetic.main.activity_ar_navigation.back
 
 class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeListener,
     OffRouteListener {
@@ -121,6 +120,8 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
         VisionArManager.create(VisionManager)
         mapbox_ar_view.setArManager(VisionArManager)
         mapbox_ar_view.onResume()
+        mapbox_ar_view.setFenceVisible(true)
+        mapbox_ar_view.setLaneVisible(true)
 
         directionsRoute.let {
             if (it == null) {
