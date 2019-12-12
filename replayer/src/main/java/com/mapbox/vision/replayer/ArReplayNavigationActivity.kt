@@ -274,6 +274,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
         VisionArManager.create(VisionReplayManager)
         ar_view.setArManager(VisionArManager)
         ar_view.onResume()
+        ar_view.setFenceVisible(true)
     }
 
     override fun onPause() {
