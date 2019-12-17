@@ -51,7 +51,7 @@ android {
         }
 
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
             if (gradle.ext.has('SIGNING_CONFIG_RELEASE')) {
