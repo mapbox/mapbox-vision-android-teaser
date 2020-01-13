@@ -24,6 +24,7 @@ import com.mapbox.vision.VisionManager
 import com.mapbox.vision.ar.VisionArManager
 import com.mapbox.vision.ar.core.models.Route
 import com.mapbox.vision.ar.core.models.RoutePoint
+import com.mapbox.vision.common.models.ArFeature
 import com.mapbox.vision.common.utils.buildStepPointsFromGeometry
 import com.mapbox.vision.common.utils.mapToManeuverType
 import com.mapbox.vision.examples.R
@@ -67,6 +68,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
     private lateinit var routeFetcher: RouteFetcher
 
     private var lastRouteProgress: RouteProgress? = null
+    private var activeArFeature: ArFeature = ArFeature.Lane
 
     private val locationCallback by lazy {
         object : LocationEngineCallback<LocationEngineResult> {
@@ -87,6 +89,12 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
             onBackPressed()
         }
 
+        applyArFeature()
+        ar_mode_view.setOnClickListener {
+            activeArFeature = activeArFeature.getNextFeature()
+            applyArFeature()
+        }
+
         val builder = MapboxNavigationOptions
             .builder()
 
@@ -95,6 +103,12 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
 
         routeFetcher = RouteFetcher(this, getString(R.string.mapbox_access_token))
         routeFetcher.addRouteListener(this)
+    }
+
+    private fun applyArFeature() {
+        ar_mode_view.text = activeArFeature.caption
+        ar_view.setLaneVisible(activeArFeature.isLaneVisible)
+        ar_view.setFenceVisible(activeArFeature.isFenceVisible)
     }
 
     override fun onResume() {
@@ -126,7 +140,6 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
 
         VisionArManager.create(VisionManager)
         ar_view.setArManager(VisionArManager)
-        ar_view.setFenceVisible(true)
         ar_view.onResume()
 
         directionsRoute.let {
