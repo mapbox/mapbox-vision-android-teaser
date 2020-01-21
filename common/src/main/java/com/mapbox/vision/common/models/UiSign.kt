@@ -33,8 +33,7 @@ sealed class UiSign {
     enum class SignType(
         val usResourceName: String = "",
         val chinaResourceName: String = usResourceName,
-        val ukResourceName: String = usResourceName,
-        val deResourceName: String = usResourceName,
+        val ukResourceName: String = usResourceName
         val hasNumber: Boolean = false
     ) {
         Unknown(usResourceName = "unknown"),
