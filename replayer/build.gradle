@@ -5,7 +5,7 @@ apply plugin: 'kotlin-android-extensions'
 apply from: '../gradle/generate-token.gradle'
 apply from: "../gradle/ktlint.gradle"
 
-if (gradle.ext.hasProperty('BUILD_CORE_FROM_SOURCE')) {
+if (gradle.ext.has('BUILD_CORE_FROM_SOURCE')) {
     apply plugin: 'io.fabric'
 }
 

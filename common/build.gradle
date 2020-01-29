@@ -39,7 +39,7 @@ dependencies {
     api "androidx.core:core-ktx:$android_x_ktx"
     api "androidx.multidex:multidex:$android_x_multidex"
 
-    if (gradle.ext.hasProperty('BUILD_CORE_FROM_SOURCE') && gradle.ext.BUILD_CORE_FROM_SOURCE.toBoolean()) {
+    if (gradle.ext.has('BUILD_CORE_FROM_SOURCE') && gradle.ext.BUILD_CORE_FROM_SOURCE.toBoolean()) {
         api project(path: ':Vision')
         api project(path: ':VisionAr')
         api project(path: ':VisionSafety')
