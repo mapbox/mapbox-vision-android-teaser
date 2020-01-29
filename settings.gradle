@@ -9,7 +9,7 @@ if (localPropsFile.exists()) {
     throw new IllegalStateException("local.properties could not be located for build process")
 }
 
-if (gradle.ext.BUILD_CORE_FROM_SOURCE.toBoolean()) {
+if (gradle.ext.hasProperty('BUILD_CORE_FROM_SOURCE') && gradle.ext.BUILD_CORE_FROM_SOURCE.toBoolean()) {
     include ':Vision'
     project(':Vision').projectDir = new File("./source/mapbox-vision/SDK/Platforms/Android/sdk")
     include ':VisionSafety'

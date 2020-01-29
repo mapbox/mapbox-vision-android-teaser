@@ -1,10 +1,13 @@
 apply plugin: 'com.android.application'
-apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 apply from: '../gradle/generate-token.gradle'
 apply from: "../gradle/ktlint.gradle"
+
+if (gradle.ext.hasProperty('BUILD_CORE_FROM_SOURCE')) {
+    apply plugin: 'io.fabric'
+}
 
 android {
     buildToolsVersion build_tools_version
