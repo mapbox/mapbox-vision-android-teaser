@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 apply from: "../gradle/ktlint.gradle"
+apply from: '../gradle/generate-token.gradle'
 
 android {
     buildToolsVersion build_tools_version
