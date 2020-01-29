@@ -21,7 +21,7 @@ fun String?.mapToManeuverType(): ManeuverType = when(this) {
     "rotary" -> ManeuverType.Rotary
     "roundabout turn" -> ManeuverType.RoundaboutTurn
     "notification" -> ManeuverType.Notification
-    "exit rotary" -> ManeuverType.RoundaboutExit
+    "exit rotary" -> ManeuverType.RotaryExit
     else -> ManeuverType.None
 }
 
