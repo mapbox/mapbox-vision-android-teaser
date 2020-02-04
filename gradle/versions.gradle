@@ -15,8 +15,8 @@ ext {
     android_x_multidex = '2.0.1'
 
     vision = '0.11.0'
-    teaser_version_name = '0.10.1'
-    teaser_version_code = 20
+    teaser_version_name = '0.11.0'
+    teaser_version_code = 21
 
     mapbox_navigation = '0.42.0'
     mapbox_sdk = '8.1.0'
