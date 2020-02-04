@@ -9,17 +9,12 @@ import com.mapbox.vision.common.view.BaseTeaserActivity
 import com.mapbox.vision.common.view.show
 import com.mapbox.vision.examples.R
 import com.mapbox.vision.examples.activity.ar.ArMapActivity
-import com.mapbox.vision.examples.activity.map.MapActivity
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.view.VisionView
 
 class MainActivity : BaseTeaserActivity() {
 
     override fun initViews(root: View) {
-        root.findViewById<LinearLayout>(R.id.object_mapping_button_container).apply {
-            setOnClickListener { startActivity(Intent(this@MainActivity, MapActivity::class.java)) }
-        }
-
         root.findViewById<LinearLayout>(R.id.ar_navigation_button_container).apply {
             setOnClickListener { startActivity(Intent(this@MainActivity, ArMapActivity::class.java)) }
         }
