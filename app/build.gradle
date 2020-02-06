@@ -1,10 +1,13 @@
 apply plugin: 'com.android.application'
-apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 apply from: '../gradle/generate-token.gradle'
-apply from: "../gradle/utils.gradle"
+apply from: "../gradle/ktlint.gradle"
+
+if (gradle.ext.has('BUILD_CORE_FROM_SOURCE')) {
+    apply plugin: 'io.fabric'
+}
 
 android {
     buildToolsVersion build_tools_version
@@ -34,12 +37,12 @@ android {
     }
 
     signingConfigs {
-        if (projectOrLocalProperty('SIGNING_CONFIG_RELEASE')) {
+        if (gradle.ext.has('SIGNING_CONFIG_RELEASE')) {
             release {
-                storeFile file(projectOrLocalProperty('SIGNING_CONFIG_RELEASE'))
-                storePassword projectOrLocalProperty('SIGNING_CONFIG_RELEASE_PASSWORD')
-                keyAlias projectOrLocalProperty('SIGNING_CONFIG_RELEASE_ALIAS')
-                keyPassword projectOrLocalProperty('SIGNING_CONFIG_RELEASE_KEY_PASSWORD')
+                storeFile file(gradle.ext.SIGNING_CONFIG_RELEASE)
+                storePassword gradle.ext.SIGNING_CONFIG_RELEASE_PASSWORD
+                keyAlias gradle.ext.SIGNING_CONFIG_RELEASE_ALIAS
+                keyPassword gradle.ext.SIGNING_CONFIG_RELEASE_KEY_PASSWORD
             }
         }
     }
@@ -54,7 +57,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
-            if (projectOrLocalProperty('SIGNING_CONFIG_RELEASE')) {
+            if (gradle.ext.has('SIGNING_CONFIG_RELEASE')) {
                 signingConfig signingConfigs.release
             }
 
@@ -64,37 +67,7 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation project(':common')
 
-    implementation "androidx.appcompat:appcompat:$android_x_appcompat"
-    implementation "androidx.constraintlayout:constraintlayout:$android_x_constraint_layout"
-
-    implementation "androidx.multidex:multidex:$android_x_multidex"
-
-    implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:$mapbox_sdk"
-    implementation "com.mapbox.mapboxsdk:mapbox-android-navigation:$mapbox_navigation"
-    implementation "com.mapbox.mapboxsdk:mapbox-android-navigation-ui:$mapbox_navigation"
-
-    // need 0.3.0 instead of 0.2.0 that maps 8.1.0 depends on to access `obtainVisionSkuUserToken` method
-    // TODO remove when fix is no more necessary
-    implementation ("com.mapbox.mapboxsdk:mapbox-android-accounts:0.3.0") {
-        force = true
-    }
-
-    if (booleanProjectOrLocalProperty('BUILD_CORE_FROM_SOURCE')) {
-        implementation project(path: ':Vision')
-        implementation project(path: ':VisionAr')
-        implementation project(path: ':VisionSafety')
-        implementation project(path: ':CoreAr')
-        implementation project(path: ':CoreSdk')
-        implementation project(path: ':CoreSafety')
-    } else {
-        implementation "com.mapbox.vision:mapbox-android-vision:$vision"
-        implementation "com.mapbox.vision:mapbox-android-vision-ar:$vision"
-        implementation "com.mapbox.vision:mapbox-android-vision-safety:$vision"
-    }
-
-    implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
-        transitive = true
-    }
+    ktlint "com.pinterest:ktlint:$ktlint_version"
 }

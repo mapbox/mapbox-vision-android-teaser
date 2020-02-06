@@ -9,6 +9,7 @@
 *.class
 
 # Generated files
+.cxx/
 bin/
 gen/
 out/
@@ -70,3 +71,6 @@ fastlane/readme.md
 # Keystore
 *.jks
 keystore.*
+
+# Python
+*.pyc

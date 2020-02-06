@@ -13,9 +13,6 @@ import com.mapbox.android.core.location.LocationEngineRequest
 import com.mapbox.android.core.location.LocationEngineResult
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
-import com.mapbox.core.constants.Constants
-import com.mapbox.geojson.Point
-import com.mapbox.geojson.utils.PolylineUtils
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigationOptions
 import com.mapbox.services.android.navigation.v5.offroute.OffRouteListener
@@ -27,8 +24,9 @@ import com.mapbox.vision.VisionManager
 import com.mapbox.vision.ar.VisionArManager
 import com.mapbox.vision.ar.core.models.Route
 import com.mapbox.vision.ar.core.models.RoutePoint
+import com.mapbox.vision.common.utils.buildStepPointsFromGeometry
+import com.mapbox.vision.common.utils.mapToManeuverType
 import com.mapbox.vision.examples.R
-import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.position.GeoCoordinate
 import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
@@ -36,6 +34,7 @@ import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.utils.VisionLogger
 import kotlinx.android.synthetic.main.activity_ar_navigation.*
+import kotlinx.android.synthetic.main.activity_ar_navigation.back
 
 class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeListener,
     OffRouteListener {
@@ -43,15 +42,13 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
     companion object {
         private var TAG = ArNavigationActivity::class.java.simpleName
 
-        private const val EXTRA_ROUTE = "Route"
         private const val LOCATION_INTERVAL_DEFAULT = 0L
         private const val LOCATION_INTERVAL_FAST = 1000L
 
-        fun start(context: Activity, directionsRoute: DirectionsRoute) {
-            context.startActivity(
-                Intent(context, ArNavigationActivity::class.java)
-                    .putExtra(EXTRA_ROUTE, directionsRoute)
-            )
+        var directionsRoute: DirectionsRoute? = null
+
+        fun start(context: Activity) {
+            context.startActivity(Intent(context, ArNavigationActivity::class.java))
         }
     }
 
@@ -61,9 +58,9 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
 
     private val arLocationEngineRequest by lazy {
         LocationEngineRequest.Builder(LOCATION_INTERVAL_DEFAULT)
-                .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
-                .setFastestInterval(LOCATION_INTERVAL_FAST)
-                .build()
+            .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+            .setFastestInterval(LOCATION_INTERVAL_FAST)
+            .build()
     }
 
     private lateinit var mapboxNavigation: MapboxNavigation
@@ -93,7 +90,8 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
         val builder = MapboxNavigationOptions
             .builder()
 
-        mapboxNavigation = MapboxNavigation(this, getString(R.string.mapbox_access_token), builder.build())
+        mapboxNavigation =
+            MapboxNavigation(this, getString(R.string.mapbox_access_token), builder.build())
 
         routeFetcher = RouteFetcher(this, getString(R.string.mapbox_access_token))
         routeFetcher.addRouteListener(this)
@@ -102,7 +100,11 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
     override fun onResume() {
         super.onResume()
         try {
-            arLocationEngine.requestLocationUpdates(arLocationEngineRequest, locationCallback, mainLooper)
+            arLocationEngine.requestLocationUpdates(
+                arLocationEngineRequest,
+                locationCallback,
+                mainLooper
+            )
         } catch (se: SecurityException) {
             VisionLogger.d(TAG, se.toString())
         }
@@ -112,21 +114,34 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
         mapboxNavigation.locationEngine = arLocationEngine
 
         VisionManager.create()
-        VisionManager.start(object : VisionEventsListener {})
+        VisionManager.start()
         VisionManager.setModelPerformanceConfig(
             ModelPerformanceConfig.Merged(
-                performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW)
+                performance = ModelPerformance.On(
+                    ModelPerformanceMode.FIXED,
+                    ModelPerformanceRate.LOW
+                )
             )
         )
-        VisionManager.setVideoSourceListener(mapbox_ar_view)
 
-        VisionArManager.create(VisionManager, mapbox_ar_view)
+        VisionArManager.create(VisionManager)
+        ar_view.setArManager(VisionArManager)
+        ar_view.setFenceVisible(true)
+        ar_view.onResume()
 
-        setRoute(intent.getSerializableExtra(EXTRA_ROUTE) as DirectionsRoute)
+        directionsRoute.let {
+            if (it == null) {
+                Toast.makeText(this, "Route is not set!", Toast.LENGTH_LONG).show()
+                finish()
+            } else {
+                setRoute(it)
+            }
+        }
     }
 
     override fun onPause() {
         super.onPause()
+        ar_view.onPause()
         VisionArManager.destroy()
 
         VisionManager.stop()
@@ -163,9 +178,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
         VisionArManager.setRoute(
             Route(
                 points = route.getRoutePoints(),
-                eta = route.duration()?.toFloat() ?: 0f,
-                sourceStreetName = "TODO()",
-                targetStreetName = "TODO()"
+                eta = route.duration()?.toFloat() ?: 0f
             )
         )
     }
@@ -180,13 +193,14 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
 
     private fun DirectionsRoute.getRoutePoints(): Array<RoutePoint> {
         val routePoints = arrayListOf<RoutePoint>()
-        legs()?.forEach {leg ->
+        legs()?.forEach { leg ->
             leg.steps()?.forEach { step ->
                 val maneuverPoint = RoutePoint(
                     GeoCoordinate(
                         latitude = step.maneuver().location().latitude(),
                         longitude = step.maneuver().location().longitude()
-                    )
+                    ),
+                    step.maneuver().type().mapToManeuverType()
                 )
                 routePoints.add(maneuverPoint)
 
@@ -207,9 +221,5 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
         }
 
         return routePoints.toTypedArray()
-    }
-
-    private fun String.buildStepPointsFromGeometry(): List<Point> {
-        return PolylineUtils.decode(this, Constants.PRECISION_6);
     }
 }

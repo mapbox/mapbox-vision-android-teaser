@@ -63,7 +63,7 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
         object : LocationEngineCallback<LocationEngineResult> {
             override fun onSuccess(result: LocationEngineResult?) {
                 with(result as LocationEngineResult) {
-                    originPoint = Point.fromLngLat(lastLocation?.longitude ?: .0, lastLocation?.latitude?: .0)
+                    originPoint = Point.fromLngLat(lastLocation?.longitude ?: .0, lastLocation?.latitude ?: .0)
                 }
             }
 
@@ -84,7 +84,8 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
             if (currentRoute == null) {
                 Toast.makeText(this, "Route is not ready yet!", Toast.LENGTH_LONG).show()
             } else {
-                ArNavigationActivity.start(this, currentRoute!!)
+                ArNavigationActivity.directionsRoute = currentRoute
+                ArNavigationActivity.start(this)
             }
         }
     }

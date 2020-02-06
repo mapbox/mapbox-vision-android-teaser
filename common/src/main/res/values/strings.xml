@@ -1,0 +1,16 @@
+<resources>
+    <string name="calibration_progress">Calibration: %d%%</string>
+    <string name="segmentation">Segmentation</string>
+    <string name="lane_detection">Lane Detection</string>
+    <string name="object_mapping">Object Mapping</string>
+    <string name="safety_mode">Safety Mode</string>
+    <string name="signs_detection">Signs Detection</string>
+    <string name="object_detection">Object Detection</string>
+    <string name="ar_navigation">AR Routing</string>
+    <string name="driver_score">Driver Score</string>
+    <string name="go">Go</string>
+    <string name="tap_to_select_destination">Tap on the map to select a destination</string>
+    <string name="can_not_calculate_new_route">Cannot calculate new route</string>
+    <string name="choose_session">Choose Session</string>
+    <string name="start_ar_session">Start AR Session</string>
+</resources>

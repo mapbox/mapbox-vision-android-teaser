@@ -15,6 +15,8 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'io.fabric.tools:gradle:1.+'
         classpath "de.mannodermaus.gradle.plugins:android-junit5:$mannodermaus_junit5_version"
+        classpath "pl.droidsonroids.gradle:gradle-pitest-plugin:$gradle_pitest_plugin_version"
+        classpath "com.mapbox.mapboxsdk:mapbox-android-sdk-versions:$android_sdk_versions_plugin"
     }
 }
 

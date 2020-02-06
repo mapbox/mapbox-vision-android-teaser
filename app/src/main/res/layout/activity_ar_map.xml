@@ -36,6 +36,7 @@
         android:layout_width="87dp"
         android:layout_height="44dp"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:layout_margin="18dp"
         android:background="@drawable/bg_label"
         android:backgroundTint="@color/blue"
