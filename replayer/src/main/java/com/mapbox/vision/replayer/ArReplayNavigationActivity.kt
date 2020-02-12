@@ -45,14 +45,13 @@ import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.position.GeoCoordinate
 import com.mapbox.vision.mobile.core.models.position.VehicleState
 import com.mapbox.vision.performance.ModelPerformance
-import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
-import java.util.concurrent.TimeUnit
 import kotlinx.android.synthetic.main.activity_ar_navigation.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.concurrent.TimeUnit
 
 class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClickListener,
     OnMapReadyCallback {
@@ -258,12 +257,10 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
         VisionReplayManager.visionEventsListener = visionListener
         VisionReplayManager.start()
 
-        VisionReplayManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Merged(
-                performance = ModelPerformance.On(
-                    ModelPerformanceMode.FIXED,
-                    ModelPerformanceRate.LOW
-                )
+        VisionReplayManager.setModelPerformance(
+            modelPerformance = ModelPerformance.On(
+                ModelPerformanceMode.FIXED,
+                ModelPerformanceRate.LOW
             )
         )
 
