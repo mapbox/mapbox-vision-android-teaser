@@ -7,9 +7,8 @@ import android.view.LayoutInflater
 import android.widget.LinearLayout
 import com.mabpox.vision.teaser.common.R
 import com.mapbox.vision.mobile.core.models.FrameStatistics
-import com.mapbox.vision.performance.ModelPerformanceConfig
-import java.util.concurrent.TimeUnit
 import kotlinx.android.synthetic.main.view_fps_performance.view.*
+import java.util.concurrent.TimeUnit
 
 class FpsPerformanceView @JvmOverloads constructor(
     context: Context,
@@ -23,13 +22,9 @@ class FpsPerformanceView @JvmOverloads constructor(
     }
 
     private var sumSegmentationDetectionFps = 0f
-    private var sumSegmentationFps = 0f
-    private var sumDetectionFps = 0f
     private var sumCoreUpdatesFps = 0f
 
     private var countSegmentationDetectionFps = 0L
-    private var countSegmentationFps = 0L
-    private var countDetectionFps = 0L
     private var countCoreUpdatesFps = 0L
 
     init {
@@ -37,37 +32,12 @@ class FpsPerformanceView @JvmOverloads constructor(
     }
 
     @SuppressLint("SetTextI18n")
-    fun showInfo(frameStatistics: FrameStatistics, appModelPerformanceConfig: ModelPerformanceConfig) {
+    fun showInfo(frameStatistics: FrameStatistics) {
         with(frameStatistics) {
-            when (appModelPerformanceConfig) {
-                is ModelPerformanceConfig.Merged -> {
-                    segmentation_fps.hide()
-                    detection_fps.hide()
-                    merge_model_fps.show()
-
-                    if (segmentationDetectionFps > 0) {
-                        sumSegmentationDetectionFps += segmentationDetectionFps
-                        merge_model_fps.text =
-                            "MM: ${segmentationDetectionFps.round()}  AVG: ${(sumSegmentationDetectionFps / ++countSegmentationDetectionFps).round()}"
-                    }
-                }
-                is ModelPerformanceConfig.Separate -> {
-                    segmentation_fps.show()
-                    detection_fps.show()
-                    merge_model_fps.hide()
-
-                    if (segmentationFps > 0) {
-                        sumSegmentationFps += segmentationFps
-                        segmentation_fps.text =
-                            "S: ${segmentationFps.round()}  AVG: ${(sumSegmentationFps / ++countSegmentationFps).round()}"
-                    }
-
-                    if (detectionFps > 0) {
-                        sumDetectionFps += detectionFps
-                        detection_fps.text =
-                            "D: ${detectionFps.round()}  AVG: ${(sumDetectionFps / ++countDetectionFps).round()}"
-                    }
-                }
+            if (segmentationDetectionFps > 0) {
+                sumSegmentationDetectionFps += segmentationDetectionFps
+                merge_model_fps.text =
+                    "MM: ${segmentationDetectionFps.round()}  AVG: ${(sumSegmentationDetectionFps / ++countSegmentationDetectionFps).round()}"
             }
 
             if (coreUpdateFps > 0) {
@@ -80,13 +50,9 @@ class FpsPerformanceView @JvmOverloads constructor(
 
     fun resetAverageFps() {
         sumSegmentationDetectionFps = 0f
-        sumSegmentationFps = 0f
-        sumDetectionFps = 0f
         sumCoreUpdatesFps = 0f
 
         countSegmentationDetectionFps = 0L
-        countSegmentationFps = 0L
-        countDetectionFps = 0L
         countCoreUpdatesFps = 0L
     }
 
