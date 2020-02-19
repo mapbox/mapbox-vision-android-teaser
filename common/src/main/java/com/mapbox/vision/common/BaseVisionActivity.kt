@@ -4,11 +4,16 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.view.WindowManager
-import android.widget.Toast
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
+import androidx.core.view.setPadding
+import com.mabpox.vision.teaser.common.R
+import com.mapbox.vision.common.utils.dpToPx
 import com.mapbox.vision.mobile.core.utils.SystemInfoUtils
 import com.mapbox.vision.utils.VisionLogger
 
@@ -29,18 +34,26 @@ abstract class BaseVisionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         if (!SystemInfoUtils.isVisionSupported()) {
-            Toast.makeText(
-                this,
-                Html.fromHtml("Vision SDK does not support this device yet, more details at <b>https://docs.mapbox.com/android/vision/overview/#requirements</b>."),
-                Toast.LENGTH_LONG
-            ).show()
+            AlertDialog.Builder(this)
+                .setTitle(R.string.vision_not_supported_title)
+                .setView(
+                    TextView(this).apply {
+                        setPadding(dpToPx(20f).toInt())
+                        movementMethod = LinkMovementMethod.getInstance()
+                        isClickable = true
+                        text = HtmlCompat.fromHtml(
+                            getString(R.string.vision_not_supported_message),
+                            HtmlCompat.FROM_HTML_MODE_LEGACY
+                        )
+                    }
+                )
+                .setCancelable(false)
+                .show()
 
             VisionLogger.e(
                 "BoardNotSupported",
                 "System Info: [${SystemInfoUtils.obtainSystemInfo()}]"
             )
-            finish()
-            return
         }
 
         setLayout()
