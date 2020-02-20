@@ -4,13 +4,17 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.view.WindowManager
-import android.widget.Toast
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
+import androidx.core.view.setPadding
+import com.mabpox.vision.teaser.common.R
+import com.mapbox.vision.common.utils.dpToPx
 import com.mapbox.vision.mobile.core.utils.SystemInfoUtils
-import com.mapbox.vision.mobile.core.utils.snapdragon.SupportedSnapdragonBoards
 import com.mapbox.vision.utils.VisionLogger
 
 abstract class BaseVisionActivity : AppCompatActivity() {
@@ -29,18 +33,27 @@ abstract class BaseVisionActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onCreate(savedInstanceState)
 
-        val board = SystemInfoUtils.getSnpeSupportedBoard()
+        if (!SystemInfoUtils.isVisionSupported()) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.vision_not_supported_title)
+                .setView(
+                    TextView(this).apply {
+                        setPadding(dpToPx(20f).toInt())
+                        movementMethod = LinkMovementMethod.getInstance()
+                        isClickable = true
+                        text = HtmlCompat.fromHtml(
+                            getString(R.string.vision_not_supported_message),
+                            HtmlCompat.FROM_HTML_MODE_LEGACY
+                        )
+                    }
+                )
+                .setCancelable(false)
+                .show()
 
-        if (!SupportedSnapdragonBoards.isBoardSupported(board)) {
-            val text =
-                Html.fromHtml("The device is not supported, you need <b>Snapdragon-powered</b> device with <b>OpenCL</b> support, more details at <b>https://www.mapbox.com/android-docs/vision/overview/</b>")
-            Toast.makeText(this, text, Toast.LENGTH_LONG).show()
             VisionLogger.e(
-                "NotSupportedBoard",
-                "Current board is {\"$board\"}, Supported Boards: [${enumValues<SupportedSnapdragonBoards>().joinToString { it.name }}]; System Info: [${SystemInfoUtils.obtainSystemInfo()}]"
+                "BoardNotSupported",
+                "System Info: [${SystemInfoUtils.obtainSystemInfo()}]"
             )
-            finish()
-            return
         }
 
         setLayout()

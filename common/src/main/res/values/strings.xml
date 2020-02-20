@@ -13,4 +13,6 @@
     <string name="can_not_calculate_new_route">Cannot calculate new route</string>
     <string name="choose_session">Choose Session</string>
     <string name="start_ar_session">Start AR Session</string>
+    <string name="vision_not_supported_title">Device is not supported</string>
+    <string name="vision_not_supported_message">Vision SDK does not support this device yet, check more details at &lt;a href=\"https://docs.mapbox.com/android/vision/overview/#requirements\">docs.mapbox.com&lt;/a></string>
 </resources>
