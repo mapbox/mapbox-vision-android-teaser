@@ -10,7 +10,6 @@ import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.Camera
 import com.mapbox.vision.mobile.core.models.Country
 import com.mapbox.vision.performance.ModelPerformance
-import com.mapbox.vision.performance.ModelPerformanceConfig
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -25,9 +24,7 @@ class RecordingActivity : BaseVisionActivity() {
     private var isPermissionsGranted = false
     private var visionManagerWasInit = false
 
-    private var appModelPerformanceConfig: ModelPerformanceConfig = ModelPerformanceConfig.Merged(
-        performance = ModelPerformance.Off
-    )
+    private var modelPerformance = ModelPerformance.Off
 
     private val visionEventsListener = object : VisionEventsListener {
 
@@ -44,7 +41,7 @@ class RecordingActivity : BaseVisionActivity() {
         override fun onUpdateCompleted() {
             val frameStatistics = VisionManager.getFrameStatistics()
             runOnUiThread {
-                fps_performance_view.showInfo(frameStatistics, appModelPerformanceConfig)
+                fps_performance_view.showInfo(frameStatistics)
             }
         }
     }
@@ -75,7 +72,7 @@ class RecordingActivity : BaseVisionActivity() {
             VisionManager.create()
             VisionManager.start()
             VisionManager.visionEventsListener = visionEventsListener
-            VisionManager.setModelPerformanceConfig(appModelPerformanceConfig)
+            VisionManager.setModelPerformance(modelPerformance)
             vision_view.setVisionManager(VisionManager)
 
             visionManagerWasInit = true
