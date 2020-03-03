@@ -68,7 +68,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
     private lateinit var routeFetcher: RouteFetcher
 
     private var lastRouteProgress: RouteProgress? = null
-    private var activeArFeature: ArFeature = ArFeature.Lane
+    private var activeArFeature: ArFeature = ArFeature.LaneAndFence
 
     private val locationCallback by lazy {
         object : LocationEngineCallback<LocationEngineResult> {

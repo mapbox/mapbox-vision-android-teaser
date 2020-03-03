@@ -83,7 +83,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickList
     private lateinit var mapView: MapView
     private lateinit var destination: Point
 
-    private var activeArFeature: ArFeature = ArFeature.Lane
+    private var activeArFeature: ArFeature = ArFeature.LaneAndFence
 
     private val visionListener = object : VisionEventsListener {
         override fun onVehicleStateUpdated(vehicleState: VehicleState) {
