@@ -1,31 +1,36 @@
 package com.mapbox.vision.common.models
 
-sealed class ArFeature {
+import com.mabpox.vision.teaser.common.R
 
-    open val caption: String = ""
-    open val isLaneVisible = true
-    open val isFenceVisible = false
+sealed class ArFeature(
+    val drawableId: Int,
+    val isLaneVisible: Boolean,
+    val isFenceVisible: Boolean
+) {
 
     abstract fun getNextFeature(): ArFeature
 
-    object Lane : ArFeature() {
-        override val caption = "Lane: On\nFence: Off"
+    object Lane : ArFeature(
+        drawableId = R.drawable.ar_mode_lane,
+        isLaneVisible = true,
+        isFenceVisible = false
+    ) {
         override fun getNextFeature() = Fence
-        override val isLaneVisible = true
-        override val isFenceVisible = false
     }
 
-    object Fence : ArFeature() {
-        override val caption = "Lane: Off\nFence: On"
+    object Fence : ArFeature(
+        drawableId = R.drawable.ar_mode_fence,
+        isLaneVisible = false,
+        isFenceVisible = true
+    ) {
         override fun getNextFeature() = LaneAndFence
-        override val isLaneVisible = false
-        override val isFenceVisible = true
     }
 
-    object LaneAndFence : ArFeature() {
-        override val caption = "Lane: On\nFence: On"
+    object LaneAndFence : ArFeature(
+        drawableId = R.drawable.ar_mode_lane_fence,
+        isLaneVisible = true,
+        isFenceVisible = true
+    ) {
         override fun getNextFeature() = Lane
-        override val isLaneVisible = true
-        override val isFenceVisible = true
     }
 }

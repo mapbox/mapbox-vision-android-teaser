@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <ImageView
+        android:layout_width="@dimen/ar_switch_width"
+        android:layout_height="@dimen/ar_switch_height"
         android:id="@+id/ar_mode_view"
-        android:padding="10dp"
-        android:layout_margin="10dp"
-        android:minWidth="100dp"
-        android:gravity="center_vertical|start"
-        android:textSize="15sp"
+        android:layout_marginStart="@dimen/ar_switch_margin_start"
+        android:layout_marginBottom="@dimen/ar_switch_margin_bottom"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:translationZ="1dp"
+        tools:src="@drawable/ar_mode_lane"/>
 
     <com.mapbox.vision.ar.view.gl.VisionArView
         android:id="@+id/ar_view"

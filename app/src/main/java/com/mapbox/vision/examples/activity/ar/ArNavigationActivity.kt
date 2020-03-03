@@ -106,7 +106,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
     }
 
     private fun applyArFeature() {
-        ar_mode_view.text = activeArFeature.caption
+        ar_mode_view.setImageResource(activeArFeature.drawableId)
         ar_view.setLaneVisible(activeArFeature.isLaneVisible)
         ar_view.setFenceVisible(activeArFeature.isFenceVisible)
     }
