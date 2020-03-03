@@ -84,8 +84,8 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
 
         override fun onFrameSignClassificationsUpdated(frameSignClassifications: FrameSignClassifications) {
             if (appMode == AppMode.Classification) {
+                tracker.update(UiSign.getUiSigns(frameSignClassifications))
                 runOnUiThread {
-                    tracker.update(UiSign.getUiSigns(frameSignClassifications))
                     drawSigns(tracker.getCurrent())
                 }
             }
