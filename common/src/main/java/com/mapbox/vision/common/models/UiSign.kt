@@ -7,22 +7,29 @@ sealed class UiSign {
     abstract val signType: SignType
 
     companion object {
+
+        private const val SIGN_THRESHOLD = 0.9f
+        private const val SIGN_NON_NUMERIC = -1.0f
+
         fun getUiSigns(frameSignClassifications: FrameSignClassifications): List<UiSign> {
             val signTypeValues = SignType.values()
 
-            return frameSignClassifications.signs.map { signClassification ->
-                val signTypeIndex = signClassification.sign.type.ordinal
+            return frameSignClassifications.signs
+                .filter { it.typeConfidence >= SIGN_THRESHOLD &&
+                        (it.numberConfidence == SIGN_NON_NUMERIC || it.numberConfidence >= SIGN_THRESHOLD)}
+                .map { signClassification ->
+                    val signTypeIndex = signClassification.sign.type.ordinal
 
-                check(signTypeIndex < signTypeValues.size) { "Illegal sign! ${signClassification.sign}" }
+                    check(signTypeIndex < signTypeValues.size) { "Illegal sign! ${signClassification.sign}" }
 
-                val signType = signTypeValues[signTypeIndex]
+                    val signType = signTypeValues[signTypeIndex]
 
-                if (signType.hasNumber) {
-                    WithNumber(signType, SignNumber.fromNumber(signClassification.sign.number))
-                } else {
-                    Simple(signType)
+                    if (signType.hasNumber) {
+                        WithNumber(signType, SignNumber.fromNumber(signClassification.sign.number))
+                    } else {
+                        Simple(signType)
+                    }
                 }
-            }
         }
     }
 
@@ -68,7 +75,10 @@ sealed class UiSign {
             usResourceName = "warning_roundabout_us",
             ukResourceName = "warning_round_about_uk"
         ),
-        WarningSpeedBump(usResourceName = "warning_speed_bump_us", ukResourceName = "warning_speed_bump_uk"),
+        WarningSpeedBump(
+            usResourceName = "warning_speed_bump_us",
+            ukResourceName = "warning_speed_bump_uk"
+        ),
         WarningWindingRoad(
             usResourceName = "warning_winding_road_us",
             chinaResourceName = "warning_winding_road_cn",
@@ -304,12 +314,21 @@ sealed class UiSign {
         ),
         RegulatoryExceptBicycle(usResourceName = "regulatory_except_bicycle_us"),
         WarningAddedLaneRight(usResourceName = "warning_added_lane_right_us"),
-        WarningDeadEndText(usResourceName = "warning_dead_end_text_us", ukResourceName = "warning_dead_end_text_uk"),
+        WarningDeadEndText(
+            usResourceName = "warning_dead_end_text_us",
+            ukResourceName = "warning_dead_end_text_uk"
+        ),
         WarningDipText(usResourceName = "warning_dip_text_us"),
         WarningEmergencyVehicles(usResourceName = "warning_emergency_vehicles_us"),
         WarningEndText(usResourceName = "warning_end_text_us"),
-        WarningFallingRocksOrDebrisRight(usResourceName = "warning_falling_rocks_or_debris_right_us", ukResourceName = "warning_falling_rocks_or_debris_right_uk"),
-        WarningLowGroundClearance(usResourceName = "warning_low_ground_clearance_us", ukResourceName = "warning_low_ground_clearance_uk"),
+        WarningFallingRocksOrDebrisRight(
+            usResourceName = "warning_falling_rocks_or_debris_right_us",
+            ukResourceName = "warning_falling_rocks_or_debris_right_uk"
+        ),
+        WarningLowGroundClearance(
+            usResourceName = "warning_low_ground_clearance_us",
+            ukResourceName = "warning_low_ground_clearance_uk"
+        ),
         WarningObstructionMarker(usResourceName = "warning_obstruction_marker_us"),
         WarningPlayground(usResourceName = "warning_playground_us"),
         WarningSecondRoadRight(
@@ -318,9 +337,18 @@ sealed class UiSign {
         ),
         WarningTurnLeftOnlyArrow(usResourceName = "warning_turn_left_only_arrow_us"),
         WarningTurnLeftOrRightOnlyArrow(usResourceName = "warning_turn_left_or_right_only_arrow_us"),
-        WarningTramsCrossing(usResourceName = "warning_trams_crossing_us", ukResourceName = "warning_trams_crossing_uk"),
-        WarningUnevenRoad(usResourceName = "warning_uneven_road_us", ukResourceName = "warning_uneven_road_uk"),
-        WarningWildAnimals(usResourceName = "warning_wild_animals_us", ukResourceName = "warning_wild_animals_uk"),
+        WarningTramsCrossing(
+            usResourceName = "warning_trams_crossing_us",
+            ukResourceName = "warning_trams_crossing_uk"
+        ),
+        WarningUnevenRoad(
+            usResourceName = "warning_uneven_road_us",
+            ukResourceName = "warning_uneven_road_uk"
+        ),
+        WarningWildAnimals(
+            usResourceName = "warning_wild_animals_us",
+            ukResourceName = "warning_wild_animals_uk"
+        ),
         RegulatoryParkingRestrictions(usResourceName = "regulatory_parking_restrictions_us"),
         RegulatoryYieldOrStopForPedestrians(usResourceName = "regulatory_yield_or_stop_for_pedestrians_us"),
         RegulatoryNoBuses(
@@ -342,7 +370,10 @@ sealed class UiSign {
             chinaResourceName = "regulatory_width_limit_cn",
             ukResourceName = "regulatory_width_limit_uk"
         ),
-        RegulatoryAxleWeightLimit(chinaResourceName = "regulatory_axle_weight_limit_cn", ukResourceName = "regulatory_axle_weight_limit_uk"),
+        RegulatoryAxleWeightLimit(
+            chinaResourceName = "regulatory_axle_weight_limit_cn",
+            ukResourceName = "regulatory_axle_weight_limit_uk"
+        ),
         RegulatoryNoVehiclesCarryingExplosives(chinaResourceName = "regulatory_no_vehicles_carrying_explosives_cn"),
         RegulatoryRoundabout(
             chinaResourceName = "regulatory_roundabout_cn",
@@ -358,12 +389,24 @@ sealed class UiSign {
             ukResourceName = "regulatory_motor_vehicles_uk"
         ),
         RegulatoryUTurn(chinaResourceName = "regulatory_u_turn_cn"),
-        WarningSteepAscent(chinaResourceName = "warning_steep_ascent_cn", ukResourceName = "warning_steep_ascent_uk"),
-        WarningSteepDescent(chinaResourceName = "warning_steep_descent_cn", ukResourceName = "warning_steep_descent_uk"),
+        WarningSteepAscent(
+            chinaResourceName = "warning_steep_ascent_cn",
+            ukResourceName = "warning_steep_ascent_uk"
+        ),
+        WarningSteepDescent(
+            chinaResourceName = "warning_steep_descent_cn",
+            ukResourceName = "warning_steep_descent_uk"
+        ),
         WarningVillage(chinaResourceName = "warning_village_cn"),
         WarningKeepSlowdown(chinaResourceName = "warning_keep_slowdown_cn"),
-        WarningDangerousTraffic(chinaResourceName = "warning_dangerous_traffic_cn", ukResourceName = "warning_dangerous_traffic_uk"),
-        WarningRoadworks(chinaResourceName = "warning_roadworks_cn", ukResourceName = "warning_roadworks_uk"),
+        WarningDangerousTraffic(
+            chinaResourceName = "warning_dangerous_traffic_cn",
+            ukResourceName = "warning_dangerous_traffic_uk"
+        ),
+        WarningRoadworks(
+            chinaResourceName = "warning_roadworks_cn",
+            ukResourceName = "warning_roadworks_uk"
+        ),
         WarningSecondRoadLeft(chinaResourceName = "warning_second_road_left_cn"),
 
         RegulatoryNoTurnOnRedText("TODO"),
@@ -470,7 +513,8 @@ sealed class UiSign {
         Unknown;
 
         companion object {
-            fun fromNumber(value: Float) = values().firstOrNull { it.value == value.toInt() } ?: Unknown
+            fun fromNumber(value: Float) =
+                values().firstOrNull { it.value == value.toInt() } ?: Unknown
         }
     }
 }
