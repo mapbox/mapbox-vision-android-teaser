@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -18,7 +17,15 @@
         android:layout_marginStart="30dp"
         android:layout_marginTop="18dp"
         android:src="@drawable/ic_back"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_gravity="top|start"/>
+
+    <ImageView
+        android:layout_width="@dimen/ar_switch_width"
+        android:layout_height="@dimen/ar_switch_height"
+        android:id="@+id/ar_mode_view"
+        android:layout_marginStart="@dimen/ar_switch_margin_start"
+        android:layout_marginBottom="@dimen/ar_switch_margin_bottom"
+        android:layout_gravity="bottom|start"
+        tools:src="@drawable/ar_mode_lane"/>
 
 </FrameLayout>

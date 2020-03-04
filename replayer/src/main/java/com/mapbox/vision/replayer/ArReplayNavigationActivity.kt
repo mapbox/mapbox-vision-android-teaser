@@ -39,6 +39,7 @@ import com.mapbox.vision.VisionReplayManager
 import com.mapbox.vision.ar.VisionArManager
 import com.mapbox.vision.ar.core.models.Route
 import com.mapbox.vision.ar.core.models.RoutePoint
+import com.mapbox.vision.common.models.ArFeature
 import com.mapbox.vision.common.utils.buildStepPointsFromGeometry
 import com.mapbox.vision.common.utils.mapToManeuverType
 import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
@@ -53,7 +54,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.concurrent.TimeUnit
 
-class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClickListener,
+class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
     OnMapReadyCallback {
 
     companion object {
@@ -74,13 +75,15 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
     }
 
     private var navigationMap: NavigationMapboxMap? = null
+    private var navigation: MapboxNavigation? = null
     private var lastLocation: Location? = null
     private var mapVisible = false
 
     private lateinit var sessionPath: String
     private lateinit var mapView: MapView
-    private lateinit var navigation: MapboxNavigation
     private lateinit var destination: Point
+
+    private var activeArFeature: ArFeature = ArFeature.LaneAndFence
 
     private val visionListener = object : VisionEventsListener {
         override fun onVehicleStateUpdated(vehicleState: VehicleState) {
@@ -156,7 +159,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
             if (lastLocation == null) {
                 moveCameraTo(location)
                 navigationMap?.retrieveMap()
-                    ?.addOnMapLongClickListener(this@ArReplayNavigationActivity)
+                    ?.addOnMapClickListener(this@ArReplayNavigationActivity)
             }
 
             lastLocation = location
@@ -184,8 +187,18 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
                 showMapView()
             }
         }
-
+        applyArFeature()
+        ar_mode_view.setOnClickListener {
+            activeArFeature = activeArFeature.getNextFeature()
+            applyArFeature()
+        }
         initMapView(savedInstanceState)
+    }
+
+    private fun applyArFeature() {
+        ar_mode_view.setImageResource(activeArFeature.drawableId)
+        ar_view.setLaneVisible(activeArFeature.isLaneVisible)
+        ar_view.setFenceVisible(activeArFeature.isFenceVisible)
     }
 
     @SuppressLint("ResourceType")
@@ -216,23 +229,19 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
                 addOffRouteListener(offRouteListener)
                 addProgressChangeListener(routeProgressListener)
             }
-
             navigationMap?.apply {
-                addProgressChangeListener(navigation)
+                addProgressChangeListener(navigation!!)
                 updateCameraTrackingMode(NavigationCamera.NAVIGATION_TRACKING_MODE_GPS)
                 updateLocationLayerRenderMode(RenderMode.GPS)
             }
         }
     }
 
-    override fun onMapLongClick(point: LatLng): Boolean {
+    override fun onMapClick(point: LatLng): Boolean {
         destination = Point.fromLngLat(point.longitude, point.latitude)
-
         getRoute(destination)
-
         navigationMap?.clearMarkers()
         navigationMap?.addMarker(this, destination)
-
         return true
     }
 
@@ -266,7 +275,6 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
 
         VisionArManager.create(VisionReplayManager)
         ar_view.setArManager(VisionArManager)
-        ar_view.setFenceVisible(true)
         ar_view.onResume()
     }
 
@@ -280,7 +288,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
         VisionReplayManager.stop()
         VisionReplayManager.destroy()
 
-        navigation.stopNavigation()
+        navigation?.stopNavigation()
     }
 
     override fun onStart() {
@@ -299,7 +307,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
         super.onDestroy()
         mapView.onDestroy()
 
-        navigation.run {
+        navigation?.run {
             (cameraEngine as DynamicCamera).clearMap()
             onDestroy()
         }
@@ -342,7 +350,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapLongClick
             resumeCamera(lastLocation!!)
         }
 
-        navigation.startNavigation(route)
+        navigation?.startNavigation(route)
 
         // Location updates will be received from ProgressChangeListener
         removeLocationUpdates()
