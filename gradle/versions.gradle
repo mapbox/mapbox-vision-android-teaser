@@ -18,13 +18,10 @@ ext {
     teaser_version_name = '0.11.0'
     teaser_version_code = 21
 
-    mapbox_navigation = '0.42.0'
-    mapbox_sdk = '8.1.0'
+    mapbox_navigation = '0.42.5'
+    mapbox_sdk = '9.0.0'
 
     mannodermaus_junit5_version = '1.4.2.1'
-    junit_version = '4.12'
-    test_runner_version = '1.0.2'
-    espresso_version = '3.0.2'
     gradle_pitest_plugin_version = '0.2.1'
 
     ktlint_version = '0.36.0'
