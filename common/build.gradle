@@ -48,9 +48,10 @@ dependencies {
         api "com.mapbox.vision:mapbox-android-vision-safety:$vision"
     }
 
-    api('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
-        transitive = true
-    }
+    api "com.google.firebase:firebase-analytics:$firebase_analytics_version"
+    api "com.google.firebase:firebase-perf:$firebase_perf_version"
+    api "com.google.firebase:firebase-crashlytics:$firebase_crashlytics_version"
+    api "com.google.firebase:firebase-crashlytics-ndk:$firebase_crashlytics_version"
 
     api "com.mapbox.mapboxsdk:mapbox-android-sdk:$mapbox_sdk"
     api "com.mapbox.mapboxsdk:mapbox-android-navigation:$mapbox_navigation"

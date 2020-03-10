@@ -6,7 +6,9 @@ apply from: '../gradle/generate-token.gradle'
 apply from: "../gradle/ktlint.gradle"
 
 if (gradle.ext.has('BUILD_CORE_FROM_SOURCE')) {
-    apply plugin: 'io.fabric'
+    apply plugin: 'com.google.gms.google-services'
+    apply plugin: 'com.google.firebase.crashlytics'
+    apply plugin: 'com.google.firebase.firebase-perf'
 }
 
 android {
@@ -60,9 +62,20 @@ android {
             if (gradle.ext.has('SIGNING_CONFIG_RELEASE')) {
                 signingConfig signingConfigs.release
             }
+
+            firebaseCrashlytics {
+                nativeSymbolUploadEnabled true
+                strippedNativeLibsDir 'build/intermediates/stripped_native_libs/release/out/lib/'
+                unstrippedNativeLibsDir '../source/mapbox-vision/SDK/Platforms/Android/build/unstripped/release'
+            }
         }
     }
 
+    dexOptions {
+        preDexLibraries true
+        maxProcessCount 8
+        javaMaxHeapSize "2g"
+    }
 }
 
 dependencies {
