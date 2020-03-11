@@ -35,4 +35,21 @@
         android:textSize="18sp"
         tools:text="core update fps"/>
 
+    <EditText
+        android:id="@+id/custom_fps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:hint="@string/fps_input"
+        android:inputType="numberDecimal"/>
+
+    <Button
+        android:id="@+id/apply_custom_fps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:text="@string/apply_custom_fps"/>
+
 </merge>

@@ -6,11 +6,15 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import com.mabpox.vision.teaser.common.R
+import com.mapbox.vision.VisionManager
 import com.mapbox.vision.mobile.core.models.FrameStatistics
-import kotlinx.android.synthetic.main.view_fps_performance.view.*
+import com.mapbox.vision.performance.ModelPerformance
+import com.mapbox.vision.performance.ModelPerformanceMode
+import com.mapbox.vision.performance.ModelPerformanceRate
+import kotlinx.android.synthetic.main.debug_view.view.*
 import java.util.concurrent.TimeUnit
 
-class FpsPerformanceView @JvmOverloads constructor(
+class DebugView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyle: Int = 0,
@@ -28,11 +32,21 @@ class FpsPerformanceView @JvmOverloads constructor(
     private var countCoreUpdatesFps = 0L
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.view_fps_performance, this, true)
+        LayoutInflater.from(context).inflate(R.layout.debug_view, this, true)
+
+        apply_custom_fps.setOnClickListener {
+            val fps = custom_fps.text.toString().toFloat()
+            VisionManager.setModelPerformance(
+                ModelPerformance.On(
+                    mode = ModelPerformanceMode.FIXED,
+                    rate = ModelPerformanceRate.CUSTOM(fps)
+                )
+            )
+        }
     }
 
     @SuppressLint("SetTextI18n")
-    fun showInfo(frameStatistics: FrameStatistics) {
+    fun setFpsStatistics(frameStatistics: FrameStatistics) {
         with(frameStatistics) {
             if (segmentationDetectionFps > 0) {
                 sumSegmentationDetectionFps += segmentationDetectionFps
@@ -48,14 +62,6 @@ class FpsPerformanceView @JvmOverloads constructor(
         }
     }
 
-    fun resetAverageFps() {
-        sumSegmentationDetectionFps = 0f
-        sumCoreUpdatesFps = 0f
-
-        countSegmentationDetectionFps = 0L
-        countCoreUpdatesFps = 0L
-    }
-
     fun setCalibrationProgress(calibrationProgress: Float) {
         calibration_progress.text = context.getString(
             R.string.calibration_progress,
@@ -68,6 +74,14 @@ class FpsPerformanceView @JvmOverloads constructor(
         val minutes = TimeUnit.MILLISECONDS.toMinutes(timestamp) % 60
         val seconds = TimeUnit.MILLISECONDS.toSeconds(timestamp) % 60
         session_time.text = String.format(SESSION_TIME_FORMAT, hours, minutes, seconds)
+    }
+
+    fun resetAverageFps() {
+        sumSegmentationDetectionFps = 0f
+        sumCoreUpdatesFps = 0f
+
+        countSegmentationDetectionFps = 0L
+        countCoreUpdatesFps = 0L
     }
 
     private fun Float.round() = String.format("%.2f", this)

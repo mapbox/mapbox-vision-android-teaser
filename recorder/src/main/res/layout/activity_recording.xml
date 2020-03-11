@@ -16,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:visualization_mode="clear" />
 
-    <com.mapbox.vision.common.view.FpsPerformanceView
+    <com.mapbox.vision.common.view.DebugView
         android:id="@+id/fps_performance_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

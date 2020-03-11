@@ -114,7 +114,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         override fun onUpdateCompleted() {
             runOnUiThread {
                 if (visionManagerWasInit) {
-                    fps_performance_view.showInfo(getFrameStatistics())
+                    fps_performance_view.setFpsStatistics(getFrameStatistics())
                 }
             }
         }
@@ -136,21 +136,22 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         override fun onCollisionsUpdated(collisions: Array<CollisionObject>) {
             if (appMode == AppMode.Safety) {
                 runOnUiThread {
-
                     if (calibrationProgress == 1f) {
                         distance_to_car_label.show()
                         safety_mode.show()
                         calibration_progress.hide()
 
                         val collision =
-                            collisions.firstOrNull { it.`object`.objectClass == DetectionClass.Car }
+                            collisions.firstOrNull {
+                                it.`object`.objectClass == DetectionClass.Car
+                            }
+
                         if (collision == null) {
                             soundsPlayer.stop()
                             currentDangerLevel = CollisionDangerLevel.None
                             distance_to_car_label.hide()
                             safety_mode.hide()
                         } else {
-
                             if (currentDangerLevel != collision.dangerLevel) {
                                 soundsPlayer.stop()
                                 when (collision.dangerLevel) {
@@ -169,7 +170,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
                             when (currentDangerLevel) {
                                 CollisionDangerLevel.None -> safety_mode.clean()
                                 CollisionDangerLevel.Warning -> safety_mode.drawWarnings(collisions)
-                                CollisionDangerLevel.Critical -> safety_mode.drawCritical()
+                                CollisionDangerLevel.Critical -> safety_mode.drawWarnings(collisions)
                             }
                         }
                     } else {

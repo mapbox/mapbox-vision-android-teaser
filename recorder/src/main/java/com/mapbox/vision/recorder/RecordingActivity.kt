@@ -10,10 +10,10 @@ import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.Camera
 import com.mapbox.vision.mobile.core.models.Country
 import com.mapbox.vision.performance.ModelPerformance
+import kotlinx.android.synthetic.main.activity_recording.*
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlinx.android.synthetic.main.activity_recording.*
 
 class RecordingActivity : BaseVisionActivity() {
 
@@ -41,7 +41,7 @@ class RecordingActivity : BaseVisionActivity() {
         override fun onUpdateCompleted() {
             val frameStatistics = VisionManager.getFrameStatistics()
             runOnUiThread {
-                fps_performance_view.showInfo(frameStatistics)
+                fps_performance_view.setFpsStatistics(frameStatistics)
             }
         }
     }
