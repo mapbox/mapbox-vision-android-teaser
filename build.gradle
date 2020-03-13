@@ -37,5 +37,16 @@ allprojects {
 
             url 'https://api.mapbox.com/downloads/v1/vision/android/maven'
         }
+
+        if (gradle.ext.has('BUILD_CORE_FROM_SOURCE')) {
+            maven {
+                credentials {
+                    username project.properties['bintrayUser'] ?: System.getenv("MAPBOX_BINTRAY_PRIVATE_USER") ?: ""
+                    password project.properties['bintrayApiKey'] ?: System.getenv("MAPBOX_BINTRAY_PRIVATE_TOKEN") ?: ""
+                }
+
+                url 'https://mapbox.bintray.com/mapbox_private'
+            }
+        }
     }
 }
