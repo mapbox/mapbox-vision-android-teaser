@@ -54,6 +54,14 @@ android {
         debug {
             applicationIdSuffix ".debug"
             manifestPlaceholders = [appName: "Debug Vision Teaser"]
+
+            if (gradle.ext.has('BUILD_CORE_FROM_SOURCE')) {
+                firebaseCrashlytics {
+                    nativeSymbolUploadEnabled true
+                    strippedNativeLibsDir 'build/intermediates/stripped_native_libs/debug/out/lib/'
+                    unstrippedNativeLibsDir '../source/mapbox-vision/SDK/Platforms/Android/build/unstripped/debug'
+                }
+            }
         }
 
         release {
