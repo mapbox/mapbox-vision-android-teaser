@@ -7,16 +7,17 @@ buildscript {
     repositories {
         google()
         jcenter()
-        maven { url 'https://maven.fabric.io/public' }
     }
 
     dependencies {
         classpath "com.android.tools.build:gradle:$gradle_plugin"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'io.fabric.tools:gradle:1.+'
         classpath "de.mannodermaus.gradle.plugins:android-junit5:$mannodermaus_junit5_version"
         classpath "pl.droidsonroids.gradle:gradle-pitest-plugin:$gradle_pitest_plugin_version"
         classpath "com.mapbox.mapboxsdk:mapbox-android-sdk-versions:$android_sdk_versions_plugin"
+        classpath "com.google.gms:google-services:$gms_google_services_version"
+        classpath "com.google.firebase:firebase-crashlytics-gradle:$firebase_crashlytics_plugin_version"
+        classpath "com.google.firebase:perf-plugin:$firebase_perf_plugin_version"
     }
 }
 
