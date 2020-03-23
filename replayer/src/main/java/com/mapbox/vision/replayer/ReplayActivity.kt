@@ -8,6 +8,7 @@ import com.mapbox.vision.VisionReplayManager
 import com.mapbox.vision.common.view.BaseTeaserActivity
 import com.mapbox.vision.common.view.show
 import com.mapbox.vision.safety.VisionSafetyManager
+import com.mapbox.vision.view.NativeVisionView
 import com.mapbox.vision.view.VisionView
 
 class ReplayActivity : BaseTeaserActivity(), SessionsFragment.SessionChangeListener {
@@ -33,7 +34,7 @@ class ReplayActivity : BaseTeaserActivity(), SessionsFragment.SessionChangeListe
 
     override fun getFrameStatistics() = VisionReplayManager.getFrameStatistics()
 
-    override fun initVisionManager(visionView: VisionView): Boolean {
+    override fun initVisionManager(visionView: NativeVisionView): Boolean {
         if (sessionPath.isNullOrEmpty()) {
             return false
         }
@@ -42,7 +43,7 @@ class ReplayActivity : BaseTeaserActivity(), SessionsFragment.SessionChangeListe
         VisionReplayManager.visionEventsListener = visionEventsListener
         VisionReplayManager.start()
         VisionReplayManager.setModelPerformance(modelPerformance)
-        visionView.setVisionManager(VisionReplayManager)
+//        visionView.setVisionManager(VisionReplayManager)
 
         VisionSafetyManager.create(VisionReplayManager)
         VisionSafetyManager.visionSafetyListener = visionSafetyListener

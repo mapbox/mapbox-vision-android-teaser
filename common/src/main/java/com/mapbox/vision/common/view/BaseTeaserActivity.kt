@@ -33,13 +33,14 @@ import com.mapbox.vision.safety.core.VisionSafetyListener
 import com.mapbox.vision.safety.core.models.CollisionDangerLevel
 import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
+import com.mapbox.vision.view.NativeVisionView
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*
 
 abstract class BaseTeaserActivity : BaseVisionActivity() {
 
-    protected abstract fun initVisionManager(visionView: VisionView): Boolean
+    protected abstract fun initVisionManager(visionView: NativeVisionView): Boolean
 
     protected abstract fun destroyVisionManager()
 

@@ -10,6 +10,7 @@ import com.mapbox.vision.common.view.show
 import com.mapbox.vision.examples.R
 import com.mapbox.vision.examples.activity.ar.ArMapActivity
 import com.mapbox.vision.safety.VisionSafetyManager
+import com.mapbox.vision.view.NativeVisionView
 import com.mapbox.vision.view.VisionView
 
 class MainActivity : BaseTeaserActivity() {
@@ -26,9 +27,9 @@ class MainActivity : BaseTeaserActivity() {
 
     override fun getFrameStatistics() = VisionManager.getFrameStatistics()
 
-    override fun initVisionManager(visionView: VisionView): Boolean {
+    override fun initVisionManager(visionView: NativeVisionView): Boolean {
         VisionManager.create()
-        visionView.setVisionManager(VisionManager)
+//        visionView.setVisionManager(VisionManager)
         VisionManager.visionEventsListener = visionEventsListener
         VisionManager.start()
         VisionManager.setModelPerformance(modelPerformance)

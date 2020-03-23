@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <com.mapbox.vision.view.VisionView
+    <com.mapbox.vision.view.NativeVisionView
         android:id="@+id/vision_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
