@@ -28,12 +28,14 @@ import com.mapbox.vision.common.models.ArFeature
 import com.mapbox.vision.common.utils.buildStepPointsFromGeometry
 import com.mapbox.vision.common.utils.mapToManeuverType
 import com.mapbox.vision.examples.R
+import com.mapbox.vision.mobile.core.models.CameraParameters
 import com.mapbox.vision.mobile.core.models.position.GeoCoordinate
 import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.utils.VisionLogger
+import com.mapbox.vision.vlc.externalcamera.ExternalVideoSourceImpl
 import kotlinx.android.synthetic.main.activity_ar_navigation.*
 import kotlinx.android.synthetic.main.activity_ar_navigation.back
 
@@ -127,7 +129,19 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
         mapboxNavigation.addProgressChangeListener(this)
         mapboxNavigation.locationEngine = arLocationEngine
 
-        VisionManager.create()
+        val externalVideoSource = ExternalVideoSourceImpl(
+                application = VisionManager.application,
+                externalCameraIp = "rtsp://192.168.99.1/media/stream2", //for AP mode
+//                externalCameraIp = "rtsp://192.168.43.2/media/stream2", //for STA mode
+//                externalCameraIp = "/sdcard/Drive4K_East_3rd_Ring_Road_Beijing.mp4", //local mode
+                externalCameraParameters = CameraParameters(
+                        width = 1280,
+                        height = 720,
+                        focalInPixelsX = 1280f * 6.0f / 5.07f,
+                        focalInPixelsY = 720f * 6.0f / 3.38f
+                )
+        )
+        VisionManager.create(externalVideoSource)
         VisionManager.start()
         VisionManager.setModelPerformanceConfig(
             ModelPerformanceConfig.Merged(
