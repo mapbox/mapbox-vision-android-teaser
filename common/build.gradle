@@ -42,6 +42,7 @@ dependencies {
         api project(path: ':Vision')
         api project(path: ':VisionAr')
         api project(path: ':VisionSafety')
+        api project(path: ':vlcexternalplayer')
     } else {
         api "com.mapbox.vision:mapbox-android-vision:$vision"
         api "com.mapbox.vision:mapbox-android-vision-ar:$vision"
