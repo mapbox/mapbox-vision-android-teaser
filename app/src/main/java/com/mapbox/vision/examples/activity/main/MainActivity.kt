@@ -33,7 +33,6 @@ class MainActivity : BaseTeaserActivity() {
         VisionManager.visionEventsListener = visionEventsListener
         VisionManager.start()
         VisionManager.setModelPerformance(modelPerformance)
-        VisionManager.setGlRenderer(visionView.glRenderer)
 
         VisionSafetyManager.create(VisionManager)
         VisionSafetyManager.visionSafetyListener = visionSafetyListener

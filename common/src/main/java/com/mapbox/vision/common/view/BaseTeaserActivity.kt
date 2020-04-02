@@ -255,7 +255,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        lifecycle.addObserver(vision_view)
         soundsPlayer = SoundsPlayer(this)
     }
 
@@ -314,13 +314,11 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
     override fun onResume() {
         super.onResume()
         tryToInitVisionManager()
-        vision_view.onResume()
     }
 
     override fun onPause() {
         super.onPause()
         stopVisionManager()
-        vision_view.onPause()
         soundsPlayer.stop()
     }
 
