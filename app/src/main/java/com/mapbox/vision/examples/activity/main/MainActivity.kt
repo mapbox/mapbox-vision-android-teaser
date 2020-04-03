@@ -29,9 +29,8 @@ class MainActivity : BaseTeaserActivity() {
 
     override fun initVisionManager(visionView: NativeVisionView): Boolean {
         VisionManager.create()
-//        visionView.setVisionManager(VisionManager)
         VisionManager.visionEventsListener = visionEventsListener
-        VisionManager.start()
+        VisionManager.start(visionView)
         VisionManager.setModelPerformance(modelPerformance)
 
         VisionSafetyManager.create(VisionManager)
