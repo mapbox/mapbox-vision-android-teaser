@@ -255,7 +255,6 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycle.addObserver(vision_view)
         soundsPlayer = SoundsPlayer(this)
     }
 
