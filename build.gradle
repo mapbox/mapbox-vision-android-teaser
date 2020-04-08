@@ -49,5 +49,7 @@ allprojects {
                 url 'https://mapbox.bintray.com/mapbox_private'
             }
         }
+
+        maven { url 'http://raw.github.com/saki4510t/libcommon/master/repository/' }
     }
 }

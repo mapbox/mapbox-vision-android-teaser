@@ -24,6 +24,7 @@ import com.mapbox.vision.VisionManager
 import com.mapbox.vision.ar.VisionArManager
 import com.mapbox.vision.ar.core.models.Route
 import com.mapbox.vision.ar.core.models.RoutePoint
+import com.mapbox.vision.common.UsbVideoSource
 import com.mapbox.vision.common.models.ArFeature
 import com.mapbox.vision.common.utils.buildStepPointsFromGeometry
 import com.mapbox.vision.common.utils.mapToManeuverType
@@ -127,7 +128,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
         mapboxNavigation.addProgressChangeListener(this)
         mapboxNavigation.locationEngine = arLocationEngine
 
-        VisionManager.create()
+        VisionManager.create(UsbVideoSource(application))
         VisionManager.start()
         VisionManager.setModelPerformanceConfig(
             ModelPerformanceConfig.Merged(

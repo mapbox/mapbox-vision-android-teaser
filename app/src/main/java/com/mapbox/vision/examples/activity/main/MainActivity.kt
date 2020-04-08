@@ -5,10 +5,12 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import com.mapbox.vision.VisionManager
+import com.mapbox.vision.common.UsbVideoSource
 import com.mapbox.vision.common.view.BaseTeaserActivity
 import com.mapbox.vision.common.view.show
 import com.mapbox.vision.examples.R
 import com.mapbox.vision.examples.activity.ar.ArMapActivity
+import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.view.VisionView
 
@@ -27,11 +29,13 @@ class MainActivity : BaseTeaserActivity() {
     override fun getFrameStatistics() = VisionManager.getFrameStatistics()
 
     override fun initVisionManager(visionView: VisionView): Boolean {
-        VisionManager.create()
+        VisionManager.create(
+            UsbVideoSource(application)
+        )
         visionView.setVisionManager(VisionManager)
         VisionManager.visionEventsListener = visionEventsListener
         VisionManager.start()
-//        VisionManager.setModelPerformance(modelPerformance)
+        VisionManager.setModelPerformance(modelPerformance)
 
         VisionSafetyManager.create(VisionManager)
         VisionSafetyManager.visionSafetyListener = visionSafetyListener
