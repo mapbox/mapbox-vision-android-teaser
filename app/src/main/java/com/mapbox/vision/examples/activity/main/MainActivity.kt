@@ -11,7 +11,6 @@ import com.mapbox.vision.examples.R
 import com.mapbox.vision.examples.activity.ar.ArMapActivity
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.view.NativeVisionView
-import com.mapbox.vision.view.VisionView
 
 class MainActivity : BaseTeaserActivity() {
 
@@ -30,8 +29,9 @@ class MainActivity : BaseTeaserActivity() {
     override fun initVisionManager(visionView: NativeVisionView): Boolean {
         VisionManager.create()
         VisionManager.visionEventsListener = visionEventsListener
-        VisionManager.start(visionView)
+        VisionManager.start()
         VisionManager.setModelPerformance(modelPerformance)
+        visionView.setVisionManager(VisionManager)
 
         VisionSafetyManager.create(VisionManager)
         VisionSafetyManager.visionSafetyListener = visionSafetyListener
