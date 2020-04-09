@@ -261,7 +261,7 @@ sealed class UiSign {
             usResourceName = "regulatory_no_heavy_goods_vehicles_picture_us",
             chinaResourceName = "regulatory_no_heavy_goods_vehicles_picture_cn",
             ukResourceName = "regulatory_no_heavy_goods_vehicles_picture_uk",
-            jpResourceName = "regulatory_no_heavy_goods_vehicles_picture_jp.svg"
+            jpResourceName = "regulatory_no_heavy_goods_vehicles_picture_jp"
         ),
         RegulatoryNoLeftTurnText(
             usResourceName = "regulatory_no_left_turn_text_us",
