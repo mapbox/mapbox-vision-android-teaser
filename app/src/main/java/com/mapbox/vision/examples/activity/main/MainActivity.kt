@@ -17,7 +17,7 @@ import com.mapbox.vision.view.VisionView
 class MainActivity : BaseTeaserActivity() {
 
     override fun initViews(root: View) {
-        root.findViewById<LinearLayout>(R.id.ar_navigation_button_container).apply {
+        root.findViewById<LinearLayout>(R.id.ar_button).apply {
             setOnClickListener { startActivity(Intent(this@MainActivity, ArMapActivity::class.java)) }
         }
 

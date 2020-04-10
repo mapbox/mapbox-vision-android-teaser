@@ -22,6 +22,7 @@ import com.mapbox.vision.mobile.core.models.Country
 import com.mapbox.vision.mobile.core.models.FrameStatistics
 import com.mapbox.vision.mobile.core.models.classification.FrameSignClassifications
 import com.mapbox.vision.mobile.core.models.detection.DetectionClass
+import com.mapbox.vision.mobile.core.models.frame.ImageSize
 import com.mapbox.vision.mobile.core.models.position.VehicleState
 import com.mapbox.vision.mobile.core.models.road.LaneDirection
 import com.mapbox.vision.mobile.core.models.road.LaneEdgeType
@@ -35,7 +36,26 @@ import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.back
+import kotlinx.android.synthetic.main.activity_main.dashboard_container
+import kotlinx.android.synthetic.main.activity_main.detection_button
+import kotlinx.android.synthetic.main.activity_main.distance_to_car_label
+import kotlinx.android.synthetic.main.activity_main.fps_performance_view
+import kotlinx.android.synthetic.main.activity_main.lane_detection_button
+import kotlinx.android.synthetic.main.activity_main.lane_detections_container
+import kotlinx.android.synthetic.main.activity_main.lane_detections_list
+import kotlinx.android.synthetic.main.activity_main.lane_view
+import kotlinx.android.synthetic.main.activity_main.root
+import kotlinx.android.synthetic.main.activity_main.safety_button
+import kotlinx.android.synthetic.main.activity_main.safety_mode_container
+import kotlinx.android.synthetic.main.activity_main.safety_view
+import kotlinx.android.synthetic.main.activity_main.segmentation_button
+import kotlinx.android.synthetic.main.activity_main.sign_info_container
+import kotlinx.android.synthetic.main.activity_main.signs_button
+import kotlinx.android.synthetic.main.activity_main.speed_limit_current
+import kotlinx.android.synthetic.main.activity_main.speed_limit_next
+import kotlinx.android.synthetic.main.activity_main.vision_view
+import kotlinx.android.synthetic.main.activity_replay.*
 
 abstract class BaseTeaserActivity : BaseVisionActivity() {
 
@@ -60,7 +80,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
     private var signSize = 0
     private var margin = 0
 
-    private var lineHeight = 0
+    private var laneHeight = 0
 
     private var tracker: Tracker<UiSign> = Tracker(5)
     private var appMode: AppMode = AppMode.Detection
@@ -94,7 +114,19 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         override fun onRoadDescriptionUpdated(roadDescription: RoadDescription) {
             if (appMode == AppMode.Lanes) {
                 runOnUiThread {
-                    drawLanesDetection(roadDescription)
+                    if (calibrationProgress == 1f) {
+                        calibration_progress.hide()
+
+                        lane_detections_list.show()
+                        fillLaneList(roadDescription)
+
+                        lane_view.show()
+                        lane_view.drawLane(roadDescription.lanes.firstOrNull())
+                    } else {
+                        calibration_progress.show()
+                        lane_view.hide()
+                        lane_detections_list.hide()
+                    }
                 }
             }
         }
@@ -104,9 +136,17 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         }
 
         override fun onCameraUpdated(camera: Camera) {
-            calibrationProgress = camera.calibrationProgress
             runOnUiThread {
+                calibrationProgress = camera.calibrationProgress
                 fps_performance_view.setCalibrationProgress(calibrationProgress)
+                lane_view.frameSize = ImageSize(
+                    imageWidth = camera.frameWidth,
+                    imageHeight = camera.frameHeight
+                )
+                calibration_progress.text = getString(
+                    R.string.calibration_progress,
+                    (calibrationProgress * 100).toInt()
+                )
             }
         }
 
@@ -137,9 +177,9 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
             if (appMode == AppMode.Safety) {
                 runOnUiThread {
                     if (calibrationProgress == 1f) {
-                        distance_to_car_label.show()
-                        safety_mode.show()
                         calibration_progress.hide()
+                        distance_to_car_label.show()
+                        safety_view.show()
 
                         val collision =
                             collisions.firstOrNull {
@@ -150,7 +190,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
                             soundsPlayer.stop()
                             currentDangerLevel = CollisionDangerLevel.None
                             distance_to_car_label.hide()
-                            safety_mode.hide()
+                            safety_view.hide()
                         } else {
                             if (currentDangerLevel != collision.dangerLevel) {
                                 soundsPlayer.stop()
@@ -163,24 +203,20 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
                             }
 
                             distance_to_car_label.show()
-                            safety_mode.show()
+                            safety_view.show()
                             distance_to_car_label.text =
                                 distanceFormatter.formatDistance(collision.`object`.position.y)
 
                             when (currentDangerLevel) {
-                                CollisionDangerLevel.None -> safety_mode.clean()
-                                CollisionDangerLevel.Warning -> safety_mode.drawWarnings(collisions)
-                                CollisionDangerLevel.Critical -> safety_mode.drawWarnings(collisions)
+                                CollisionDangerLevel.None -> safety_view.clean()
+                                CollisionDangerLevel.Warning -> safety_view.drawWarnings(collisions)
+                                CollisionDangerLevel.Critical -> safety_view.drawCritical()
                             }
                         }
                     } else {
-                        distance_to_car_label.hide()
-                        safety_mode.hide()
                         calibration_progress.show()
-                        calibration_progress.text = getString(
-                            R.string.calibration_progress,
-                            (calibrationProgress * 100).toInt()
-                        )
+                        distance_to_car_label.hide()
+                        safety_view.hide()
                     }
                 }
             }
@@ -267,16 +303,15 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         isPermissionsGranted = true
 
         signSize = resources.getDimension(R.dimen.dp64).toInt()
-        lineHeight = resources.getDimension(R.dimen.dp40).toInt()
+        laneHeight = resources.getDimension(R.dimen.dp40).toInt()
         margin = resources.getDimension(R.dimen.dp8).toInt()
 
         back.setOnClickListener { onBackClick() }
-        segm_container.setOnClickListener { setAppMode(AppMode.Segmentation) }
-        sign_detection_container.setOnClickListener { setAppMode(AppMode.Classification) }
-        det_container.setOnClickListener { setAppMode(AppMode.Detection) }
-        distance_container.setOnClickListener { setAppMode(AppMode.Safety) }
-        safety_mode_container.hide()
-        line_detection_container.setOnClickListener { setAppMode(AppMode.Lanes) }
+        segmentation_button.setOnClickListener { setAppMode(AppMode.Segmentation) }
+        signs_button.setOnClickListener { setAppMode(AppMode.Classification) }
+        detection_button.setOnClickListener { setAppMode(AppMode.Detection) }
+        safety_button.setOnClickListener { setAppMode(AppMode.Safety) }
+        lane_detection_button.setOnClickListener { setAppMode(AppMode.Lanes) }
 
         root.setOnLongClickListener {
             if (fps_performance_view.visibility == View.GONE) {
@@ -327,7 +362,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
     private fun onBackClick() {
         soundsPlayer.stop()
         dashboard_container.show()
-        hideLineDetectionContainer()
+        hideLaneDetectionContainer()
         hideSignsContainer()
         safety_mode_container.hide()
         back.hide()
@@ -349,10 +384,10 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         }
     }
 
-    private fun drawLanesDetection(roadDescription: RoadDescription) {
+    private fun fillLaneList(roadDescription: RoadDescription) {
         fun getImageView(isFirst: Boolean = false): ImageView {
             val image = ImageView(this)
-            val lp = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, lineHeight)
+            val lp = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, laneHeight)
             if (isFirst) {
                 lp.marginStart = margin
             }
@@ -381,13 +416,13 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
             LaneDirection.Unknown -> TODO()
         }
 
-        lines_detections_container.removeAllViews()
+        lane_detections_list.removeAllViews()
 
         for (index in roadDescription.lanes.indices) {
             val lane = roadDescription.lanes[index]
             val leftMarkingImageView = getImageView(index == 0)
             leftMarkingImageView.setImageResource(lane.leftEdge.type.toDrawableId())
-            lines_detections_container.addView(leftMarkingImageView)
+            lane_detections_list.addView(leftMarkingImageView)
 
             val directionImageView = getImageView()
             if (index == roadDescription.currentLaneIndex) {
@@ -395,12 +430,12 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
             } else {
                 directionImageView.setImageResource(lane.direction.toDrawableId())
             }
-            lines_detections_container.addView(directionImageView)
+            lane_detections_list.addView(directionImageView)
 
             if (index == roadDescription.lanes.lastIndex) {
                 val rightMarkingImageView = getImageView()
                 rightMarkingImageView.setImageResource(lane.rightEdge.type.toDrawableId(true))
-                lines_detections_container.addView(rightMarkingImageView)
+                lane_detections_list.addView(rightMarkingImageView)
             }
         }
     }
@@ -410,10 +445,9 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         sign_info_container.hide()
     }
 
-    private fun hideLineDetectionContainer() {
-        line_departure.hide()
-        lines_detections_container.removeAllViews()
-        lines_detections_container.hide()
+    private fun hideLaneDetectionContainer() {
+        lane_detections_list.removeAllViews()
+        lane_detections_container.hide()
     }
 
     private fun setAppMode(mode: AppMode) {
@@ -423,8 +457,9 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         back.show()
         dashboard_container.hide()
         safety_mode_container.hide()
-        hideLineDetectionContainer()
+        hideLaneDetectionContainer()
         hideSignsContainer()
+        calibration_progress.hide()
 
         appMode = mode
         when (appMode) {
@@ -442,13 +477,14 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
             AppMode.Safety -> {
                 vision_view.visualizationMode = VisualizationMode.Clear
                 safety_mode_container.show()
-                safety_mode.hide()
-                calibration_progress.hide()
+                safety_view.hide()
+                calibration_progress.show()
                 distance_to_car_label.hide()
             }
             AppMode.Lanes -> {
                 vision_view.visualizationMode = VisualizationMode.Clear
-                lines_detections_container.show()
+                lane_detections_container.show()
+                calibration_progress.show()
             }
         }
     }

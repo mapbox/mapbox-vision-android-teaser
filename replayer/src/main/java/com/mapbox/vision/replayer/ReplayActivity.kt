@@ -13,11 +13,11 @@ import com.mapbox.vision.view.VisionView
 class ReplayActivity : BaseTeaserActivity(), SessionsFragment.SessionChangeListener {
 
     override fun initViews(root: View) {
-        root.findViewById<LinearLayout>(R.id.ar_navigation_button_container).apply {
+        root.findViewById<LinearLayout>(R.id.ar_button).apply {
             setOnClickListener { startArSession() }
         }
 
-        root.findViewById<LinearLayout>(R.id.session_chooser_button_container).apply {
+        root.findViewById<LinearLayout>(R.id.session_button).apply {
             setOnClickListener { showSessionsList() }
         }
 

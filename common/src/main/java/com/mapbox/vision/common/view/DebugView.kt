@@ -63,7 +63,7 @@ class DebugView @JvmOverloads constructor(
     }
 
     fun setCalibrationProgress(calibrationProgress: Float) {
-        calibration_progress.text = context.getString(
+        calibration_safety.text = context.getString(
             R.string.calibration_progress,
             (calibrationProgress * 100).toInt()
         )

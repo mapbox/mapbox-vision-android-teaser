@@ -12,7 +12,7 @@
         tools:text="session time"/>
 
     <TextView
-        android:id="@+id/calibration_progress"
+        android:id="@+id/calibration_safety"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/black"
