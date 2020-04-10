@@ -1,7 +1,6 @@
 package com.mapbox.vision.common
 
 import android.app.Application
-import android.graphics.Camera
 import android.graphics.SurfaceTexture
 import android.hardware.usb.UsbDevice
 import android.opengl.GLES11Ext
@@ -29,6 +28,10 @@ class UsbVideoSource(
             imageWidth = 1280,
             imageHeight = 720
         )
+    }
+
+    private fun UsbDevice?.isUvcCamera(): Boolean {
+        return this != null && deviceClass == 239 && deviceSubclass == 2
     }
 
     private val backgroundHandlerThread = HandlerThread("VideoDecode").apply { start() }
@@ -87,7 +90,9 @@ class UsbVideoSource(
         object : USBMonitor.OnDeviceConnectListener {
             override fun onAttach(device: UsbDevice?) {
                 synchronized(this@UsbVideoSource) {
-                    usbMonitor?.requestPermission(device!!)
+                    if (device.isUvcCamera()) {
+                        usbMonitor?.requestPermission(device)
+                    }
                 }
             }
 
@@ -98,14 +103,16 @@ class UsbVideoSource(
             ) {
                 backgroundHandler.post {
                     synchronized(this@UsbVideoSource) {
-                        releaseCamera()
-                        initializeCamera(ctrlBlock!!)
-                        usbVideoSourceListener?.onNewCameraParameters(CameraParameters(
-                            width = CAMERA_FRAME_SIZE.imageWidth,
-                            height = CAMERA_FRAME_SIZE.imageHeight,
-                            focalInPixelsX = 900f,
-                            focalInPixelsY = 800f
-                        ))
+                        if (device.isUvcCamera()) {
+                            releaseCamera()
+                            initializeCamera(ctrlBlock!!)
+                            usbVideoSourceListener?.onNewCameraParameters(CameraParameters(
+                                width = CAMERA_FRAME_SIZE.imageWidth,
+                                height = CAMERA_FRAME_SIZE.imageHeight,
+                                focalInPixelsX = 900f,
+                                focalInPixelsY = 800f
+                            ))
+                        }
                     }
                 }
             }
@@ -117,7 +124,9 @@ class UsbVideoSource(
             override fun onDisconnect(device: UsbDevice?, ctrlBlock: USBMonitor.UsbControlBlock?) {
                 backgroundHandler.post {
                     synchronized(this@UsbVideoSource) {
-                        releaseCamera()
+                        if (device.isUvcCamera()) {
+                            releaseCamera()
+                        }
                     }
                 }
             }
