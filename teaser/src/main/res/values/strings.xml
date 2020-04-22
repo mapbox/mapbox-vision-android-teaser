@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name_recorder">Session Recorder</string>
+    <string name="app_name_replayer">Session Replayer</string>
+    <string name="app_title_replayer">Mapbox Vision Replayer</string>
+    <string name="start_recording">Start recording</string>
+    <string name="stop_recording">Stop recording</string>
+</resources>
