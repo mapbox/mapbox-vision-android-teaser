@@ -109,7 +109,7 @@ class RecordingActivity : BaseVisionActivity() {
     private fun toggleRecording() {
         when (recording_view.state) {
             RecordingView.State.NotRecording -> {
-                VisionManager.startRecording("$BASE_SESSION_PATH/${dateFormat.format(Date(System.currentTimeMillis()))}")
+                VisionManager.startRecording("$BASE_SESSION_PATH/${buildFileName()}")
                 recording_view.state = RecordingView.State.Recording
             }
             RecordingView.State.Recording -> {
@@ -118,4 +118,6 @@ class RecordingActivity : BaseVisionActivity() {
             }
         }
     }
+
+    private fun buildFileName() = dateFormat.format(Date(System.currentTimeMillis()))
 }

@@ -41,10 +41,10 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
     OffRouteListener {
 
     companion object {
-        private var TAG = ArNavigationActivity::class.java.simpleName
+        private val TAG = ArNavigationActivity::class.java.simpleName
 
         private const val LOCATION_INTERVAL_DEFAULT = 0L
-        private const val LOCATION_INTERVAL_FAST = 1000L
+        private const val LOCATION_INTERVAL_FAST_MS = 1000L
 
         var directionsRoute: DirectionsRoute? = null
 
@@ -60,7 +60,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
     private val arLocationEngineRequest by lazy {
         LocationEngineRequest.Builder(LOCATION_INTERVAL_DEFAULT)
             .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
-            .setFastestInterval(LOCATION_INTERVAL_FAST)
+            .setFastestInterval(LOCATION_INTERVAL_FAST_MS)
             .build()
     }
 
