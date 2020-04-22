@@ -35,7 +35,7 @@ import retrofit2.Response
 class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapReadyCallback {
 
     companion object {
-        private var TAG = ArMapActivity::class.java.simpleName
+        private val TAG = ArMapActivity::class.java.simpleName
         private const val MAP_STYLE = "mapbox://styles/mapbox/dark-v10"
     }
 
@@ -163,19 +163,19 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
             .build()
             .getRoute(object : Callback<DirectionsResponse> {
                 override fun onResponse(call: Call<DirectionsResponse>, response: Response<DirectionsResponse>) {
-                    if (response.body() == null || response.body()!!.routes().size < 1) {
+                    if (response.body() == null || response.body()!!.routes().size == 0) {
                         return
                     }
 
                     currentRoute = response.body()!!.routes()[0]
 
                     // Draw the route on the map
-                    if (navigationMapRoute != null) {
-                        navigationMapRoute!!.updateRouteVisibilityTo(false)
-                    } else {
+                    if (navigationMapRoute == null) {
                         navigationMapRoute = NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute)
+                    } else {
+                        navigationMapRoute?.updateRouteVisibilityTo(false)
                     }
-                    navigationMapRoute!!.addRoute(currentRoute)
+                    navigationMapRoute?.addRoute(currentRoute)
                 }
 
                 override fun onFailure(call: Call<DirectionsResponse>, throwable: Throwable) {}
