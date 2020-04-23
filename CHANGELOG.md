@@ -1,6 +1,19 @@
 # Changelog
 
-## v0.10.1
+## 0.12.0
+This version of the Vision Teaser includes improvements in algorithm performance, camera calibration process, 
+and lane detection accuracy. 
+The new version contains new improved ML-models for CV tasks like detection, segmentation, and classification. 
+The full list of changes:
+
+- Added support for non-Snapdragon powered devices. Most chips on the market are supported now,
+including Exynos by Samsung, Kirin by Huawei, Mediatek, etc.
+- Added japanese traffic signs 
+- Improved lanes detection algorithm
+- Improved camera calibration speed
+- Utilized new ML models that reduce resource consumption
+
+## 0.10.1
 
 ### Technical improvements
 
@@ -8,9 +21,9 @@
 
 ### User experience
 
-- Hotfix for v0.10.0 
+- Hotfix for 0.10.0 
 
-## v0.10.0
+## 0.10.0
 
 ### Technical improvements
 
@@ -27,19 +40,19 @@
 - Improved segmentation, now it's more focused on road specific elements. New segmentation model recognizes the following classes: Crosswalk, Hood, MarkupDashed, MarkupDouble, MarkupOther, MarkupSolid, Other, Road, RoadEdge, Sidewalk
 - Bug fixes
 
-## v0.9.0
+## 0.9.0
 
 - New AR Lane
 
-## v0.8.0
+## 0.8.0
 
 - Start monitoring performance related device info
 
-## v0.7.1
+## 0.7.1
 
 - Fixed detections of sign objects
 
-## v0.7.0
+## 0.7.0
 
 - Improved lane detection
 
