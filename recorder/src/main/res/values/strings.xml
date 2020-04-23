@@ -1,5 +1,0 @@
-<resources>
-    <string name="app_name">Session Recorder</string>
-    <string name="start_recording">Start recording</string>
-    <string name="stop_recording">Stop recording</string>
-</resources>
