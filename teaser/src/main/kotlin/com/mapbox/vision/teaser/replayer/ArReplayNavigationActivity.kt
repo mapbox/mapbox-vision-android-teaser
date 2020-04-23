@@ -39,9 +39,9 @@ import com.mapbox.vision.VisionReplayManager
 import com.mapbox.vision.ar.VisionArManager
 import com.mapbox.vision.ar.core.models.Route
 import com.mapbox.vision.ar.core.models.RoutePoint
-import com.mapbox.vision.common.models.ArFeature
-import com.mapbox.vision.common.utils.buildStepPointsFromGeometry
-import com.mapbox.vision.common.utils.mapToManeuverType
+import com.mapbox.vision.teaser.models.ArFeature
+import com.mapbox.vision.teaser.utils.buildStepPointsFromGeometry
+import com.mapbox.vision.teaser.utils.mapToManeuverType
 import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.position.GeoCoordinate
 import com.mapbox.vision.mobile.core.models.position.VehicleState

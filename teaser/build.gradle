@@ -96,7 +96,31 @@ android {
 }
 
 dependencies {
-    implementation project(':common')
+
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    api "androidx.appcompat:appcompat:$android_x_appcompat"
+    api "androidx.constraintlayout:constraintlayout:$android_x_constraint_layout"
+    api "androidx.core:core-ktx:$android_x_ktx"
+    api "androidx.multidex:multidex:$android_x_multidex"
+
+    if (gradle.ext.has('BUILD_CORE_FROM_SOURCE') && gradle.ext.BUILD_CORE_FROM_SOURCE.toBoolean()) {
+        api project(path: ':Vision')
+        api project(path: ':VisionAr')
+        api project(path: ':VisionSafety')
+    } else {
+        api "com.mapbox.vision:mapbox-android-vision:$vision"
+        api "com.mapbox.vision:mapbox-android-vision-ar:$vision"
+        api "com.mapbox.vision:mapbox-android-vision-safety:$vision"
+    }
+
+    api "com.google.firebase:firebase-analytics:$firebase_analytics_version"
+    api "com.google.firebase:firebase-perf:$firebase_perf_version"
+    api "com.google.firebase:firebase-crashlytics:$firebase_crashlytics_version"
+    api "com.google.firebase:firebase-crashlytics-ndk:$firebase_crashlytics_version"
+
+    api "com.mapbox.mapboxsdk:mapbox-android-sdk:$mapbox_sdk"
+    api "com.mapbox.mapboxsdk:mapbox-android-navigation:$mapbox_navigation"
+    api "com.mapbox.mapboxsdk:mapbox-android-navigation-ui:$mapbox_navigation"
 
     ktlint "com.pinterest:ktlint:$ktlint_version"
 }

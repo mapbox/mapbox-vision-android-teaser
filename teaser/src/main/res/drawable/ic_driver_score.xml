@@ -1,0 +1,34 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt"
+        android:viewportWidth="68"
+        android:viewportHeight="68"
+        android:width="68dp"
+        android:height="68dp">
+    <path
+        android:pathData="M68 34A34 34 0 0 1 0 34A34 34 0 0 1 68 34Z"
+        android:fillType="evenOdd">
+        <aapt:attr
+            name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="34"
+                android:centerY="68"
+                android:gradientRadius="68"
+                android:tileMode="clamp">
+                <item
+                    android:color="#ACD2FF"
+                    android:offset="0" />
+                <item
+                    android:color="#E9141C"
+                    android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:pathData="M37.92 33.2a4 4 0 1 1 -0.877 -1.797l7.304 -3.562 0.877 1.797 -7.304 3.563zm-2.103 -0.037l-0.037 -0.077a2 2 0 1 0 0.037 0.077zm9.473 10.713A14.937 14.937 0 0 0 48.967 35h5.008c-0.234 4.77 -2.14 9.1 -5.143 12.417l-3.542 -3.541zM22.71 24.124A14.937 14.937 0 0 0 19.033 33h-5.008c0.234 -4.77 2.14 -9.1 5.143 -12.417l3.542 3.541zm1.414 -1.414l-3.541 -3.542A19.921 19.921 0 0 1 33 14.025v5.008a14.937 14.937 0 0 0 -8.876 3.677zm21.166 1.414l3.542 -3.541A19.921 19.921 0 0 1 53.975 33h-5.008a14.937 14.937 0 0 0 -3.677 -8.876zm-1.414 -1.414A14.937 14.937 0 0 0 35 19.033v-5.008c4.77 0.234 9.1 2.14 12.417 5.143l-3.541 3.542zM22.71 43.876l-3.542 3.541A19.921 19.921 0 0 1 14.025 35h5.008a14.937 14.937 0 0 0 3.677 8.876z"
+        android:fillType="evenOdd"
+        android:fillColor="#000000" />
+    <path
+        android:pathData="M37.92 33.2a4 4 0 1 1 -0.877 -1.797l7.304 -3.562 0.877 1.797 -7.304 3.563zm-2.103 -0.037l-0.037 -0.077a2 2 0 1 0 0.037 0.077zm9.473 10.713A14.937 14.937 0 0 0 48.967 35h5.008c-0.234 4.77 -2.14 9.1 -5.143 12.417l-3.542 -3.541zM22.71 24.124A14.937 14.937 0 0 0 19.033 33h-5.008c0.234 -4.77 2.14 -9.1 5.143 -12.417l3.542 3.541zm1.414 -1.414l-3.541 -3.542A19.921 19.921 0 0 1 33 14.025v5.008a14.937 14.937 0 0 0 -8.876 3.677zm21.166 1.414l3.542 -3.541A19.921 19.921 0 0 1 53.975 33h-5.008a14.937 14.937 0 0 0 -3.677 -8.876zm-1.414 -1.414A14.937 14.937 0 0 0 35 19.033v-5.008c4.77 0.234 9.1 2.14 12.417 5.143l-3.541 3.542zM22.71 43.876l-3.542 3.541A19.921 19.921 0 0 1 14.025 35h5.008a14.937 14.937 0 0 0 3.677 8.876z"
+        android:fillType="evenOdd"
+        android:fillColor="#FFFFFF" />
+</vector>

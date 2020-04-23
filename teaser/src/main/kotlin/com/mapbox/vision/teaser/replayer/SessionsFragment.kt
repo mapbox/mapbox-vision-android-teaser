@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.mapbox.vision.common.BaseVisionActivity
+import com.mapbox.vision.teaser.BaseVisionActivity
 import com.mapbox.vision.teaser.R
 import kotlinx.android.synthetic.main.fragment_sessions.*
 
