@@ -5,8 +5,8 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import com.mapbox.vision.VisionManager
-import com.mapbox.vision.common.view.BaseTeaserActivity
-import com.mapbox.vision.common.view.show
+import com.mapbox.vision.teaser.view.BaseTeaserActivity
+import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.teaser.ar.ArMapActivity
 import com.mapbox.vision.view.VisionView
