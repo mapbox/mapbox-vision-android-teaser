@@ -2,14 +2,16 @@ package com.mapbox.vision.teaser
 
 import android.content.Intent
 import android.view.View
-import android.widget.ImageView
 import android.widget.LinearLayout
 import com.mapbox.vision.VisionManager
 import com.mapbox.vision.teaser.view.BaseTeaserActivity
 import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.teaser.ar.ArMapActivity
+import com.mapbox.vision.teaser.replayer.ReplayModeFragment
+import com.mapbox.vision.teaser.view.hide
 import com.mapbox.vision.view.VisionView
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : BaseTeaserActivity() {
 
@@ -18,8 +20,8 @@ class MainActivity : BaseTeaserActivity() {
             setOnClickListener { startActivity(Intent(this@MainActivity, ArMapActivity::class.java)) }
         }
 
-        root.findViewById<ImageView>(R.id.title_teaser).apply {
-            show()
+        root.findViewById<LinearLayout>(R.id.replay_mode_button_container).apply {
+            setOnClickListener { showReplayModeFragment() }
         }
     }
 
@@ -38,9 +40,39 @@ class MainActivity : BaseTeaserActivity() {
         return true
     }
 
+    private fun showReplayModeFragment() {
+        supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, ReplayModeFragment.newInstance(BASE_SESSION_PATH), ReplayModeFragment.TAG)
+                .addToBackStack(ReplayModeFragment.TAG)
+                .commit()
+        hideDashboardView()
+
+    }
+
+    private fun hideDashboardView() {
+        dashboard_container.hide()
+        title_teaser.hide()
+    }
+
+    private fun showDashboardView() {
+        dashboard_container.show()
+        title_teaser.show()
+    }
+
     override fun destroyVisionManager() {
         VisionSafetyManager.destroy()
         VisionManager.stop()
         VisionManager.destroy()
+    }
+
+    override fun onBackPressed() {
+        val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+        if (fragment is OnBackPressedListener && fragment.onBackPressed()) {
+            supportFragmentManager.popBackStack()
+            showDashboardView()
+        } else {
+            super.onBackPressed()
+        }
     }
 }

@@ -40,7 +40,7 @@ class SessionsFragment : DialogFragment() {
 
         sessions_recycler_view.apply {
             layoutManager = LinearLayoutManager(activity)
-            adapter = SessionsAdapter(BaseVisionActivity.BASE_SESSION_PATH, clickListener)
+            //adapter = SessionsAdapter(BaseVisionActivity.BASE_SESSION_PATH, clickListener)
         }
     }
 
