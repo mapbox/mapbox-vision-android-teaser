@@ -122,7 +122,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:padding="16dp"
-        android:background="@color/white_70_transparent"
+        android:background="@color/white_70_opacity"
         android:minWidth="250dp"
         android:orientation="vertical"
         android:visibility="gone"
@@ -138,15 +138,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:visibility="visible"
-        android:background="@color/black_70_transparent">
+        android:background="@color/black_70_opacity">
 
-        <ImageView
+        <TextView
             android:id="@+id/title_teaser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:src="@drawable/ic_mapbox_vision_teaser"
-            android:visibility="gone"
+            android:layout_marginTop="18dp"
+            android:textStyle="bold"
+            android:visibility="visible"
+            android:textSize="32sp"
+            android:textColor="@android:color/white"
+            android:text="@string/app_title_teaser"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
@@ -267,6 +270,39 @@
 
             </LinearLayout>
 
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/menu_line_gradient_bg"/>
+
+            <LinearLayout
+                android:id="@+id/line_detection_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="17dp"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/line_detection"
+                    android:layout_width="68dp"
+                    android:layout_height="68dp"
+                    android:src="@drawable/icon_png"/>
+
+                <TextView
+                    android:id="@+id/line_detection_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_horizontal"
+                    android:text="@string/lane_detection"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
+
+            </LinearLayout>
+
         </LinearLayout>
 
         <androidx.constraintlayout.widget.Guideline
@@ -359,7 +395,7 @@
                 android:background="@drawable/menu_line_gradient_rotated_bg"/>
 
             <LinearLayout
-                android:id="@+id/line_detection_container"
+                android:id="@+id/replay_mode_button_container"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
@@ -368,18 +404,16 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:id="@+id/line_detection"
                     android:layout_width="68dp"
                     android:layout_height="68dp"
-                    android:src="@drawable/icon_png"/>
+                    android:src="@drawable/ic_replay_mode"/>
 
                 <TextView
-                    android:id="@+id/line_detection_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center_horizontal"
-                    android:text="@string/lane_detection"
+                    android:text="@string/replay_mode"
                     android:textColor="@android:color/white"
                     android:textSize="18sp"
                     android:textStyle="bold"/>
@@ -411,5 +445,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/fully_transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

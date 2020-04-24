@@ -7,7 +7,6 @@ import android.widget.Toast
 import com.mapbox.vision.VisionReplayManager
 import com.mapbox.vision.teaser.view.BaseTeaserActivity
 import com.mapbox.vision.teaser.view.show
-import com.mapbox.vision.teaser.replayer.SessionsFragment
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.teaser.R
 import com.mapbox.vision.view.VisionView
@@ -19,7 +18,7 @@ class ReplayActivity : BaseTeaserActivity(), SessionsFragment.SessionChangeListe
             setOnClickListener { startArSession() }
         }
 
-        root.findViewById<LinearLayout>(R.id.session_chooser_button_container).apply {
+        root.findViewById<LinearLayout>(R.id.replay_mode_button_container).apply {
             setOnClickListener { showSessionsList() }
         }
 
@@ -30,7 +29,7 @@ class ReplayActivity : BaseTeaserActivity(), SessionsFragment.SessionChangeListe
     }
 
     override fun setLayout() {
-        setContentView(R.layout.activity_replay)
+        setContentView(R.layout.activity_main)
     }
 
     override fun getFrameStatistics() = VisionReplayManager.getFrameStatistics()
