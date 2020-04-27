@@ -3,9 +3,9 @@ package com.mapbox.vision.teaser.recorder
 import android.annotation.SuppressLint
 import android.view.View
 import com.mapbox.vision.VisionManager
-import com.mapbox.vision.common.BaseVisionActivity
-import com.mapbox.vision.common.view.hide
-import com.mapbox.vision.common.view.show
+import com.mapbox.vision.teaser.BaseVisionActivity
+import com.mapbox.vision.teaser.view.hide
+import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.Camera
 import com.mapbox.vision.mobile.core.models.Country
