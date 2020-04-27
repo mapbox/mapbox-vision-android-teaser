@@ -162,7 +162,7 @@
             tools:text="Vision Teaser Replayer"
             android:textStyle="bold"
             android:visibility="gone"
-            android:textSize="32dp"
+            android:textSize="32sp"
             android:textColor="@android:color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

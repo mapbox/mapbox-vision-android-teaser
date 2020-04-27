@@ -19,6 +19,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <TextView
+        android:id="@+id/select_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="18dp"
+        android:text="@string/select_all"
+        android:background="@drawable/bcg_oval_black_radius_50"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@id/back"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <ImageView
         android:id="@+id/record_session"
         android:layout_width="44dp"
@@ -41,15 +61,26 @@
         app:layout_constraintEnd_toStartOf="@id/record_session"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <ImageView
+        android:id="@+id/delete_sessions"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginTop="18dp"
+        android:src="@drawable/ic_trash"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@id/record_session"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <TextView
         android:id="@+id/replay_fragment_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="32sp"
+        android:textSize="18sp"
         android:fontFamily="sans-serif"
         android:textStyle="bold"
         android:textColor="@color/white"
-        android:layout_marginTop="18dp"
+        android:layout_marginTop="28dp"
         android:text="@string/select_session_source"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

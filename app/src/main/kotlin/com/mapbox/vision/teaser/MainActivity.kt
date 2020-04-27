@@ -68,9 +68,11 @@ class MainActivity : BaseTeaserActivity() {
 
     override fun onBackPressed() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        if (fragment is OnBackPressedListener && fragment.onBackPressed()) {
-            supportFragmentManager.popBackStack()
-            showDashboardView()
+        if (fragment is OnBackPressedListener) {
+            if (fragment.onBackPressed()) {
+                supportFragmentManager.popBackStack()
+                showDashboardView()
+            }
         } else {
             super.onBackPressed()
         }
