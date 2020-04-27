@@ -6,7 +6,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:foreground="@drawable/session_info_custom_ripple"
+    android:background="@drawable/session_info_custom_ripple"
     android:clickable="true"
     android:focusable="true">
 
