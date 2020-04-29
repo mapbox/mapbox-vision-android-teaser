@@ -10,7 +10,6 @@ import android.widget.ImageView
 import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
-import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.teaser.models.UiSign
 import com.mapbox.vision.teaser.utils.SoundsPlayer
 import com.mapbox.vision.teaser.utils.classification.SignResources
@@ -44,7 +43,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
 
     protected abstract fun destroyVisionManager()
 
-    protected abstract fun getFrameStatistics(): FrameStatistics
+    protected abstract fun getFrameStatistics(): FrameStatistics?
 
     protected abstract fun initViews(root: View)
 
@@ -115,7 +114,10 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         override fun onUpdateCompleted() {
             runOnUiThread {
                 if (visionManagerWasInit) {
-                    fps_performance_view.showInfo(getFrameStatistics())
+                    val frameStatistics = getFrameStatistics()
+                    if (frameStatistics != null) {
+                        fps_performance_view.showInfo(frameStatistics)
+                    }
                 }
             }
         }
@@ -293,13 +295,13 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         initViews(root)
     }
 
-    private fun tryToInitVisionManager() {
+    fun tryToInitVisionManager() {
         if (isPermissionsGranted && !visionManagerWasInit) {
             visionManagerWasInit = initVisionManager(vision_view)
         }
     }
 
-    private fun stopVisionManager() {
+    protected fun stopVisionManager() {
         if (isPermissionsGranted && visionManagerWasInit) {
             destroyVisionManager()
             visionManagerWasInit = false

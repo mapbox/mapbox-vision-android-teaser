@@ -19,15 +19,18 @@ import java.util.*
 
 class SessionsAdapter(private val context: Context,
                       private val basePath: String,
-                      private val clickListener: (String) -> Unit,
+                      private val clickSessionListener: (String) -> Unit,
+                      private val clickCameraListener: () -> Unit,
                       private val onActivateMultiSelectionListener: () -> Unit) : RecyclerView.Adapter<SessionsAdapter.SessionViewHolder>() {
 
     private var items: MutableList<SourceItem> = mutableListOf()
     private var cameraString = ""
     private val backgroundColorSelection: Int
     private val backgroundColorTransparent: Int
-    private var selectedItems = HashSet<String>()
+    var selectedItems = HashSet<String>()
+        private set
     var isMultiSelection = false
+        private set
 
     init {
         cameraString = context.getString(R.string.camera_text)
@@ -82,8 +85,8 @@ class SessionsAdapter(private val context: Context,
                 holder.itemView.isEnabled = true
             } else {
                 holder.itemView.background = context.getDrawable(R.drawable.session_info_custom_ripple)
-                holder.iconChecked.visibility = INVISIBLE
             }
+            holder.iconChecked.visibility = INVISIBLE
         }
     }
 
@@ -93,7 +96,11 @@ class SessionsAdapter(private val context: Context,
                 if (isMultiSelection) {
                     handleMultiSelectionClick(holder, item)
                 }
-                clickListener.invoke(item.itemName)
+                if (item.itemType == CAMERA) {
+                    clickCameraListener.invoke()
+                } else {
+                    clickSessionListener.invoke(item.itemName)
+                }
             }
         }
     }
