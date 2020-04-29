@@ -4,6 +4,8 @@ import android.animation.Animator
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
@@ -53,7 +55,8 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         Classification,
         Detection,
         Safety,
-        Lanes
+        Lanes,
+        Recording
     }
 
     private val signResources: SignResources = SignResources.Impl(this)
@@ -419,7 +422,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         lines_detections_container.hide()
     }
 
-    private fun setAppMode(mode: AppMode) {
+    protected fun setAppMode(mode: AppMode) {
         fps_performance_view.resetAverageFps()
         soundsPlayer.stop()
 
@@ -433,17 +436,21 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         when (appMode) {
             AppMode.Classification -> {
                 vision_view.visualizationMode = VisualizationMode.Clear
+                vision_view.visibility = VISIBLE
                 tracker = Tracker(5)
                 sign_info_container.show()
             }
             AppMode.Detection -> {
                 vision_view.visualizationMode = VisualizationMode.Detection
+                vision_view.visibility = VISIBLE
             }
             AppMode.Segmentation -> {
                 vision_view.visualizationMode = VisualizationMode.Segmentation
+                vision_view.visibility = VISIBLE
             }
             AppMode.Safety -> {
                 vision_view.visualizationMode = VisualizationMode.Clear
+                vision_view.visibility = VISIBLE
                 safety_mode_container.show()
                 safety_mode.hide()
                 calibration_progress.hide()
@@ -451,7 +458,14 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
             }
             AppMode.Lanes -> {
                 vision_view.visualizationMode = VisualizationMode.Clear
+                vision_view.show()
                 lines_detections_container.show()
+            }
+            AppMode.Recording -> {
+                vision_view.visualizationMode = VisualizationMode.Clear
+                vision_view.show()
+                recording_view.show()
+                back.hide()
             }
         }
     }

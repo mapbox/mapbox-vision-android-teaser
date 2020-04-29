@@ -43,6 +43,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         initSwipeRefreshLayout()
         initDeleteSessionsButton()
         initDoneEditButton()
+        initRecordingButton()
     }
 
     private fun initBackButton() {
@@ -121,23 +122,33 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         }
     }
 
+    private fun initRecordingButton() {
+        record_session.setOnClickListener {
+            val listener = requireActivity()
+            if (listener is OnSelectModeItemListener) {
+                requireActivity().onBackPressed()
+                listener.onSelectRecording()
+            }
+        }
+    }
+
     private fun onSessionClick(fileName: String) {
         if (sessionsAdapter.isMultiSelection) {
             setMultiSelectionTitle()
         } else {
             val listener = requireActivity()
-            if (listener is OnClickModeItemListener) {
-                listener.onClickSessionItem(fileName)
+            if (listener is OnSelectModeItemListener) {
                 requireActivity().onBackPressed()
+                listener.onSelectSessionItem(fileName)
             }
         }
     }
 
     private fun onCameraClick() {
         val listener = requireActivity()
-        if (listener is OnClickModeItemListener) {
-            listener.onClickCamera()
-            listener.onBackPressed()
+        if (listener is OnSelectModeItemListener) {
+            requireActivity().onBackPressed()
+            listener.onSelectCamera()
         }
     }
 
@@ -177,10 +188,12 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
     private fun getSessionPathFromArguments() = arguments?.getString(ARG_PARAM_SESSIONS_PATH)
 
-    interface OnClickModeItemListener {
+    interface OnSelectModeItemListener {
 
-        fun onClickSessionItem(sessionName: String)
+        fun onSelectSessionItem(sessionName: String)
 
-        fun onClickCamera()
+        fun onSelectCamera()
+
+        fun onSelectRecording()
     }
 }

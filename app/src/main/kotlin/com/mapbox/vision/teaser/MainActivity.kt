@@ -2,6 +2,7 @@ package com.mapbox.vision.teaser
 
 import android.content.Intent
 import android.view.View
+import android.view.View.GONE
 import android.widget.LinearLayout
 import android.widget.Toast
 import com.mapbox.vision.VisionManager
@@ -18,24 +19,22 @@ import com.mapbox.vision.teaser.view.hide
 import com.mapbox.vision.view.VisionView
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnClickModeItemListener {
+class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnSelectModeItemListener {
 
     enum class VisionManagerMode {
-        Realtime,
+        Camera,
         Replay,
-        Recorder
     }
 
-    private var mode = Realtime
+    private var mode = Camera
     private var sessionPath = ""
 
     override fun initViews(root: View) {
         root.findViewById<LinearLayout>(R.id.ar_navigation_button_container).apply {
             setOnClickListener {
                 when (mode) {
-                    Realtime -> startActivity(Intent(this@MainActivity, ArMapActivity::class.java))
+                    Camera -> startActivity(Intent(this@MainActivity, ArMapActivity::class.java))
                     Replay -> startArSession()
-                    Recorder -> return@setOnClickListener
                 }
             }
         }
@@ -47,13 +46,12 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnClickModeItemLis
 
     override fun initVisionManager(visionView: VisionView): Boolean {
         return when (mode) {
-            Realtime -> initVisionManagerRealtime(visionView)
+            Camera -> initVisionManagerCamera(visionView)
             Replay -> initVisionManagerReplay(visionView, sessionPath)
-            Recorder -> false
         }
     }
 
-    private fun initVisionManagerRealtime(visionView: VisionView): Boolean {
+    private fun initVisionManagerCamera(visionView: VisionView): Boolean {
         VisionManager.create()
         visionView.setVisionManager(VisionManager)
         VisionManager.visionEventsListener = visionEventsListener
@@ -82,7 +80,6 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnClickModeItemLis
         return true
     }
 
-
     private fun showReplayModeFragment() {
         supportFragmentManager
                 .beginTransaction()
@@ -90,7 +87,6 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnClickModeItemLis
                 .addToBackStack(ReplayModeFragment.TAG)
                 .commit()
         hideDashboardView()
-
     }
 
     private fun hideDashboardView() {
@@ -105,21 +101,19 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnClickModeItemLis
 
     override fun destroyVisionManager() {
         return when (mode) {
-            Realtime -> destroyVisionManagerRealtime()
+            Camera -> destroyVisionManagerCamera()
             Replay -> destroyVisionManagerReplay()
-            Recorder -> return
         }
     }
 
     override fun getFrameStatistics(): FrameStatistics? {
         return when (mode) {
-            Realtime -> VisionManager.getFrameStatistics()
+            Camera -> VisionManager.getFrameStatistics()
             Replay -> VisionReplayManager.getFrameStatistics()
-            Recorder -> null
         }
     }
 
-    private fun destroyVisionManagerRealtime() {
+    private fun destroyVisionManagerCamera() {
         VisionSafetyManager.destroy()
         VisionManager.stop()
         VisionManager.destroy()
@@ -143,20 +137,30 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnClickModeItemLis
         }
     }
 
-    override fun onClickSessionItem(sessionName: String) {
+    override fun onSelectSessionItem(sessionName: String) {
         stopVisionManager()
         mode = Replay
         sessionPath = "$BASE_SESSION_PATH/$sessionName"
         title_teaser.setText(R.string.app_title_replayer)
+        recording_view.visibility = GONE
         tryToInitVisionManager()
     }
 
-    override fun onClickCamera() {
+    override fun onSelectCamera() {
         stopVisionManager()
-        mode = Realtime
+        mode = Camera
         sessionPath = ""
         title_teaser.setText(R.string.app_title_teaser)
+        recording_view.visibility = GONE
         tryToInitVisionManager()
+    }
+
+    override fun onSelectRecording() {
+        stopVisionManager()
+        mode = Camera
+        title_teaser.text = ""
+        tryToInitVisionManager()
+        setAppMode(AppMode.Recording)
     }
 
     private fun startArSession() {
