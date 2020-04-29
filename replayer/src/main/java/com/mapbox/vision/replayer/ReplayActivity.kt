@@ -41,7 +41,7 @@ class ReplayActivity : BaseTeaserActivity(), SessionsFragment.SessionChangeListe
         VisionReplayManager.create(sessionPath!!)
         VisionReplayManager.visionEventsListener = visionEventsListener
         VisionReplayManager.start()
-        VisionReplayManager.setModelPerformanceConfig(appModelPerformanceConfig)
+        VisionReplayManager.setModelPerformance(modelPerformance)
         visionView.setVisionManager(VisionReplayManager)
 
         VisionSafetyManager.create(VisionReplayManager)

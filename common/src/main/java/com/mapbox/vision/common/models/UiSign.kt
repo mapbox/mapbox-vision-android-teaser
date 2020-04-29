@@ -7,22 +7,29 @@ sealed class UiSign {
     abstract val signType: SignType
 
     companion object {
+
+        private const val SIGN_THRESHOLD = 0.9f
+        private const val SIGN_NON_NUMERIC = -1.0f
+
         fun getUiSigns(frameSignClassifications: FrameSignClassifications): List<UiSign> {
             val signTypeValues = SignType.values()
 
-            return frameSignClassifications.signs.map { signClassification ->
-                val signTypeIndex = signClassification.sign.type.ordinal
+            return frameSignClassifications.signs
+                .filter { it.typeConfidence >= SIGN_THRESHOLD &&
+                        (it.numberConfidence == SIGN_NON_NUMERIC || it.numberConfidence >= SIGN_THRESHOLD)}
+                .map { signClassification ->
+                    val signTypeIndex = signClassification.sign.type.ordinal
 
-                check(signTypeIndex < signTypeValues.size) { "Illegal sign! ${signClassification.sign}" }
+                    check(signTypeIndex < signTypeValues.size) { "Illegal sign! ${signClassification.sign}" }
 
-                val signType = signTypeValues[signTypeIndex]
+                    val signType = signTypeValues[signTypeIndex]
 
-                if (signType.hasNumber) {
-                    WithNumber(signType, SignNumber.fromNumber(signClassification.sign.number))
-                } else {
-                    Simple(signType)
+                    if (signType.hasNumber) {
+                        WithNumber(signType, SignNumber.fromNumber(signClassification.sign.number))
+                    } else {
+                        Simple(signType)
+                    }
                 }
-            }
         }
     }
 
@@ -34,6 +41,7 @@ sealed class UiSign {
         val usResourceName: String = "",
         val chinaResourceName: String = usResourceName,
         val ukResourceName: String = usResourceName,
+        val jpResourceName: String = usResourceName,
         val hasNumber: Boolean = false
     ) {
         Unknown(usResourceName = "unknown"),
@@ -41,6 +49,7 @@ sealed class UiSign {
             usResourceName = "speed_limit_us_",
             chinaResourceName = "speed_limit_cn_",
             ukResourceName = "speed_limit_uk_",
+            jpResourceName = "speed_limit_jp_",
             hasNumber = true
         ),
         SpeedLimitEnd(
@@ -68,22 +77,28 @@ sealed class UiSign {
             usResourceName = "warning_roundabout_us",
             ukResourceName = "warning_round_about_uk"
         ),
-        WarningSpeedBump(usResourceName = "warning_speed_bump_us", ukResourceName = "warning_speed_bump_uk"),
+        WarningSpeedBump(
+            usResourceName = "warning_speed_bump_us",
+            ukResourceName = "warning_speed_bump_uk"
+        ),
         WarningWindingRoad(
             usResourceName = "warning_winding_road_us",
             chinaResourceName = "warning_winding_road_cn",
-            ukResourceName = "warning_winding_road_uk"
+            ukResourceName = "warning_winding_road_uk",
+            jpResourceName = "warning_winding_road_jp"
         ),
         InformationBikeRoute(usResourceName = "information_bike_route_us"),
         InformationParking(
             usResourceName = "information_parking_us",
-            ukResourceName = "information_parking_uk"
+            ukResourceName = "information_parking_uk",
+            jpResourceName = "information_parking_jp"
         ),
         RegulatoryAllDirectionsPermitted(usResourceName = "regulatory_all_directions_permitted_us"),
         RegulatoryBicyclesOnly(
             usResourceName = "regulatory_bicycles_only_us",
             chinaResourceName = "regulatory_bicycles_only_cn",
-            ukResourceName = "regulatory_bicycles_only_uk"
+            ukResourceName = "regulatory_bicycles_only_uk",
+            jpResourceName = "regulatory_bicycles_only_jp"
         ),
         RegulatoryDoNotPass(usResourceName = "regulatory_do_not_pass_us"),
         RegulatoryDoNotDriveOnShoulder(usResourceName = "regulatory_do_not_drive_on_shoulder_us"),
@@ -94,35 +109,41 @@ sealed class UiSign {
         RegulatoryDualLanesTurnLeft(usResourceName = "regulatory_dual_lanes_turn_left_us"),
         RegulatoryDualLanesTurnLeftOrStraight(
             usResourceName = "regulatory_dual_lanes_turn_left_or_straight_us",
-            ukResourceName = "regulatory_dual_lanes_turn_left_or_straight_uk"
+            ukResourceName = "regulatory_dual_lanes_turn_left_or_straight_uk",
+            jpResourceName = "regulatory_dual_lanes_turn_left_or_straight_jp"
         ),
         RegulatoryDualLanesTurnRightOrStraight(
             usResourceName = "regulatory_dual_lanes_turn_right_or_straight_us",
-            ukResourceName = "regulatory_dual_lanes_turn_right_or_straight_uk"
+            ukResourceName = "regulatory_dual_lanes_turn_right_or_straight_uk",
+            jpResourceName = "regulatory_dual_lanes_turn_right_or_straight_jp"
         ),
         RegulatoryEndOfSchoolZone(usResourceName = "regulatory_end_of_school_zone_us"),
         RegulatoryGoStraight(
             usResourceName = "regulatory_go_straight_us",
             chinaResourceName = "regulatory_go_straight_cn",
-            ukResourceName = "regulatory_go_straight_uk"
+            ukResourceName = "regulatory_go_straight_uk",
+            jpResourceName = "regulatory_go_straight_jp"
         ),
         RegulatoryGoStraightOrTurnLeft(usResourceName = "regulatory_go_straight_or_turn_left_us"),
         RegulatoryGoStraightOrTurnRight(usResourceName = "regulatory_go_straight_or_turn_right_us"),
         RegulatoryHeightLimit(
             usResourceName = "regulatory_height_limit_us",
             chinaResourceName = "regulatory_height_limit_cn",
-            ukResourceName = "regulatory_height_limit_uk"
+            ukResourceName = "regulatory_height_limit_uk",
+            jpResourceName = "regulatory_height_limit_jp"
         ),
         RegulatoryLeftTurnYieldOnGreen(usResourceName = "regulatory_left_turn_yield_on_green_us"),
         RegulatoryNoBicycles(
             usResourceName = "regulatory_no_bicycles_us",
             chinaResourceName = "regulatory_no_bicycles_cn",
-            ukResourceName = "regulatory_no_bicycles_uk"
+            ukResourceName = "regulatory_no_bicycles_uk",
+            jpResourceName = "regulatory_no_bicycles_jp"
         ),
         RegulatoryNoEntry(
             usResourceName = "regulatory_no_entry_us",
             chinaResourceName = "regulatory_no_entry_cn",
-            ukResourceName = "regulatory_no_entry_uk"
+            ukResourceName = "regulatory_no_entry_uk",
+            jpResourceName = "regulatory_no_entry_jp"
         ),
         RegulatoryNoLeftOrUTurn(usResourceName = "regulatory_no_left_or_u_turn_us"),
         RegulatoryNoLeftTurn(
@@ -137,21 +158,25 @@ sealed class UiSign {
         RegulatoryNoParking(
             usResourceName = "regulatory_no_parking_us",
             chinaResourceName = "regulatory_no_parking_cn",
-            ukResourceName = "regulatory_no_parking_uk"
+            ukResourceName = "regulatory_no_parking_uk",
+            jpResourceName = "regulatory_no_parking_jp"
         ),
         RegulatoryNoParkingOrNoStopping(
             usResourceName = "regulatory_no_parking_or_no_stopping_us",
-            ukResourceName = "regulatory_no_parking_or_no_stopping_uk"
+            ukResourceName = "regulatory_no_parking_or_no_stopping_uk",
+            jpResourceName = "regulatory_no_parking_or_no_stopping_jp"
         ),
         RegulatoryNoPedestrians(
             usResourceName = "regulatory_no_pedestrians_us",
             chinaResourceName = "regulatory_no_pedestrians_cn",
-            ukResourceName = "regulatory_no_pedestrians_uk"
+            ukResourceName = "regulatory_no_pedestrians_uk",
+            jpResourceName = "regulatory_no_pedestrians_jp"
         ),
         RegulatoryNoRightTurn(
             usResourceName = "regulatory_no_right_turn_us",
             chinaResourceName = "regulatory_no_right_turn_cn",
-            ukResourceName = "regulatory_no_right_turn_uk"
+            ukResourceName = "regulatory_no_right_turn_uk",
+            jpResourceName = "regulatory_no_right_turn_jp"
         ),
         RegulatoryNoStopping(usResourceName = "regulatory_no_stopping_us"),
         RegulatoryNoStraightThrough(
@@ -165,18 +190,21 @@ sealed class UiSign {
         ),
         RegulatoryOneWayStraight(
             usResourceName = "regulatory_one_way_straight_us",
-            ukResourceName = "regulatory_one_way_straight_uk"
+            ukResourceName = "regulatory_one_way_straight_uk",
+            jpResourceName = "regulatory_one_way_straight_jp"
         ),
         RegulatoryReversibleLanes(usResourceName = "regulatory_reversible_lanes_us"),
         RegulatoryRoadClosedToVehicles(
             usResourceName = "regulatory_road_closed_to_vehicles_us",
             chinaResourceName = "regulatory_road_closed_to_vehicles_cn",
-            ukResourceName = "regulatory_road_closed_to_vehicles_uk"
+            ukResourceName = "regulatory_road_closed_to_vehicles_uk",
+            jpResourceName = "regulatory_road_closed_to_vehicles_jp"
         ),
         RegulatoryStop(
             usResourceName = "regulatory_stop_us",
             chinaResourceName = "regulatory_stop_cn",
-            ukResourceName = "regulatory_stop_uk"
+            ukResourceName = "regulatory_stop_uk",
+            jpResourceName = "regulatory_stop_jp"
         ),
         RegulatoryTrafficSignalPhotoEnforced(usResourceName = "regulatory_traffic_signal_photo_enforced_us"),
         RegulatoryTripleLanesGoStraightCenterLane(usResourceName = "regulatory_triple_lanes_go_straight_center_lane"),
@@ -198,26 +226,31 @@ sealed class UiSign {
         WarningRoadNarrowsLeft(
             usResourceName = "warning_road_narrows_left_us",
             chinaResourceName = "warning_road_narrows_left_cn",
-            ukResourceName = "warning_road_narrows_left_uk"
+            ukResourceName = "warning_road_narrows_left_uk",
+            jpResourceName = "warning_road_narrows_left_jp"
         ),
         WarningRoadNarrowsRight(
             usResourceName = "warning_road_narrows_right_us",
             chinaResourceName = "warning_road_narrows_right_cn",
-            ukResourceName = "warning_road_narrows_right_uk"
+            ukResourceName = "warning_road_narrows_right_uk",
+            jpResourceName = "warning_road_narrows_right_jp"
         ),
         WarningSchoolZone(
             usResourceName = "warning_school_zone_us",
             chinaResourceName = "warning_school_zone_cn",
-            ukResourceName = "warning_school_zone_uk"
+            ukResourceName = "warning_school_zone_uk",
+            jpResourceName = "warning_school_zone_jp"
         ),
         WarningStopAhead(usResourceName = "warning_stop_ahead_us"),
         WarningTrafficSignals(
             usResourceName = "warning_traffic_signals_us",
-            ukResourceName = "warning_traffic_signals_uk"
+            ukResourceName = "warning_traffic_signals_uk",
+            jpResourceName = "warning_traffic_signals_jp"
         ),
         WarningTwoWayTraffic(
             usResourceName = "warning_two_way_traffic_us",
-            ukResourceName = "warning_two_way_traffic_uk"
+            ukResourceName = "warning_two_way_traffic_uk",
+            jpResourceName = "warning_two_way_traffic_jp"
         ),
         WarningYieldAhead(usResourceName = "warning_yield_ahead_us"),
         InformationHighway(usResourceName = "information_highway_exit_us"),
@@ -227,7 +260,8 @@ sealed class UiSign {
         RegulatoryNoHeavyGoodsVehiclesPicture(
             usResourceName = "regulatory_no_heavy_goods_vehicles_picture_us",
             chinaResourceName = "regulatory_no_heavy_goods_vehicles_picture_cn",
-            ukResourceName = "regulatory_no_heavy_goods_vehicles_picture_uk"
+            ukResourceName = "regulatory_no_heavy_goods_vehicles_picture_uk",
+            jpResourceName = "regulatory_no_heavy_goods_vehicles_picture_jp"
         ),
         RegulatoryNoLeftTurnText(
             usResourceName = "regulatory_no_left_turn_text_us",
@@ -235,11 +269,15 @@ sealed class UiSign {
         ),
         RegulatoryOneWayLeftArrow(
             usResourceName = "regulatory_one_way_left_arrow_us",
-            ukResourceName = "regulatory_one_way_left_arrow_uk"
+            ukResourceName = "regulatory_one_way_left_arrow_uk",
+            jpResourceName = "regulatory_one_way_left_arrow_jp"
         ),
         RegulatoryOneWayLeftArrowText(usResourceName = "regulatory_one_way_left_arrow_text_us"),
         RegulatoryOneWayLeftText(usResourceName = "regulatory_one_way_left_text_us"),
-        RegulatoryOneWayRightArrow(usResourceName = "regulatory_one_way_right_arrow_us"),
+        RegulatoryOneWayRightArrow(
+            usResourceName = "regulatory_one_way_right_arrow_us",
+            jpResourceName = "regulatory_one_way_right_arrow_jp"
+        ),
         RegulatoryOneWayRightArrowText(
             usResourceName = "regulatory_one_way_right_arrow_text_us",
             ukResourceName = "regulatory_one_way_right_arrow_uk"
@@ -249,18 +287,21 @@ sealed class UiSign {
         RegulatoryTurnLeft(
             usResourceName = "regulatory_turn_left_us",
             chinaResourceName = "regulatory_turn_left_cn",
-            ukResourceName = "regulatory_turn_left_uk"
+            ukResourceName = "regulatory_turn_left_uk",
+            jpResourceName = "regulatory_turn_left_jp"
         ),
         RegulatoryTurnLeftOrRight(
             usResourceName = "regulatory_turn_left_or_right_us",
             chinaResourceName = "regulatory_turn_left_or_right_cn",
-            ukResourceName = "regulatory_turn_left_or_right_uk"
+            ukResourceName = "regulatory_turn_left_or_right_uk",
+            jpResourceName = "regulatory_turn_left_or_right_jp"
         ),
         RegulatoryTurnRightAhead(usResourceName = "regulatory_turn_right_ahead_us"),
         RegulatoryYield(
             usResourceName = "regulatory_yield_us",
             chinaResourceName = "regulatory_yield_cn",
-            ukResourceName = "regulatory_yield_uk"
+            ukResourceName = "regulatory_yield_uk",
+            jpResourceName = "regulatory_yield_jp"
         ),
         WarningRailwayCrossing(
             usResourceName = "warning_railway_crossing_us",
@@ -273,19 +314,22 @@ sealed class UiSign {
         WarningCurveLeft(
             usResourceName = "warning_curve_left_us",
             chinaResourceName = "warning_curve_left_cn",
-            ukResourceName = "warning_curve_left_uk"
+            ukResourceName = "warning_curve_left_uk",
+            jpResourceName = "warning_curve_left_jp"
         ),
         WarningCurveRight(
             usResourceName = "warning_curve_right_us",
             chinaResourceName = "warning_curve_right_cn",
-            ukResourceName = "warning_curve_right_uk"
+            ukResourceName = "warning_curve_right_uk",
+            jpResourceName = "warning_curve_right_jp"
         ),
         WarningHorizontalAlignmentLeft(usResourceName = "warning_horizontal_alignment_left_us"),
         WarningHorizontalAlignmentRight(usResourceName = "warning_horizontal_alignment_right_us"),
         RegulatoryTurnRight(
             usResourceName = "regulatory_turn_right_us",
             chinaResourceName = "regulatory_turn_right_cn",
-            ukResourceName = "regulatory_turn_right_uk"
+            ukResourceName = "regulatory_turn_right_uk",
+            jpResourceName = "regulatory_turn_right_jp"
         ),
         WhiteTablesText(usResourceName = "white_tables_text_us"),
         Lanes(usResourceName = "lanes_us"),
@@ -295,21 +339,33 @@ sealed class UiSign {
         WarningPicture(usResourceName = "warning_picture_us"),
         ComplementaryKeepLeft(
             usResourceName = "complementary_keep_left_us",
-            ukResourceName = "complementary_keep_left_uk"
+            ukResourceName = "complementary_keep_left_uk",
+            jpResourceName = "complementary_keep_left_jp"
         ),
         ComplementaryKeepRight(
             usResourceName = "complementary_keep_right_us",
             chinaResourceName = "complementary_keep_right_cn",
-            ukResourceName = "complementary_keep_right_uk"
+            ukResourceName = "complementary_keep_right_uk",
+            jpResourceName = "complementary_keep_right_jp"
         ),
         RegulatoryExceptBicycle(usResourceName = "regulatory_except_bicycle_us"),
         WarningAddedLaneRight(usResourceName = "warning_added_lane_right_us"),
-        WarningDeadEndText(usResourceName = "warning_dead_end_text_us", ukResourceName = "warning_dead_end_text_uk"),
+        WarningDeadEndText(
+            usResourceName = "warning_dead_end_text_us",
+            ukResourceName = "warning_dead_end_text_uk"
+        ),
         WarningDipText(usResourceName = "warning_dip_text_us"),
         WarningEmergencyVehicles(usResourceName = "warning_emergency_vehicles_us"),
         WarningEndText(usResourceName = "warning_end_text_us"),
-        WarningFallingRocksOrDebrisRight(usResourceName = "warning_falling_rocks_or_debris_right_us", ukResourceName = "warning_falling_rocks_or_debris_right_uk"),
-        WarningLowGroundClearance(usResourceName = "warning_low_ground_clearance_us", ukResourceName = "warning_low_ground_clearance_uk"),
+        WarningFallingRocksOrDebrisRight(
+            usResourceName = "warning_falling_rocks_or_debris_right_us",
+            ukResourceName = "warning_falling_rocks_or_debris_right_uk",
+            jpResourceName = "warning_falling_rocks_or_debris_right_jp"
+        ),
+        WarningLowGroundClearance(
+            usResourceName = "warning_low_ground_clearance_us",
+            ukResourceName = "warning_low_ground_clearance_uk"
+        ),
         WarningObstructionMarker(usResourceName = "warning_obstruction_marker_us"),
         WarningPlayground(usResourceName = "warning_playground_us"),
         WarningSecondRoadRight(
@@ -318,9 +374,20 @@ sealed class UiSign {
         ),
         WarningTurnLeftOnlyArrow(usResourceName = "warning_turn_left_only_arrow_us"),
         WarningTurnLeftOrRightOnlyArrow(usResourceName = "warning_turn_left_or_right_only_arrow_us"),
-        WarningTramsCrossing(usResourceName = "warning_trams_crossing_us", ukResourceName = "warning_trams_crossing_uk"),
-        WarningUnevenRoad(usResourceName = "warning_uneven_road_us", ukResourceName = "warning_uneven_road_uk"),
-        WarningWildAnimals(usResourceName = "warning_wild_animals_us", ukResourceName = "warning_wild_animals_uk"),
+        WarningTramsCrossing(
+            usResourceName = "warning_trams_crossing_us",
+            ukResourceName = "warning_trams_crossing_uk",
+            jpResourceName = "warning_trams_crossing_jp"
+        ),
+        WarningUnevenRoad(
+            usResourceName = "warning_uneven_road_us",
+            ukResourceName = "warning_uneven_road_uk"
+        ),
+        WarningWildAnimals(
+            usResourceName = "warning_wild_animals_us",
+            ukResourceName = "warning_wild_animals_uk",
+            jpResourceName = "warning_wild_animals_jp"
+        ),
         RegulatoryParkingRestrictions(usResourceName = "regulatory_parking_restrictions_us"),
         RegulatoryYieldOrStopForPedestrians(usResourceName = "regulatory_yield_or_stop_for_pedestrians_us"),
         RegulatoryNoBuses(
@@ -335,14 +402,19 @@ sealed class UiSign {
         RegulatoryNoTurnLeftOrTurnRight(chinaResourceName = "regulatory_no_turn_left_or_turn_right_cn"),
         RegulatoryNoOvertaking(
             chinaResourceName = "regulatory_no_overtaking_cn",
-            ukResourceName = "regulatory_no_overtaking_uk"
+            ukResourceName = "regulatory_no_overtaking_uk",
+            jpResourceName = "regulatory_no_overtaking_jp"
         ),
         RegulatoryNoHonking(chinaResourceName = "regulatory_no_honking_cn"),
         RegulatoryWidthLimit(
             chinaResourceName = "regulatory_width_limit_cn",
-            ukResourceName = "regulatory_width_limit_uk"
+            ukResourceName = "regulatory_width_limit_uk",
+            jpResourceName = "regulatory_width_limit_jp"
         ),
-        RegulatoryAxleWeightLimit(chinaResourceName = "regulatory_axle_weight_limit_cn", ukResourceName = "regulatory_axle_weight_limit_uk"),
+        RegulatoryAxleWeightLimit(
+            chinaResourceName = "regulatory_axle_weight_limit_cn",
+            ukResourceName = "regulatory_axle_weight_limit_uk"
+        ),
         RegulatoryNoVehiclesCarryingExplosives(chinaResourceName = "regulatory_no_vehicles_carrying_explosives_cn"),
         RegulatoryRoundabout(
             chinaResourceName = "regulatory_roundabout_cn",
@@ -351,43 +423,74 @@ sealed class UiSign {
         RegulatoryHonking(chinaResourceName = "regulatory_honking_cn"),
         RegulatoryPedestriansCrossing(
             chinaResourceName = "regulatory_pedestrians_crossing_cn",
-            ukResourceName = "regulatory_pedestrians_crossing_uk"
+            ukResourceName = "regulatory_pedestrians_crossing_uk",
+            jpResourceName = "regulatory_pedestrians_crossing_jp"
         ),
         RegulatoryMotorVehicles(
             chinaResourceName = "regulatory_motor_vehicles_cn",
-            ukResourceName = "regulatory_motor_vehicles_uk"
+            ukResourceName = "regulatory_motor_vehicles_uk",
+            jpResourceName = "regulatory_motor_vehicles_jp"
         ),
         RegulatoryUTurn(chinaResourceName = "regulatory_u_turn_cn"),
-        WarningSteepAscent(chinaResourceName = "warning_steep_ascent_cn", ukResourceName = "warning_steep_ascent_uk"),
-        WarningSteepDescent(chinaResourceName = "warning_steep_descent_cn", ukResourceName = "warning_steep_descent_uk"),
+        WarningSteepAscent(
+            chinaResourceName = "warning_steep_ascent_cn",
+            ukResourceName = "warning_steep_ascent_uk",
+            jpResourceName = "warning_steep_ascent_jp"
+        ),
+        WarningSteepDescent(
+            chinaResourceName = "warning_steep_descent_cn",
+            ukResourceName = "warning_steep_descent_uk",
+            jpResourceName = "warning_steep_descent_jp"
+        ),
         WarningVillage(chinaResourceName = "warning_village_cn"),
         WarningKeepSlowdown(chinaResourceName = "warning_keep_slowdown_cn"),
-        WarningDangerousTraffic(chinaResourceName = "warning_dangerous_traffic_cn", ukResourceName = "warning_dangerous_traffic_uk"),
-        WarningRoadworks(chinaResourceName = "warning_roadworks_cn", ukResourceName = "warning_roadworks_uk"),
+        WarningDangerousTraffic(
+            chinaResourceName = "warning_dangerous_traffic_cn",
+            ukResourceName = "warning_dangerous_traffic_uk"
+        ),
+        WarningRoadworks(
+            chinaResourceName = "warning_roadworks_cn",
+            ukResourceName = "warning_roadworks_uk",
+            jpResourceName = "warning_roadworks_jp"
+        ),
         WarningSecondRoadLeft(chinaResourceName = "warning_second_road_left_cn"),
 
         RegulatoryNoTurnOnRedText("TODO"),
         WarningAddedLaneLeft("TODO"),
         WarningFlaggersInRoad("TODO"),
         WarningLoop270Degree("TODO"),
-        WarningRoadNarrows(ukResourceName = "warning_road_narrows_uk"),
-        WarningSlipperyRoadSurface(ukResourceName = "warning_slippery_road_surface_uk"),
-
-        RegulatoryBusLane(ukResourceName = "regulatory_bus_lane_uk"),
+        WarningRoadNarrows(
+            ukResourceName = "warning_road_narrows_uk",
+            jpResourceName = "warning_road_narrows_jp"
+        ),
+        WarningSlipperyRoadSurface(
+            ukResourceName = "warning_slippery_road_surface_uk",
+            jpResourceName = "warning_slippery_road_surface_jp"
+        ),
+        RegulatoryBusLane(
+            ukResourceName = "regulatory_bus_lane_uk",
+            jpResourceName = "regulatory_bus_lane_jp"
+        ),
         RegulatoryEndNoOvertaking("TODO"),
         RegulatoryNoHumanCargoTricycleEntry("TODO"),
         RegulatoryNoHumanPassengerTricycleEntry("TODO"),
         RegulatoryNoRickshaws("TODO"),
         RegulatoryNoStraightThroughOrTurnLeft("TODO"),
-        RegulatoryNoStraightThroughOrTurnRight("TODO"),
+        RegulatoryNoStraightThroughOrTurnRight(jpResourceName = "regulatory_no_straight_through_or_turn_right_jp"),
         RegulatoryNoTractors("TODO"),
         RegulatoryNoTricycles("TODO"),
         RegulatoryUTurnOrTurnLeft("TODO"),
-        RegulatoryWalk(ukResourceName = "regulatory_walk_uk"),
+        RegulatoryWalk(
+            ukResourceName = "regulatory_walk_uk",
+            jpResourceName = "regulatory_walk_jp"
+        ),
         WarningDangerousMountainRoadLeft("TODO"),
         WarningDangerousMountainRoadRight("TODO"),
         WarningDomesticAnimals(ukResourceName = "warning_domestic_animals_uk"),
-        WarningFallingRocksOrDebrisLeft(ukResourceName = "warning_falling_rocks_or_debris_left_uk"),
+        WarningFallingRocksOrDebrisLeft(
+            ukResourceName = "warning_falling_rocks_or_debris_left_uk",
+            jpResourceName = "warning_falling_rocks_or_debris_left_jp"
+        ),
         WarningHazardLane("TODO"),
         WarningRailroadCrossingWithoutBarriers(ukResourceName = "warning_railroad_crossing_without_barriers_uk"),
         WarningReverseCurveLeft("TODO"),
@@ -406,16 +509,25 @@ sealed class UiSign {
         InformationHospital(ukResourceName = "information_hospital_uk"),
         InformationLivingStreet(ukResourceName = "information_living_street_uk"),
         RegulatoryMotorway(ukResourceName = "regulatory_motorway_uk"),
-        RegulatorySharedLaneBicyclesPedestrians(ukResourceName = "regulatory_shared_lane_bicycles_pedestrians_uk"),
+        RegulatorySharedLaneBicyclesPedestrians(
+            ukResourceName = "regulatory_shared_lane_bicycles_pedestrians_uk",
+            jpResourceName = "regulatory_shared_lane_bicycles_pedestrians_jp"
+        ),
         RegulatoryEndPriorityRoad(ukResourceName = "regulatory_end_priority_road_uk"),
-        RegulatoryEndProhibition(ukResourceName = "regulatory_end_prohibition_uk"),
+        RegulatoryEndProhibition(
+            ukResourceName = "regulatory_end_prohibition_uk",
+            jpResourceName = "regulatory_end_prohibition_jp"
+        ),
         RegulatoryGiveWayToOncomingTraffic(ukResourceName = "regulatory_give_way_to_oncoming_traffic_uk"),
         RegulatoryMinSafeDist(ukResourceName = "regulatory_min_safe_dist_uk"),
         RegulatoryNoDangerGoods(ukResourceName = "regulatory_no_danger_goods_uk"),
         RegulatoryNoOverHeavy(ukResourceName = "regulatory_no_over_heavy_uk"),
         RegulatoryPriorityOverOncomingTraffic(ukResourceName = "regulatory_priority_over_oncoming_traffic_uk"),
         RegulatoryPriorityRoad(ukResourceName = "regulatory_priority_road_uk"),
-        RegulatoryWeightLimit(ukResourceName = "regulatory_weight_limit_uk"),
+        RegulatoryWeightLimit(
+            ukResourceName = "regulatory_weight_limit_uk",
+            jpResourceName = "regulatory_weight_limit_jp"
+        ),
         WarningDangerousCrosswinds(ukResourceName = "warning_dangerous_crosswinds_uk"),
         WarningIcyRoad(ukResourceName = "warning_icy_road_uk"),
         WarningLowFlyingAircraft(ukResourceName = "warning_low_flying_aircraft_uk"),
@@ -427,7 +539,11 @@ sealed class UiSign {
         RegulatoryKeepLeftText(usResourceName = "regulatory_keep_left_text"),
         AheadSpeedLimit(usResourceName = "ahead_speedlimit", hasNumber = true),
         WarningSpeedLimit(usResourceName = "warning_speedlimit", hasNumber = true),
-        RegulatoryNoUTurnRight(usResourceName = "regulatory_no_u_turn_right"),
+        RegulatoryNoUTurnRight(
+            usResourceName = "regulatory_no_u_turn_right_us",
+            ukResourceName = "regulatory_no_u_turn_right_uk",
+            jpResourceName = "regulatory_no_u_turn_right_jp"
+        ),
         WarningTurnRightOnlyArrow(usResourceName = "warning_turn_right_only_arrow"),
 
         InformationCarWashing,
@@ -441,7 +557,11 @@ sealed class UiSign {
         RegulatoryControl,
         RegulatoryDoubleUTurn,
         SpeedLimitZone,
-        SpeedLimitEndZone
+        SpeedLimitEndZone,
+        InformationRestrictedParking(jpResourceName = "information_restricted_parking_jp"),
+        RegulatorySchoolZone(jpResourceName = "regulatory_school_zone_jp"),
+        RegulatoryBicyclesAndPedestriansCrossing(jpResourceName = "regulatory_bicycles_and_pedestrians_crossing_jp"),
+        RegulatoryNoBusesAndHeavyVehicles(jpResourceName = "regulatory_no_buses_and_heavy_vehicles_jp")
     }
 
     @Suppress("EnumEntryName")
@@ -470,7 +590,8 @@ sealed class UiSign {
         Unknown;
 
         companion object {
-            fun fromNumber(value: Float) = values().firstOrNull { it.value == value.toInt() } ?: Unknown
+            fun fromNumber(value: Float) =
+                values().firstOrNull { it.value == value.toInt() } ?: Unknown
         }
     }
 }

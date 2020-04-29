@@ -20,22 +20,6 @@
         tools:text="calibration progress"/>
 
     <TextView
-        android:id="@+id/segmentation_fps"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        tools:text="segmentation fps"/>
-
-    <TextView
-        android:id="@+id/detection_fps"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        tools:text="lane_detection fps"/>
-
-    <TextView
         android:id="@+id/merge_model_fps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

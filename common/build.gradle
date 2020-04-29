@@ -29,7 +29,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
 }
 
 dependencies {
@@ -49,19 +48,14 @@ dependencies {
         api "com.mapbox.vision:mapbox-android-vision-safety:$vision"
     }
 
-    api('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
-        transitive = true
-    }
+    api "com.google.firebase:firebase-analytics:$firebase_analytics_version"
+    api "com.google.firebase:firebase-perf:$firebase_perf_version"
+    api "com.google.firebase:firebase-crashlytics:$firebase_crashlytics_version"
+    api "com.google.firebase:firebase-crashlytics-ndk:$firebase_crashlytics_version"
 
     api "com.mapbox.mapboxsdk:mapbox-android-sdk:$mapbox_sdk"
     api "com.mapbox.mapboxsdk:mapbox-android-navigation:$mapbox_navigation"
     api "com.mapbox.mapboxsdk:mapbox-android-navigation-ui:$mapbox_navigation"
-
-    // need 0.3.0 instead of 0.2.0 that maps 8.1.0 depends on to access `obtainVisionSkuUserToken` method
-    // TODO remove when fix is no more necessary
-    api ("com.mapbox.mapboxsdk:mapbox-android-accounts:0.3.0") {
-        force = true
-    }
 
     ktlint "com.pinterest:ktlint:$ktlint_version"
 }

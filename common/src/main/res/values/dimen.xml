@@ -32,4 +32,10 @@
     <dimen name="distance_rect_base_width_max">25dp</dimen>
     <dimen name="speed_limit_translation">118dp</dimen>
 
+    <!-- AR mode -->
+    <dimen name="ar_switch_height">44dp</dimen>
+    <dimen name="ar_switch_width">44dp</dimen>
+    <dimen name="ar_switch_margin_start">29dp</dimen>
+    <dimen name="ar_switch_margin_bottom">18dp</dimen>
+
 </resources>

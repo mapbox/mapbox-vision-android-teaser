@@ -27,6 +27,7 @@ interface SignResources {
             val resourceName = when (country) {
                 Country.Unknown, Country.USA -> uiSign.signType.usResourceName
                 Country.UK, Country.Germany, Country.Other -> uiSign.signType.ukResourceName
+                Country.Japan -> uiSign.signType.jpResourceName
                 Country.China -> uiSign.signType.chinaResourceName
             }
 

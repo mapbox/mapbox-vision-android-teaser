@@ -27,7 +27,6 @@ import com.mapbox.vision.mobile.core.models.road.LaneDirection
 import com.mapbox.vision.mobile.core.models.road.LaneEdgeType
 import com.mapbox.vision.mobile.core.models.road.RoadDescription
 import com.mapbox.vision.performance.ModelPerformance
-import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.safety.core.VisionSafetyListener
@@ -72,9 +71,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
 
     private var country = Country.Unknown
 
-    protected var appModelPerformanceConfig: ModelPerformanceConfig = ModelPerformanceConfig.Merged(
-        performance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-    )
+    protected var modelPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
 
     private var lastSpeed: Float = 0f
     private var calibrationProgress = 0f
@@ -117,7 +114,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         override fun onUpdateCompleted() {
             runOnUiThread {
                 if (visionManagerWasInit) {
-                    fps_performance_view.showInfo(getFrameStatistics(), appModelPerformanceConfig)
+                    fps_performance_view.showInfo(getFrameStatistics())
                 }
             }
         }
