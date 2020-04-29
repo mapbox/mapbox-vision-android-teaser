@@ -97,7 +97,6 @@ class RecordingActivity : BaseVisionActivity() {
 
     override fun onStop() {
         super.onStop()
-
         if (isPermissionsGranted && visionManagerWasInit) {
             VisionManager.stopRecording()
             VisionManager.stop()
