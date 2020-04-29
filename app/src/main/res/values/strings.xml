@@ -25,6 +25,7 @@
     <string name="select_session_source">Select source</string>
     <string name="select_all">Select all</string>
     <string name="camera_text">Camera</string>
+    <string name="done_text">Done</string>
 
     <plurals name="selected_items">
         <item quantity="one">%d item</item>

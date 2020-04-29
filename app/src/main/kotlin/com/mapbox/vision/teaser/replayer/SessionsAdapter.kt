@@ -12,7 +12,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.mapbox.vision.teaser.R
 import com.mapbox.vision.teaser.replayer.SessionsAdapter.ItemType.CAMERA
-import com.mapbox.vision.teaser.replayer.SessionsAdapter.ItemType.SESSION_FILE
+import com.mapbox.vision.teaser.replayer.SessionsAdapter.ItemType.SESSION
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -56,7 +56,7 @@ class SessionsAdapter(private val context: Context,
 
     private fun bindTextInfo(holder: SessionViewHolder, item: SourceItem) {
         holder.textSessionName.text = item.itemName
-        if (item.itemType == SESSION_FILE) {
+        if (item.itemType == SESSION) {
             holder.textSessionDate.text = item.fileDate
         } else {
             holder.textSessionDate.text = ""
@@ -144,7 +144,9 @@ class SessionsAdapter(private val context: Context,
 
     fun selectAll() {
         items.forEach {
-            selectedItems.add(it.itemName)
+            if (it.itemType == SESSION) {
+                selectedItems.add(it.itemName)
+            }
         }
         notifyDataSetChanged()
     }
@@ -154,7 +156,7 @@ class SessionsAdapter(private val context: Context,
         items.add(SourceItem(CAMERA, cameraString, null))
         File(basePath).listFiles().forEach {
             val dateString = dateFormatter.format(it.lastModified())
-            items.add(SourceItem(SESSION_FILE, it.name, dateString))
+            items.add(SourceItem(SESSION, it.name, dateString))
         }
     }
 
@@ -173,7 +175,7 @@ class SessionsAdapter(private val context: Context,
 
     enum class ItemType {
         CAMERA,
-        SESSION_FILE
+        SESSION
     }
 
     data class SourceItem (val itemType: ItemType, val itemName:String, val fileDate: String?)

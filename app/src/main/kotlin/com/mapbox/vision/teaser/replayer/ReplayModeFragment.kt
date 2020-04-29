@@ -3,8 +3,7 @@ package com.mapbox.vision.teaser.replayer
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
+import android.view.View.*
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -32,10 +31,11 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         initEditButton()
         initSwipeRefreshLayout()
         initDeleteSessionsButton()
+        initDoneEditButton()
     }
 
     private fun initBackButton() {
-        back.setOnClickListener {
+        back_button.setOnClickListener {
             requireActivity().onBackPressed()
         }
     }
@@ -58,7 +58,11 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
     private fun initSelectAllButton() {
         select_all.setOnClickListener {
-            sessionsAdapter?.selectAll()
+            sessionsAdapter?.apply {
+                selectAll()
+                val count = getSelectedCount()
+                replay_fragment_title.text = requireContext().resources.getQuantityString(R.plurals.selected_items, count, count)
+            }
         }
     }
 
@@ -68,17 +72,24 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         }
     }
 
-    private fun onActivateMultiSelection() {
-        changeMultiSelection(true)
-        setMultiSelectionTitle()
-    }
-
     private fun initSwipeRefreshLayout() {
         swipe_refresh_sessions.setOnRefreshListener {
             sessionsAdapter?.updateSessionsList()
             swipe_refresh_sessions.isRefreshing = false
         }
     }
+
+    private fun initDoneEditButton() {
+        done_edit.setOnClickListener {
+            changeMultiSelection(false)
+        }
+    }
+
+    private fun onActivateMultiSelection() {
+        changeMultiSelection(true)
+        setMultiSelectionTitle()
+    }
+
 
     private fun initDeleteSessionsButton() {
         delete_sessions.setOnClickListener {
@@ -124,7 +135,6 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         sessionsAdapter?.apply {
             val count = getSelectedCount()
             replay_fragment_title.text = requireContext().resources.getQuantityString(R.plurals.selected_items, count, count)
-
         }
     }
 
@@ -134,12 +144,18 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
             edit_sessions_list.visibility = GONE
             select_all.visibility = VISIBLE
             delete_sessions.visibility = VISIBLE
+            record_session.visibility = GONE
+            back_button.visibility = GONE
+            done_edit.visibility = VISIBLE
         } else {
             sessionsAdapter?.resetMultiSelection()
             edit_sessions_list.visibility = VISIBLE
             replay_fragment_title.setText(R.string.select_session_source)
             select_all.visibility = GONE
             delete_sessions.visibility = GONE
+            record_session.visibility = VISIBLE
+            back_button.visibility = VISIBLE
+            done_edit.visibility = GONE
         }
     }
 
