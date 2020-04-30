@@ -126,7 +126,6 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         record_session.setOnClickListener {
             val listener = requireActivity()
             if (listener is OnSelectModeItemListener) {
-                requireActivity().onBackPressed()
                 listener.onSelectRecording()
             }
         }
@@ -164,6 +163,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
             sessionsAdapter.resetMultiSelection()
             replay_fragment_title.setText(R.string.select_session_source)
         }
+ 		swipe_refresh_sessions.isEnabled = !activate
         activateMultiSelectionVisibilityState(visible = activate)
     }
 

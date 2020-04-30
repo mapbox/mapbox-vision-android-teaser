@@ -74,6 +74,8 @@ class SessionsAdapter(
             when {
                 item is CameraItem -> {
                     holder.itemView.isEnabled = false
+                    holder.itemView.background = context.getDrawable(R.drawable.session_info_custom_ripple)
+                    holder.iconChecked.visibility = INVISIBLE
                 }
                 selectedItems.contains(item.name) -> {
                     holder.itemView.setBackgroundColor(backgroundSelectionColor)
@@ -89,9 +91,8 @@ class SessionsAdapter(
         } else {
             if (item is CameraItem) {
                 holder.itemView.isEnabled = true
-            } else {
-                holder.itemView.background = context.getDrawable(R.drawable.session_info_custom_ripple)
             }
+            holder.itemView.background = context.getDrawable(R.drawable.session_info_custom_ripple)
             holder.iconChecked.visibility = INVISIBLE
         }
     }
