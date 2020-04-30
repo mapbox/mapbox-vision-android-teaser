@@ -10,14 +10,12 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mapbox.vision.teaser.OnBackPressedListener
 import com.mapbox.vision.teaser.R
-import com.mapbox.vision.teaser.utils.FileUtils
 import kotlinx.android.synthetic.main.fragment_replay_mode.*
 import java.io.File
-import java.lang.RuntimeException
 
 class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
-    private var sessionsAdapter: SessionsAdapter? = null
+    private lateinit var sessionsAdapter: SessionsAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_replay_mode, container, false)
@@ -45,11 +43,12 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         val sessionsPath = arguments?.getString(ARG_PARAM_SESSIONS_PATH)
         if (sessionsPath != null) {
             sessionsAdapter = SessionsAdapter(
-                    requireContext(),
-                    sessionsPath,
-                    { onSessionClick(it) },
-                    { onCameraClick() },
-                    { onActivateMultiSelection() })
+                context = requireContext(),
+                basePath = sessionsPath,
+                clickSessionListener = { onSessionClick(it) },
+                clickCameraListener = { onCameraClick() },
+                onActivateMultiSelectionListener =  { onActivateMultiSelection() }
+            )
             recycler_sessions.adapter = sessionsAdapter
         } else {
             requireActivity().onBackPressed()
@@ -58,7 +57,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
     private fun initSelectAllButton() {
         select_all.setOnClickListener {
-            sessionsAdapter?.apply {
+            sessionsAdapter.apply {
                 selectAll()
                 val count = getSelectedCount()
                 replay_fragment_title.text = requireContext().resources.getQuantityString(R.plurals.selected_items, count, count)
@@ -74,7 +73,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
     private fun initSwipeRefreshLayout() {
         swipe_refresh_sessions.setOnRefreshListener {
-            sessionsAdapter?.updateSessionsList()
+            sessionsAdapter.updateSessionsList()
             swipe_refresh_sessions.isRefreshing = false
         }
     }
@@ -93,16 +92,14 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
     private fun initDeleteSessionsButton() {
         delete_sessions.setOnClickListener {
-            sessionsAdapter?.let {
+            sessionsAdapter.let {
                 val sessionsPath = arguments?.getString(ARG_PARAM_SESSIONS_PATH)
                 if (it.isMultiSelection && sessionsPath != null) {
-                    try {
-                        for (session in it.selectedItems) {
-                            val sessionsFolder = File("$sessionsPath/$session")
-                            FileUtils.deleteFolder(sessionsFolder)
+                    for (session in it.selectedItems) {
+                        val sessionsFolder = File("$sessionsPath/$session")
+                        if (!sessionsFolder.deleteRecursively()) {
+                            Toast.makeText(requireContext(), "Error: Can't delete ${sessionsFolder.absoluteFile}", Toast.LENGTH_LONG).show()
                         }
-                    } catch (ex: RuntimeException) {
-                        Toast.makeText(requireContext(), ex.message, Toast.LENGTH_LONG).show()
                     }
                     it.updateSessionsList()
                     changeMultiSelection(false)
@@ -112,7 +109,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
     }
 
     private fun onSessionClick(fileName: String) {
-        if (sessionsAdapter?.isMultiSelection == true) {
+        if (sessionsAdapter.isMultiSelection) {
             setMultiSelectionTitle()
         } else {
             val listener = requireActivity()
@@ -132,7 +129,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
     }
 
     private fun setMultiSelectionTitle() {
-        sessionsAdapter?.apply {
+        sessionsAdapter.apply {
             val count = getSelectedCount()
             replay_fragment_title.text = requireContext().resources.getQuantityString(R.plurals.selected_items, count, count)
         }
@@ -140,10 +137,10 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
     private fun changeMultiSelection(activate: Boolean) {
         if (activate) {
-            sessionsAdapter?.activateMultiSelection()
+            sessionsAdapter.activateMultiSelection()
             activateMultiSelectionVisibilityState(true)
         } else {
-            sessionsAdapter?.resetMultiSelection()
+            sessionsAdapter.resetMultiSelection()
             replay_fragment_title.setText(R.string.select_session_source)
             activateMultiSelectionVisibilityState(false)
         }
@@ -160,7 +157,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
     }
 
     override fun onBackPressed(): Boolean {
-        if (sessionsAdapter?.isMultiSelection == true) {
+        if (sessionsAdapter.isMultiSelection) {
             changeMultiSelection(false)
             return false
         }
