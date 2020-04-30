@@ -13,10 +13,12 @@ import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.teaser.MainActivity.VisionManagerMode.*
 import com.mapbox.vision.teaser.ar.ArMapActivity
+import com.mapbox.vision.teaser.recorder.RecorderFragment
 import com.mapbox.vision.teaser.replayer.ArReplayNavigationActivity
 import com.mapbox.vision.teaser.replayer.ReplayModeFragment
 import com.mapbox.vision.teaser.view.hide
 import com.mapbox.vision.view.VisionView
+import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnSelectModeItemListener {
@@ -89,6 +91,15 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnSelectModeItemLi
         hideDashboardView()
     }
 
+    private fun showRecordingFragment() {
+        supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, RecorderFragment.newInstance(BASE_SESSION_PATH), RecorderFragment.TAG)
+                .addToBackStack(RecorderFragment.TAG)
+                .commit()
+        hideDashboardView()
+    }
+
     private fun hideDashboardView() {
         dashboard_container.hide()
         title_teaser.hide()
@@ -128,9 +139,17 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnSelectModeItemLi
     override fun onBackPressed() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         if (fragment is OnBackPressedListener) {
+<<<<<<< HEAD
             if (fragment.onBackPressed().not()) {
                 supportFragmentManager.popBackStack()
                 showDashboardView()
+=======
+            if (fragment.onBackPressed()) {
+                if (supportFragmentManager.popBackStackImmediate() && supportFragmentManager.backStackEntryCount == 0) {
+                    showDashboardView()
+                    title_teaser.show()
+                }
+>>>>>>> 7e73a41... Integrate recording; fix some issues with multiselection
             }
         } else {
             super.onBackPressed()
@@ -141,8 +160,6 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnSelectModeItemLi
         stopVisionManager()
         mode = Replay
         sessionPath = "$BASE_SESSION_PATH/$sessionName"
-        title_teaser.setText(R.string.app_title_replayer)
-        recording_view.visibility = GONE
         tryToInitVisionManager()
     }
 
@@ -150,17 +167,15 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnSelectModeItemLi
         stopVisionManager()
         mode = Camera
         sessionPath = ""
-        title_teaser.setText(R.string.app_title_teaser)
-        recording_view.visibility = GONE
         tryToInitVisionManager()
     }
 
     override fun onSelectRecording() {
         stopVisionManager()
         mode = Camera
-        title_teaser.text = ""
         tryToInitVisionManager()
-        setAppMode(AppMode.Recording)
+        vision_view.visualizationMode = VisualizationMode.Clear
+        showRecordingFragment()
     }
 
     private fun startArSession() {

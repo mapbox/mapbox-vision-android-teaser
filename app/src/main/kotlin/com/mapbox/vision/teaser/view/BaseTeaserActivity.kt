@@ -56,7 +56,6 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         Detection,
         Safety,
         Lanes,
-        Recording
     }
 
     private val signResources: SignResources = SignResources.Impl(this)
@@ -436,21 +435,17 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         when (appMode) {
             AppMode.Classification -> {
                 vision_view.visualizationMode = VisualizationMode.Clear
-                vision_view.visibility = VISIBLE
                 tracker = Tracker(5)
                 sign_info_container.show()
             }
             AppMode.Detection -> {
                 vision_view.visualizationMode = VisualizationMode.Detection
-                vision_view.visibility = VISIBLE
             }
             AppMode.Segmentation -> {
                 vision_view.visualizationMode = VisualizationMode.Segmentation
-                vision_view.visibility = VISIBLE
             }
             AppMode.Safety -> {
                 vision_view.visualizationMode = VisualizationMode.Clear
-                vision_view.visibility = VISIBLE
                 safety_mode_container.show()
                 safety_mode.hide()
                 calibration_progress.hide()
@@ -458,14 +453,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
             }
             AppMode.Lanes -> {
                 vision_view.visualizationMode = VisualizationMode.Clear
-                vision_view.show()
                 lines_detections_container.show()
-            }
-            AppMode.Recording -> {
-                vision_view.visualizationMode = VisualizationMode.Clear
-                vision_view.show()
-                recording_view.show()
-                back.hide()
             }
         }
     }

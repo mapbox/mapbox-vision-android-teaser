@@ -39,16 +39,6 @@
         </activity>
 
         <activity
-            android:name=".recorder.RecordingActivity"
-            android:screenOrientation="landscape"
-            tools:ignore="LockedOrientationActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
             android:name=".ar.ArMapActivity"
             android:screenOrientation="landscape"
             tools:ignore="LockedOrientationActivity" />
