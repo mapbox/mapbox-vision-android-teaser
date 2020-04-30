@@ -11,8 +11,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.mapbox.vision.teaser.R
-import com.mapbox.vision.teaser.replayer.SessionsAdapter.ItemType.CAMERA
-import com.mapbox.vision.teaser.replayer.SessionsAdapter.ItemType.SESSION
+import com.mapbox.vision.teaser.replayer.SessionsAdapter.AdapterItem.CameraItem
+import com.mapbox.vision.teaser.replayer.SessionsAdapter.AdapterItem.SessionItem
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -23,7 +23,7 @@ class SessionsAdapter(private val context: Context,
                       private val clickCameraListener: () -> Unit,
                       private val onActivateMultiSelectionListener: () -> Unit) : RecyclerView.Adapter<SessionsAdapter.SessionViewHolder>() {
 
-    private var items: MutableList<SourceItem> = mutableListOf()
+    private var items: MutableList<AdapterItem> = mutableListOf()
     private var cameraString = ""
     private val backgroundColorSelection: Int
     private val backgroundColorTransparent: Int
@@ -54,22 +54,22 @@ class SessionsAdapter(private val context: Context,
         bindViewHolderLongClick(holder, item)
     }
 
-    private fun bindTextInfo(holder: SessionViewHolder, item: SourceItem) {
-        holder.textSessionName.text = item.itemName
-        if (item.itemType == SESSION) {
+    private fun bindTextInfo(holder: SessionViewHolder, item: AdapterItem) {
+        holder.textSessionName.text = item.name
+        if (item is SessionItem) {
             holder.textSessionDate.text = item.fileDate
         } else {
             holder.textSessionDate.text = ""
         }
     }
 
-    private fun bindBackground(holder: SessionViewHolder, item: SourceItem) {
+    private fun bindBackground(holder: SessionViewHolder, item: AdapterItem) {
         if (isMultiSelection) {
             when {
-                item.itemType == CAMERA -> {
+                item is CameraItem -> {
                     holder.itemView.isEnabled = false
                 }
-                selectedItems.contains(item.itemName) -> {
+                selectedItems.contains(item.name) -> {
                     holder.itemView.setBackgroundColor(backgroundColorSelection)
                     holder.iconChecked.setImageResource(R.drawable.ic_checked)
                     holder.iconChecked.visibility = VISIBLE
@@ -81,7 +81,7 @@ class SessionsAdapter(private val context: Context,
                 }
             }
         } else {
-            if (item.itemType == CAMERA) {
+            if (item is CameraItem) {
                 holder.itemView.isEnabled = true
             } else {
                 holder.itemView.background = context.getDrawable(R.drawable.session_info_custom_ripple)
@@ -90,40 +90,40 @@ class SessionsAdapter(private val context: Context,
         }
     }
 
-    private fun bindViewHolderClickListener(holder: SessionViewHolder, item: SourceItem) {
-        if (!(item.itemType == CAMERA && isMultiSelection)) {
+    private fun bindViewHolderClickListener(holder: SessionViewHolder, item: AdapterItem) {
+        if (!(item is CameraItem && isMultiSelection)) {
             holder.itemView.setOnClickListener {
                 if (isMultiSelection) {
                     handleMultiSelectionClick(holder, item)
                 }
-                if (item.itemType == CAMERA) {
+                if (item is CameraItem) {
                     clickCameraListener.invoke()
                 } else {
-                    clickSessionListener.invoke(item.itemName)
+                    clickSessionListener.invoke(item.name)
                 }
             }
         }
     }
 
-    private fun handleMultiSelectionClick(holder: SessionViewHolder, item: SourceItem) {
-        if (selectedItems.contains(item.itemName)) {
+    private fun handleMultiSelectionClick(holder: SessionViewHolder, item: AdapterItem) {
+        if (selectedItems.contains(item.name)) {
             holder.itemView.setBackgroundColor(backgroundColorTransparent)
             holder.iconChecked.setImageResource(R.drawable.ic_not_checked)
-            selectedItems.remove(item.itemName)
+            selectedItems.remove(item.name)
         } else {
             holder.itemView.setBackgroundColor(backgroundColorSelection)
             holder.iconChecked.setImageResource(R.drawable.ic_checked)
-            selectedItems.add(item.itemName)
+            selectedItems.add(item.name)
         }
     }
 
-    private fun bindViewHolderLongClick(holder: SessionViewHolder, item: SourceItem) {
-        if (item.itemType != CAMERA) {
+    private fun bindViewHolderLongClick(holder: SessionViewHolder, item: AdapterItem) {
+        if (item !is CameraItem) {
             holder.itemView.setOnLongClickListener {
                 if (isMultiSelection) {
                    handleMultiSelectionClick(holder, item)
                 } else {
-                    selectedItems.add(item.itemName)
+                    selectedItems.add(item.name)
                     onActivateMultiSelectionListener.invoke()
                 }
                 true
@@ -144,8 +144,8 @@ class SessionsAdapter(private val context: Context,
 
     fun selectAll() {
         items.forEach {
-            if (it.itemType == SESSION) {
-                selectedItems.add(it.itemName)
+            if (it is SessionItem) {
+                selectedItems.add(it.name)
             }
         }
         notifyDataSetChanged()
@@ -153,10 +153,10 @@ class SessionsAdapter(private val context: Context,
 
     fun updateSessionsList() {
         items.clear()
-        items.add(SourceItem(CAMERA, cameraString, null))
+        items.add(CameraItem(cameraString))
         File(basePath).listFiles().forEach {
             val dateString = dateFormatter.format(it.lastModified())
-            items.add(SourceItem(SESSION, it.name, dateString))
+            items.add(SessionItem(it.name, dateString))
         }
     }
 
@@ -173,10 +173,8 @@ class SessionsAdapter(private val context: Context,
         private val dateFormatter = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
     }
 
-    enum class ItemType {
-        CAMERA,
-        SESSION
+    sealed class AdapterItem(val name: String) {
+        class CameraItem(name: String): AdapterItem(name)
+        class SessionItem(name: String, val fileDate: String): AdapterItem(name)
     }
-
-    data class SourceItem (val itemType: ItemType, val itemName:String, val fileDate: String?)
 }

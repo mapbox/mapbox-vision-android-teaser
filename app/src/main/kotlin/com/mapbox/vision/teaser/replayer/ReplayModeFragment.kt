@@ -141,22 +141,22 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
     private fun changeMultiSelection(activate: Boolean) {
         if (activate) {
             sessionsAdapter?.activateMultiSelection()
-            edit_sessions_list.visibility = GONE
-            select_all.visibility = VISIBLE
-            delete_sessions.visibility = VISIBLE
-            record_session.visibility = GONE
-            back_button.visibility = GONE
-            done_edit.visibility = VISIBLE
+            activateMultiSelectionVisibilityState(true)
         } else {
             sessionsAdapter?.resetMultiSelection()
-            edit_sessions_list.visibility = VISIBLE
             replay_fragment_title.setText(R.string.select_session_source)
-            select_all.visibility = GONE
-            delete_sessions.visibility = GONE
-            record_session.visibility = VISIBLE
-            back_button.visibility = VISIBLE
-            done_edit.visibility = GONE
+            activateMultiSelectionVisibilityState(false)
         }
+    }
+
+    private fun activateMultiSelectionVisibilityState(visible: Boolean) {
+        val visibilityState = if (visible) VISIBLE else GONE
+        edit_sessions_list.visibility = visibilityState
+        select_all.visibility = visibilityState
+        delete_sessions.visibility = visibilityState
+        record_session.visibility = visibilityState
+        back_button.visibility = visibilityState
+        done_edit.visibility = visibilityState
     }
 
     override fun onBackPressed(): Boolean {
