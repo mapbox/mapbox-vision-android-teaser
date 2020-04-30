@@ -147,13 +147,14 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
     }
 
     private fun activateMultiSelectionVisibilityState(visible: Boolean) {
-        val visibilityState = if (visible) VISIBLE else GONE
-        edit_sessions_list.visibility = visibilityState
-        select_all.visibility = visibilityState
-        delete_sessions.visibility = visibilityState
-        record_session.visibility = visibilityState
-        back_button.visibility = visibilityState
-        done_edit.visibility = visibilityState
+        val multiSelectionShow = if (visible) VISIBLE else GONE
+        val multiSelectionGone = if (visible) GONE else VISIBLE
+        edit_sessions_list.visibility = multiSelectionGone
+        select_all.visibility = multiSelectionShow
+        delete_sessions.visibility = multiSelectionShow
+        record_session.visibility = multiSelectionGone
+        back_button.visibility = multiSelectionGone
+        done_edit.visibility = multiSelectionShow
     }
 
     override fun onBackPressed(): Boolean {
