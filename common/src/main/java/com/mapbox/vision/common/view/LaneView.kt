@@ -8,7 +8,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.DimenRes
 import com.mabpox.vision.teaser.common.R
-import com.mapbox.vision.VisionReplayManager
+import com.mapbox.vision.VisionManager
 import com.mapbox.vision.mobile.core.models.frame.ImageSize
 import com.mapbox.vision.mobile.core.models.frame.PixelCoordinate
 import com.mapbox.vision.mobile.core.models.road.Lane
@@ -86,14 +86,22 @@ constructor(
         setBackgroundColor(transparent)
 
         lane?.let {
-            val leftP1 = VisionReplayManager.worldToPixel(lane.leftEdge.curve.p1)?.scale() ?: return@let
-            val leftP2 = VisionReplayManager.worldToPixel(lane.leftEdge.curve.p2)?.scale() ?: return@let
-            val leftP3 = VisionReplayManager.worldToPixel(lane.leftEdge.curve.p3)?.scale() ?: return@let
-            val leftP4 = VisionReplayManager.worldToPixel(lane.leftEdge.curve.p4)?.scale() ?: return@let
-            val rightP1 = VisionReplayManager.worldToPixel(lane.rightEdge.curve.p1)?.scale() ?: return@let
-            val rightP2 = VisionReplayManager.worldToPixel(lane.rightEdge.curve.p2)?.scale() ?: return@let
-            val rightP3 = VisionReplayManager.worldToPixel(lane.rightEdge.curve.p3)?.scale() ?: return@let
-            val rightP4 = VisionReplayManager.worldToPixel(lane.rightEdge.curve.p4)?.scale() ?: return@let
+            val leftP1 = VisionManager.worldToPixel(lane.leftEdge.curve.p1)?.scale()
+                ?: return@let
+            val leftP2 = VisionManager.worldToPixel(lane.leftEdge.curve.p2)?.scale()
+                ?: return@let
+            val leftP3 = VisionManager.worldToPixel(lane.leftEdge.curve.p3)?.scale()
+                ?: return@let
+            val leftP4 = VisionManager.worldToPixel(lane.leftEdge.curve.p4)?.scale()
+                ?: return@let
+            val rightP1 = VisionManager.worldToPixel(lane.rightEdge.curve.p1)?.scale()
+                ?: return@let
+            val rightP2 = VisionManager.worldToPixel(lane.rightEdge.curve.p2)?.scale()
+                ?: return@let
+            val rightP3 = VisionManager.worldToPixel(lane.rightEdge.curve.p3)?.scale()
+                ?: return@let
+            val rightP4 = VisionManager.worldToPixel(lane.rightEdge.curve.p4)?.scale()
+                ?: return@let
 
             strokePath.apply {
                 moveTo(
@@ -157,6 +165,8 @@ constructor(
     }
 
     override fun onDraw(canvas: Canvas) {
+        // flip horizontally for BMW rear-oriented camera
+        canvas.scale(-1f, 1f, width.toFloat() / 2, height.toFloat() / 2)
         canvas.drawPath(strokePath, strokePaint)
         canvas.drawPath(fillPath, fillPaint)
 
