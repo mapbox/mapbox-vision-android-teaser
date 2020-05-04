@@ -2,6 +2,7 @@ package com.mapbox.vision.teaser
 
 import android.animation.Animator
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -37,7 +38,6 @@ import com.mapbox.vision.mobile.core.utils.SystemInfoUtils
 import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
-import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.teaser.MainActivity.VisionMode.Camera
 import com.mapbox.vision.teaser.MainActivity.VisionMode.Replay
@@ -45,7 +45,10 @@ import com.mapbox.vision.safety.core.VisionSafetyListener
 import com.mapbox.vision.safety.core.models.CollisionDangerLevel
 import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
+import com.mapbox.vision.teaser.MainActivity.VisionManagerMode.Camera
+import com.mapbox.vision.teaser.MainActivity.VisionManagerMode.Replay
 import com.mapbox.vision.teaser.ar.ArMapActivity
+import com.mapbox.vision.teaser.ar.ArNavigationActivity
 import com.mapbox.vision.teaser.models.UiSign
 import com.mapbox.vision.teaser.recorder.RecorderFragment
 import com.mapbox.vision.teaser.replayer.ArReplayNavigationActivity
@@ -55,6 +58,7 @@ import com.mapbox.vision.teaser.utils.classification.SignResources
 import com.mapbox.vision.teaser.utils.classification.Tracker
 import com.mapbox.vision.teaser.utils.dpToPx
 import com.mapbox.vision.teaser.view.hide
+import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.utils.VisionLogger
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
@@ -81,6 +85,8 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         private const val PERMISSIONS_REQUEST_CODE = 123
         private const val TRACKER_DEFAULT_COUNT = 5
         private const val CALIBRATION_READY_VALUE = 1f
+        private const val START_AR_MAP_ACTIVITY_FOR_NAVIGATION_RESULT_CODE = 100
+        private const val START_AR_MAP_ACTIVITY_FOR_RECORDING_RESULT_CODE = 110
     }
 
     private var visionManagerMode = Camera
@@ -356,7 +362,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private fun initArNavigationButton() {
         ar_navigation_button_container.setOnClickListener {
             when (visionManagerMode) {
-                Camera -> startActivity(Intent(this@MainActivity, ArMapActivity::class.java))
+                Camera -> startArMapActivityForNavigation()
                 Replay -> startArSession()
             }
         }
@@ -579,12 +585,12 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         hideDashboardView()
     }
 
-    private fun showRecordingFragment() {
+    private fun showRecordingFragment(jsonRoute: String?) {
         supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_container, RecorderFragment.newInstance(BASE_SESSION_PATH), RecorderFragment.TAG)
+                .replace(R.id.fragment_container, RecorderFragment.newInstance(BASE_SESSION_PATH, jsonRoute), RecorderFragment.TAG)
                 .addToBackStack(RecorderFragment.TAG)
-                .commit()
+                .commitAllowingStateLoss()
         hideDashboardView()
     }
 
@@ -627,9 +633,17 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     }
 
     override fun onRecordingSelected() {
-        onCameraSelected()
-        vision_view.visualizationMode = VisualizationMode.Clear
-        showRecordingFragment()
+        startArMapActivityForRecording()
+    }
+
+    private fun startArMapActivityForNavigation() {
+        val intent = Intent(this@MainActivity, ArMapActivity::class.java)
+        startActivityForResult(intent, START_AR_MAP_ACTIVITY_FOR_NAVIGATION_RESULT_CODE)
+    }
+
+    private fun startArMapActivityForRecording() {
+        val intent = Intent(this@MainActivity, ArMapActivity::class.java)
+        startActivityForResult(intent, START_AR_MAP_ACTIVITY_FOR_RECORDING_RESULT_CODE)
     }
 
     private fun startArSession() {
@@ -677,6 +691,26 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
             }
         } catch (e: Exception) {
             emptyArray()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            START_AR_MAP_ACTIVITY_FOR_NAVIGATION_RESULT_CODE -> {
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    val jsonRoute = data.getStringExtra(ArMapActivity.ARG_RESULT_JSON_ROUTE)
+                    if (!jsonRoute.isNullOrEmpty()) {
+                        ArNavigationActivity.start(this, jsonRoute)
+                    }
+                }
+            }
+            START_AR_MAP_ACTIVITY_FOR_RECORDING_RESULT_CODE -> {
+                val jsonRoute = data?.getStringExtra(ArMapActivity.ARG_RESULT_JSON_ROUTE)
+                onSelectCamera()
+                vision_view.visualizationMode = VisualizationMode.Clear
+                showRecordingFragment(jsonRoute)
+            }
+            else -> super.onActivityResult(requestCode, resultCode, data)
         }
     }
 }
