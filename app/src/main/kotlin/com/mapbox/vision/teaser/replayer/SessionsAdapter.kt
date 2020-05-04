@@ -5,7 +5,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.INVISIBLE
-import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -13,30 +12,37 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mapbox.vision.teaser.R
 import com.mapbox.vision.teaser.replayer.SessionsAdapter.AdapterItem.CameraItem
 import com.mapbox.vision.teaser.replayer.SessionsAdapter.AdapterItem.SessionItem
+import com.mapbox.vision.teaser.view.show
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
-class SessionsAdapter(private val context: Context,
-                      private val basePath: String,
-                      private val clickSessionListener: (String) -> Unit,
-                      private val clickCameraListener: () -> Unit,
-                      private val onActivateMultiSelectionListener: () -> Unit) : RecyclerView.Adapter<SessionsAdapter.SessionViewHolder>() {
+class SessionsAdapter(
+        private val context: Context,
+        private val basePath: String,
+        private val clickSessionListener: (String) -> Unit,
+        private val clickCameraListener: () -> Unit,
+        private val onActivateMultiSelectionListener: () -> Unit
+) : RecyclerView.Adapter<SessionsAdapter.SessionViewHolder>() {
 
-    private var items: MutableList<AdapterItem> = mutableListOf()
+    companion object {
+        @SuppressLint("ConstantLocale")
+        private val dateFormatter = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+    }
+
+    private val items: MutableList<AdapterItem> = mutableListOf()
     private var cameraString = ""
-    private val backgroundColorSelection: Int
-    private val backgroundColorTransparent: Int
-    var selectedItems = HashSet<String>()
-        private set
+    private val backgroundSelectionColor: Int
+    private val backgroundTransparentColor: Int
+    val selectedItems = HashSet<String>()
     var isMultiSelection = false
         private set
 
     init {
         cameraString = context.getString(R.string.camera_text)
-        backgroundColorSelection = context.getColor(R.color.white_30_opacity)
-        backgroundColorTransparent = context.getColor(R.color.fully_transparent)
-        updateSessionsList()
+        backgroundSelectionColor = context.getColor(R.color.white_30_opacity)
+        backgroundTransparentColor = context.getColor(R.color.fully_transparent)
+        updateSessionsList(false)
     }
 
     fun getSelectedCount() = selectedItems.size
@@ -56,10 +62,10 @@ class SessionsAdapter(private val context: Context,
 
     private fun bindTextInfo(holder: SessionViewHolder, item: AdapterItem) {
         holder.textSessionName.text = item.name
-        if (item is SessionItem) {
-            holder.textSessionDate.text = item.fileDate
+        holder.textSessionDate.text = if (item is SessionItem) {
+            item.fileDate
         } else {
-            holder.textSessionDate.text = ""
+            ""
         }
     }
 
@@ -70,14 +76,14 @@ class SessionsAdapter(private val context: Context,
                     holder.itemView.isEnabled = false
                 }
                 selectedItems.contains(item.name) -> {
-                    holder.itemView.setBackgroundColor(backgroundColorSelection)
+                    holder.itemView.setBackgroundColor(backgroundSelectionColor)
                     holder.iconChecked.setImageResource(R.drawable.ic_checked)
-                    holder.iconChecked.visibility = VISIBLE
+                    holder.iconChecked.show()
                 }
                 else -> {
                     holder.itemView.background = context.getDrawable(R.drawable.session_info_custom_ripple)
                     holder.iconChecked.setImageResource(R.drawable.ic_not_checked)
-                    holder.iconChecked.visibility = VISIBLE
+                    holder.iconChecked.show()
                 }
             }
         } else {
@@ -91,7 +97,7 @@ class SessionsAdapter(private val context: Context,
     }
 
     private fun bindViewHolderClickListener(holder: SessionViewHolder, item: AdapterItem) {
-        if (!(item is CameraItem && isMultiSelection)) {
+        if ((item is CameraItem).not() or !isMultiSelection) {
             holder.itemView.setOnClickListener {
                 if (isMultiSelection) {
                     handleMultiSelectionClick(holder, item)
@@ -107,11 +113,11 @@ class SessionsAdapter(private val context: Context,
 
     private fun handleMultiSelectionClick(holder: SessionViewHolder, item: AdapterItem) {
         if (selectedItems.contains(item.name)) {
-            holder.itemView.setBackgroundColor(backgroundColorTransparent)
+            holder.itemView.setBackgroundColor(backgroundTransparentColor)
             holder.iconChecked.setImageResource(R.drawable.ic_not_checked)
             selectedItems.remove(item.name)
         } else {
-            holder.itemView.setBackgroundColor(backgroundColorSelection)
+            holder.itemView.setBackgroundColor(backgroundSelectionColor)
             holder.iconChecked.setImageResource(R.drawable.ic_checked)
             selectedItems.add(item.name)
         }
@@ -151,12 +157,15 @@ class SessionsAdapter(private val context: Context,
         notifyDataSetChanged()
     }
 
-    fun updateSessionsList() {
+    fun updateSessionsList(notifyDataSetChanged: Boolean) {
         items.clear()
         items.add(CameraItem(cameraString))
         File(basePath).listFiles().forEach {
             val dateString = dateFormatter.format(it.lastModified())
             items.add(SessionItem(it.name, dateString))
+        }
+        if (notifyDataSetChanged) {
+            notifyDataSetChanged()
         }
     }
 
@@ -166,11 +175,6 @@ class SessionsAdapter(private val context: Context,
         val textSessionName: TextView = view.findViewById(R.id.session_view_session_name)
         val textSessionDate: TextView = view.findViewById(R.id.session_view_session_date)
         val iconChecked: ImageView = view.findViewById(R.id.session_view_checked)
-    }
-
-    companion object {
-        @SuppressLint("ConstantLocale")
-        private val dateFormatter = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
     }
 
     sealed class AdapterItem(val name: String) {

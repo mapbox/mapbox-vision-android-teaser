@@ -35,7 +35,7 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnClickModeItemLis
                 when (mode) {
                     Realtime -> startActivity(Intent(this@MainActivity, ArMapActivity::class.java))
                     Replay -> startArSession()
-                    else -> return@setOnClickListener
+                    Recorder -> return@setOnClickListener
                 }
             }
         }
@@ -134,7 +134,7 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnClickModeItemLis
     override fun onBackPressed() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         if (fragment is OnBackPressedListener) {
-            if (fragment.onBackPressed()) {
+            if (fragment.onBackPressed().not()) {
                 supportFragmentManager.popBackStack()
                 showDashboardView()
             }
