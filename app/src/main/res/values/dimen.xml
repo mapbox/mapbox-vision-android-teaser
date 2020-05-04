@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <dimen name="dp4">4dp</dimen>
-    <dimen name="dp7">7dp</dimen>
-    <dimen name="dp8">8dp</dimen>
-    <dimen name="dp14">14dp</dimen>
-    <dimen name="dp22">22dp</dimen>
-    <dimen name="dp9">9dp</dimen>
-    <dimen name="dp10">10dp</dimen>
-    <dimen name="dp16">16dp</dimen>
-    <dimen name="dp40">40dp</dimen>
-    <dimen name="dp46">46dp</dimen>
-    <dimen name="dp64">64dp</dimen>
-
     <dimen name="menu_small_margin">60dp</dimen>
     <dimen name="menu_medium_margin">120dp</dimen>
     <dimen name="menu_big_margin">160dp</dimen>
