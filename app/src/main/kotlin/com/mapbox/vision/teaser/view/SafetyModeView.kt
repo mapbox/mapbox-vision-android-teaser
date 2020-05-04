@@ -67,7 +67,7 @@ constructor(
     private fun View.pixels(@DimenRes res: Int) = context.resources.getDimensionPixelSize(res)
 
     private val transparent = resources.getColor(android.R.color.transparent, null)
-    private val dark = resources.getColor(R.color.black_70_transparent, null)
+    private val dark = resources.getColor(R.color.black_70_opacity, null)
 
     private fun getWarningShader(centerX: Float, centerY: Float, radius: Float) = RadialGradient(
         centerX, centerY, radius,

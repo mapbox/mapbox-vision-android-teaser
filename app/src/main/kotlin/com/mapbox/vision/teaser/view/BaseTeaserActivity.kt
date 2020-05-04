@@ -10,7 +10,6 @@ import android.widget.ImageView
 import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
-import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.teaser.models.UiSign
 import com.mapbox.vision.teaser.utils.SoundsPlayer
 import com.mapbox.vision.teaser.utils.classification.SignResources
@@ -34,6 +33,7 @@ import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
 import com.mapbox.vision.teaser.BaseVisionActivity
 import com.mapbox.vision.teaser.R
+import com.mapbox.vision.teaser.utils.dpToPx
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*
@@ -44,7 +44,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
 
     protected abstract fun destroyVisionManager()
 
-    protected abstract fun getFrameStatistics(): FrameStatistics
+    protected abstract fun getFrameStatistics(): FrameStatistics?
 
     protected abstract fun initViews(root: View)
 
@@ -115,7 +115,10 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         override fun onUpdateCompleted() {
             runOnUiThread {
                 if (visionManagerWasInit) {
-                    fps_performance_view.showInfo(getFrameStatistics())
+                    val frameStatistics = getFrameStatistics()
+                    if (frameStatistics != null) {
+                        fps_performance_view.showInfo(frameStatistics)
+                    }
                 }
             }
         }
@@ -266,9 +269,9 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
     override fun onPermissionsGranted() {
         isPermissionsGranted = true
 
-        signSize = resources.getDimension(R.dimen.dp64).toInt()
-        lineHeight = resources.getDimension(R.dimen.dp40).toInt()
-        margin = resources.getDimension(R.dimen.dp8).toInt()
+        signSize = dpToPx(64f).toInt()
+        lineHeight = dpToPx(40f).toInt()
+        margin = dpToPx(8f).toInt()
 
         back.setOnClickListener { onBackClick() }
         segm_container.setOnClickListener { setAppMode(AppMode.Segmentation) }
@@ -293,13 +296,13 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         initViews(root)
     }
 
-    private fun tryToInitVisionManager() {
+    fun tryToInitVisionManager() {
         if (isPermissionsGranted && !visionManagerWasInit) {
             visionManagerWasInit = initVisionManager(vision_view)
         }
     }
 
-    private fun stopVisionManager() {
+    protected fun stopVisionManager() {
         if (isPermissionsGranted && visionManagerWasInit) {
             destroyVisionManager()
             visionManagerWasInit = false
