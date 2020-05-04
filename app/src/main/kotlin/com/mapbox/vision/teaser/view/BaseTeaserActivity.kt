@@ -33,6 +33,7 @@ import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
 import com.mapbox.vision.teaser.BaseVisionActivity
 import com.mapbox.vision.teaser.R
+import com.mapbox.vision.teaser.utils.dpToPx
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*
@@ -268,9 +269,9 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
     override fun onPermissionsGranted() {
         isPermissionsGranted = true
 
-        signSize = resources.getDimension(R.dimen.dp64).toInt()
-        lineHeight = resources.getDimension(R.dimen.dp40).toInt()
-        margin = resources.getDimension(R.dimen.dp8).toInt()
+        signSize = dpToPx(64f).toInt()
+        lineHeight = dpToPx(40f).toInt()
+        margin = dpToPx(8f).toInt()
 
         back.setOnClickListener { onBackClick() }
         segm_container.setOnClickListener { setAppMode(AppMode.Segmentation) }
