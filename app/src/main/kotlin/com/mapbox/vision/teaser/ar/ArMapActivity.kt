@@ -1,6 +1,7 @@
 package com.mapbox.vision.teaser.ar
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -37,6 +38,7 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
     companion object {
         private val TAG = ArMapActivity::class.java.simpleName
         private const val MAP_STYLE = "mapbox://styles/mapbox/dark-v10"
+        const val ARG_RESULT_JSON_ROUTE = "ARG_RESULT_JSON_ROUTE"
     }
 
     private var originPoint: Point? = null
@@ -81,11 +83,15 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
         }
         mapView.onCreate(savedInstanceState)
         start_ar.setOnClickListener {
-            if (currentRoute == null) {
-                Toast.makeText(this, "Route is not ready yet!", Toast.LENGTH_LONG).show()
+            val route = currentRoute
+            if (route != null) {
+                val jsonRoute = route.toJson()
+                val data = Intent();
+                data.putExtra(ARG_RESULT_JSON_ROUTE, jsonRoute)
+                setResult(RESULT_OK, data);
+                finish()
             } else {
-                ArNavigationActivity.directionsRoute = currentRoute
-                ArNavigationActivity.start(this)
+                Toast.makeText(this, "Route is not ready yet!", Toast.LENGTH_LONG).show()
             }
         }
     }

@@ -29,10 +29,7 @@ import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
-import com.mapbox.vision.teaser.R
-import com.mapbox.vision.teaser.models.ArFeature
-import com.mapbox.vision.teaser.utils.buildStepPointsFromGeometry
-import com.mapbox.vision.teaser.utils.mapToManeuverType
+import com.mapbox.vision.teaser.utils.getRoutePoints
 import com.mapbox.vision.utils.VisionLogger
 import kotlinx.android.synthetic.main.activity_ar_navigation.*
 import kotlinx.android.synthetic.main.activity_ar_navigation.back
@@ -45,13 +42,16 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
 
         private const val LOCATION_INTERVAL_DEFAULT = 0L
         private const val LOCATION_INTERVAL_FAST_MS = 1000L
+        private const val ARG_INPUT_JSON_ROUTE = "ARG_INPUT_JSON_ROUTE"
 
-        var directionsRoute: DirectionsRoute? = null
-
-        fun start(context: Activity) {
-            context.startActivity(Intent(context, ArNavigationActivity::class.java))
+        fun start(context: Activity, jsonRoute: String) {
+            val intent = Intent(context, ArNavigationActivity::class.java)
+            intent.putExtra(ARG_INPUT_JSON_ROUTE, jsonRoute)
+            context.startActivity(intent)
         }
     }
+
+    private lateinit var directionsRoute: DirectionsRoute
 
     private val arLocationEngine by lazy {
         LocationEngineProvider.getBestLocationEngine(this)
@@ -84,6 +84,13 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ar_navigation)
+
+        val jsonRoute = intent.getStringExtra(ARG_INPUT_JSON_ROUTE)
+        if (jsonRoute.isNullOrEmpty()) {
+            finish()
+        }
+
+        directionsRoute = DirectionsRoute.fromJson(jsonRoute)
 
         back.setOnClickListener {
             onBackPressed()
@@ -142,14 +149,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
         ar_view.setArManager(VisionArManager)
         ar_view.onResume()
 
-        directionsRoute.let {
-            if (it == null) {
-                Toast.makeText(this, "Route is not set!", Toast.LENGTH_LONG).show()
-                finish()
-            } else {
-                setRoute(it)
-            }
-        }
+        setRoute(directionsRoute)
     }
 
     override fun onPause() {
@@ -204,35 +204,5 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
         routeFetcher.findRouteFromRouteProgress(location, lastRouteProgress)
     }
 
-    private fun DirectionsRoute.getRoutePoints(): Array<RoutePoint> {
-        val routePoints = arrayListOf<RoutePoint>()
-        legs()?.forEach { leg ->
-            leg.steps()?.forEach { step ->
-                val maneuverPoint = RoutePoint(
-                    GeoCoordinate(
-                        latitude = step.maneuver().location().latitude(),
-                        longitude = step.maneuver().location().longitude()
-                    ),
-                    step.maneuver().type().mapToManeuverType()
-                )
-                routePoints.add(maneuverPoint)
 
-                step.geometry()
-                    ?.buildStepPointsFromGeometry()
-                    ?.map { geometryStep ->
-                        RoutePoint(
-                            GeoCoordinate(
-                                latitude = geometryStep.latitude(),
-                                longitude = geometryStep.longitude()
-                            )
-                        )
-                    }
-                    ?.let { stepPoints ->
-                        routePoints.addAll(stepPoints)
-                    }
-            }
-        }
-
-        return routePoints.toTypedArray()
-    }
 }
