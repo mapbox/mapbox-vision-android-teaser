@@ -3,7 +3,8 @@ package com.mapbox.vision.teaser.replayer
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.*
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -14,6 +15,18 @@ import kotlinx.android.synthetic.main.fragment_replay_mode.*
 import java.io.File
 
 class ReplayModeFragment : Fragment(), OnBackPressedListener {
+
+    companion object{
+
+        val TAG: String = ReplayModeFragment::class.java.simpleName
+        private const val ARG_PARAM_SESSIONS_PATH = "ARG_PARAM_SESSIONS_PATH"
+
+        fun newInstance(path: String) = ReplayModeFragment().apply {
+            arguments = Bundle().apply {
+                putString(ARG_PARAM_SESSIONS_PATH, path)
+            }
+        }
+    }
 
     private lateinit var sessionsAdapter: SessionsAdapter
 
@@ -40,7 +53,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
     private fun initRecyclerViewSessions() {
         recycler_sessions.layoutManager = LinearLayoutManager(requireContext())
-        val sessionsPath = arguments?.getString(ARG_PARAM_SESSIONS_PATH)
+        val sessionsPath = getSessionPathFromArguments()
         if (sessionsPath != null) {
             sessionsAdapter = SessionsAdapter(
                 context = requireContext(),
@@ -73,7 +86,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
     private fun initSwipeRefreshLayout() {
         swipe_refresh_sessions.setOnRefreshListener {
-            sessionsAdapter.updateSessionsList()
+            sessionsAdapter.updateSessionsList(true)
             swipe_refresh_sessions.isRefreshing = false
         }
     }
@@ -93,15 +106,15 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
     private fun initDeleteSessionsButton() {
         delete_sessions.setOnClickListener {
             sessionsAdapter.let {
-                val sessionsPath = arguments?.getString(ARG_PARAM_SESSIONS_PATH)
+                val sessionsPath = getSessionPathFromArguments()
                 if (it.isMultiSelection && sessionsPath != null) {
                     for (session in it.selectedItems) {
                         val sessionsFolder = File("$sessionsPath/$session")
-                        if (!sessionsFolder.deleteRecursively()) {
+                        if (sessionsFolder.deleteRecursively().not()) {
                             Toast.makeText(requireContext(), "Error: Can't delete ${sessionsFolder.absoluteFile}", Toast.LENGTH_LONG).show()
                         }
                     }
-                    it.updateSessionsList()
+                    it.updateSessionsList(false)
                     changeMultiSelection(false)
                 }
             }
@@ -124,60 +137,45 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         val listener = requireActivity()
         if (listener is OnClickModeItemListener) {
             listener.onClickCamera()
-            requireActivity().onBackPressed()
+            listener.onBackPressed()
         }
     }
 
     private fun setMultiSelectionTitle() {
-        sessionsAdapter.apply {
-            val count = getSelectedCount()
-            replay_fragment_title.text = requireContext().resources.getQuantityString(R.plurals.selected_items, count, count)
-        }
+        val count = sessionsAdapter.getSelectedCount()
+        replay_fragment_title.text = requireContext().resources.getQuantityString(R.plurals.selected_items, count, count)
     }
 
     private fun changeMultiSelection(activate: Boolean) {
         if (activate) {
             sessionsAdapter.activateMultiSelection()
-            activateMultiSelectionVisibilityState(true)
         } else {
             sessionsAdapter.resetMultiSelection()
             replay_fragment_title.setText(R.string.select_session_source)
-            activateMultiSelectionVisibilityState(false)
         }
+        activateMultiSelectionVisibilityState(visible = activate)
     }
 
     private fun activateMultiSelectionVisibilityState(visible: Boolean) {
-        val multiSelectionShow = if (visible) VISIBLE else GONE
+        val multiSelectionVisible = if (visible) VISIBLE else GONE
         val multiSelectionGone = if (visible) GONE else VISIBLE
         edit_sessions_list.visibility = multiSelectionGone
-        select_all.visibility = multiSelectionShow
-        delete_sessions.visibility = multiSelectionShow
+        select_all.visibility = multiSelectionVisible
+        delete_sessions.visibility = multiSelectionVisible
         record_session.visibility = multiSelectionGone
         back_button.visibility = multiSelectionGone
-        done_edit.visibility = multiSelectionShow
+        done_edit.visibility = multiSelectionVisible
     }
 
     override fun onBackPressed(): Boolean {
         if (sessionsAdapter.isMultiSelection) {
             changeMultiSelection(false)
-            return false
+            return true
         }
-        return true
+        return false
     }
 
-    companion object{
-
-        val TAG: String = ReplayModeFragment::class.java.simpleName
-        private const val ARG_PARAM_SESSIONS_PATH = "ARG_PARAM_SESSIONS_PATH"
-
-        fun newInstance(path: String): ReplayModeFragment {
-            val bundle = Bundle()
-            bundle.putString(ARG_PARAM_SESSIONS_PATH, path)
-            val fragment = ReplayModeFragment()
-            fragment.arguments = bundle
-            return fragment
-        }
-    }
+    private fun getSessionPathFromArguments() = arguments?.getString(ARG_PARAM_SESSIONS_PATH)
 
     interface OnClickModeItemListener {
 
