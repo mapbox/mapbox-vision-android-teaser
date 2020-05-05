@@ -16,7 +16,7 @@ sealed class UiSign {
 
             return frameSignClassifications.signs
                 .filter { it.typeConfidence >= SIGN_THRESHOLD &&
-                        (it.numberConfidence == SIGN_NON_NUMERIC || it.numberConfidence >= SIGN_THRESHOLD)}
+                        (it.numberConfidence == SIGN_NON_NUMERIC || it.numberConfidence >= SIGN_THRESHOLD) }
                 .map { signClassification ->
                     val signTypeIndex = signClassification.sign.type.ordinal
 

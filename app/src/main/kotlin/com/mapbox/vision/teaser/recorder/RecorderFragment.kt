@@ -8,10 +8,10 @@ import androidx.fragment.app.Fragment
 import com.mapbox.vision.VisionManager
 import com.mapbox.vision.teaser.OnBackPressedListener
 import com.mapbox.vision.teaser.R
-import kotlinx.android.synthetic.main.fragment_recorder.*
 import java.text.SimpleDateFormat
-import java.util.Locale
 import java.util.Date
+import java.util.Locale
+import kotlinx.android.synthetic.main.fragment_recorder.*
 
 class RecorderFragment : Fragment(), OnBackPressedListener {
 
@@ -49,7 +49,7 @@ class RecorderFragment : Fragment(), OnBackPressedListener {
 
     override fun onResume() {
         super.onResume()
-        VisionManager.startRecording( "$baseSessionsPath/${buildFileName()}")
+        VisionManager.startRecording("$baseSessionsPath/${buildFileName()}")
     }
 
     override fun onPause() {

@@ -12,8 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.setPadding
-import com.mapbox.vision.teaser.utils.dpToPx
 import com.mapbox.vision.mobile.core.utils.SystemInfoUtils
+import com.mapbox.vision.teaser.utils.dpToPx
 import com.mapbox.vision.utils.VisionLogger
 
 abstract class BaseVisionActivity : AppCompatActivity() {
