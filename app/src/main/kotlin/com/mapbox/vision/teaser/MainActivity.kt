@@ -576,21 +576,30 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         VisionReplayManager.destroy()
     }
 
-    private fun showReplayModeFragment() {
-        supportFragmentManager
+    private fun showReplayModeFragment(stateLoss: Boolean = false) {
+        val fragmentTransaction = supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.fragment_container, ReplayModeFragment.newInstance(BASE_SESSION_PATH), ReplayModeFragment.TAG)
                 .addToBackStack(ReplayModeFragment.TAG)
-                .commit()
+
+        if (stateLoss) {
+            fragmentTransaction.commitAllowingStateLoss()
+        } else {
+            fragmentTransaction.commit()
+        }
         hideDashboardView()
     }
 
-    private fun showRecordingFragment(jsonRoute: String?) {
-        supportFragmentManager
+    private fun showRecorderFragment(jsonRoute: String?, stateLoss: Boolean = false) {
+        val fragmentTransaction = supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.fragment_container, RecorderFragment.newInstance(BASE_SESSION_PATH, jsonRoute), RecorderFragment.TAG)
                 .addToBackStack(RecorderFragment.TAG)
-                .commitAllowingStateLoss()
+        if (stateLoss) {
+            fragmentTransaction.commitAllowingStateLoss()
+        } else {
+            fragmentTransaction.commit()
+        }
         hideDashboardView()
     }
 
@@ -708,7 +717,9 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
                 val jsonRoute = data?.getStringExtra(ArMapActivity.ARG_RESULT_JSON_ROUTE)
                 onSelectCamera()
                 vision_view.visualizationMode = VisualizationMode.Clear
-                showRecordingFragment(jsonRoute)
+
+                // Using state loss here to keep code simple, lost of RecorderFragment is not critical for UX
+                showRecorderFragment(jsonRoute, stateLoss = true)
             }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
