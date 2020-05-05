@@ -2,5 +2,5 @@ package com.mapbox.vision.teaser
 
 interface OnBackPressedListener {
 
-    fun onBackPressed() = false
+    fun onBackPressed(): Boolean
 }

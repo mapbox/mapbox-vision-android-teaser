@@ -138,8 +138,8 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnSelectModeItemLi
 
     override fun onBackPressed() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        if (fragment is OnBackPressedListener) {
-            if (fragment.onBackPressed().not()) {
+        if (fragment != null) {
+            if ((fragment is OnBackPressedListener && fragment.onBackPressed()).not()) {
                 if (supportFragmentManager.popBackStackImmediate() && supportFragmentManager.backStackEntryCount == 0) {
                     showDashboardView()
                     title_teaser.show()
