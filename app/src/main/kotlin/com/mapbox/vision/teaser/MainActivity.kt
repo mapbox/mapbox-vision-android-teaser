@@ -2,7 +2,6 @@ package com.mapbox.vision.teaser
 
 import android.content.Intent
 import android.view.View
-import android.view.View.GONE
 import android.widget.LinearLayout
 import android.widget.Toast
 import com.mapbox.vision.VisionManager
@@ -139,17 +138,11 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnSelectModeItemLi
     override fun onBackPressed() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         if (fragment is OnBackPressedListener) {
-<<<<<<< HEAD
             if (fragment.onBackPressed().not()) {
-                supportFragmentManager.popBackStack()
-                showDashboardView()
-=======
-            if (fragment.onBackPressed()) {
                 if (supportFragmentManager.popBackStackImmediate() && supportFragmentManager.backStackEntryCount == 0) {
                     showDashboardView()
                     title_teaser.show()
                 }
->>>>>>> 7e73a41... Integrate recording; fix some issues with multiselection
             }
         } else {
             super.onBackPressed()

@@ -10,9 +10,25 @@ import com.mapbox.vision.teaser.OnBackPressedListener
 import com.mapbox.vision.teaser.R
 import kotlinx.android.synthetic.main.fragment_recorder.*
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
+import java.util.Date
 
 class RecorderFragment : Fragment(), OnBackPressedListener {
+
+    companion object {
+
+        private const val ARG_PARAM_SESSIONS_PATH = "ARG_PARAM_SESSIONS_PATH"
+        val TAG: String = RecorderFragment::class.java.simpleName
+
+        fun newInstance(sessionsPath: String) = RecorderFragment().apply {
+            arguments = Bundle().apply {
+                putString(ARG_PARAM_SESSIONS_PATH, sessionsPath)
+            }
+        }
+
+        private val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ssZ", Locale.US)
+        private fun buildFileName() = dateFormat.format(Date(System.currentTimeMillis()))
+    }
 
     private var baseSessionsPath:String? = ""
 
@@ -50,22 +66,5 @@ class RecorderFragment : Fragment(), OnBackPressedListener {
 
     override fun onBackPressed(): Boolean {
         return true
-    }
-
-    companion object {
-
-        private const val ARG_PARAM_SESSIONS_PATH = "ARG_PARAM_SESSIONS_PATH"
-        val TAG: String = RecorderFragment::class.java.simpleName
-
-        fun newInstance(sessionsPath: String): RecorderFragment {
-            val bundle = Bundle()
-            bundle.putString(ARG_PARAM_SESSIONS_PATH, sessionsPath)
-            val fragment = RecorderFragment()
-            fragment.arguments = bundle
-            return fragment
-        }
-
-        private val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ssZ", Locale.US)
-        private fun buildFileName() = dateFormat.format(Date(System.currentTimeMillis()))
     }
 }
