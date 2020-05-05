@@ -19,11 +19,11 @@ import java.util.Locale
 import kotlin.collections.HashSet
 
 class SessionsAdapter(
-        private val context: Context,
-        private val basePath: String,
-        private val clickSessionListener: (String) -> Unit,
-        private val clickCameraListener: () -> Unit,
-        private val onActivateMultiSelectionListener: () -> Unit
+    private val context: Context,
+    private val basePath: String,
+    private val clickSessionListener: (String) -> Unit,
+    private val clickCameraListener: () -> Unit,
+    private val onActivateMultiSelectionListener: () -> Unit
 ) : RecyclerView.Adapter<SessionsAdapter.SessionViewHolder>() {
 
     companion object {
@@ -129,7 +129,7 @@ class SessionsAdapter(
         if (item !is CameraItem) {
             holder.itemView.setOnLongClickListener {
                 if (isMultiSelection) {
-                   handleMultiSelectionClick(holder, item)
+                    handleMultiSelectionClick(holder, item)
                 } else {
                     selectedItems.add(item.name)
                     onActivateMultiSelectionListener.invoke()
@@ -180,7 +180,7 @@ class SessionsAdapter(
     }
 
     sealed class AdapterItem(val name: String) {
-        class CameraItem(name: String): AdapterItem(name)
-        class SessionItem(name: String, val fileDate: String): AdapterItem(name)
+        class CameraItem(name: String) : AdapterItem(name)
+        class SessionItem(name: String, val fileDate: String) : AdapterItem(name)
     }
 }

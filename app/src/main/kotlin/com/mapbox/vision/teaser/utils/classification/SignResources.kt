@@ -1,10 +1,10 @@
 package com.mapbox.vision.teaser.utils.classification
 
 import android.content.Context
+import com.mapbox.vision.mobile.core.models.Country
 import com.mapbox.vision.teaser.models.UiSign
 import com.mapbox.vision.teaser.utils.ResourceType
 import com.mapbox.vision.teaser.utils.getResId
-import com.mapbox.vision.mobile.core.models.Country
 
 interface SignResources {
 

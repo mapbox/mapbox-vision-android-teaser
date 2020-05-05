@@ -7,8 +7,6 @@ import android.widget.Toast
 import com.mapbox.vision.VisionManager
 import com.mapbox.vision.VisionReplayManager
 import com.mapbox.vision.mobile.core.models.FrameStatistics
-import com.mapbox.vision.teaser.view.BaseTeaserActivity
-import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.teaser.MainActivity.VisionManagerMode.Camera
 import com.mapbox.vision.teaser.MainActivity.VisionManagerMode.Replay
@@ -16,7 +14,9 @@ import com.mapbox.vision.teaser.ar.ArMapActivity
 import com.mapbox.vision.teaser.recorder.RecorderFragment
 import com.mapbox.vision.teaser.replayer.ArReplayNavigationActivity
 import com.mapbox.vision.teaser.replayer.ReplayModeFragment
+import com.mapbox.vision.teaser.view.BaseTeaserActivity
 import com.mapbox.vision.teaser.view.hide
+import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*

@@ -11,12 +11,12 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mapbox.vision.teaser.OnBackPressedListener
 import com.mapbox.vision.teaser.R
-import kotlinx.android.synthetic.main.fragment_replay_mode.*
 import java.io.File
+import kotlinx.android.synthetic.main.fragment_replay_mode.*
 
 class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
-    companion object{
+    companion object {
 
         val TAG: String = ReplayModeFragment::class.java.simpleName
         private const val ARG_PARAM_SESSIONS_PATH = "ARG_PARAM_SESSIONS_PATH"
@@ -61,7 +61,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
                 basePath = sessionsPath,
                 clickSessionListener = { onSessionClick(it) },
                 clickCameraListener = { onCameraClick() },
-                onActivateMultiSelectionListener =  { onActivateMultiSelection() }
+                onActivateMultiSelectionListener = { onActivateMultiSelection() }
             )
             recycler_sessions.adapter = sessionsAdapter
         } else {
@@ -102,7 +102,6 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         changeMultiSelection(true)
         setMultiSelectionTitle()
     }
-
 
     private fun initDeleteSessionsButton() {
         delete_sessions.setOnClickListener {
@@ -163,7 +162,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
             sessionsAdapter.resetMultiSelection()
             replay_fragment_title.setText(R.string.select_session_source)
         }
- 		swipe_refresh_sessions.isEnabled = !activate
+        swipe_refresh_sessions.isEnabled = !activate
         activateMultiSelectionVisibilityState(visible = activate)
     }
 

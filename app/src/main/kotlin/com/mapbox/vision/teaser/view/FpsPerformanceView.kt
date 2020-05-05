@@ -7,8 +7,8 @@ import android.view.LayoutInflater
 import android.widget.LinearLayout
 import com.mapbox.vision.mobile.core.models.FrameStatistics
 import com.mapbox.vision.teaser.R
-import kotlinx.android.synthetic.main.view_fps_performance.view.*
 import java.util.concurrent.TimeUnit
+import kotlinx.android.synthetic.main.view_fps_performance.view.*
 
 class FpsPerformanceView @JvmOverloads constructor(
     context: Context,

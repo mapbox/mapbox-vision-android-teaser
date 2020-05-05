@@ -5,7 +5,7 @@ import com.mapbox.geojson.Point
 import com.mapbox.geojson.utils.PolylineUtils
 import com.mapbox.vision.ar.core.models.ManeuverType
 
-fun String?.mapToManeuverType(): ManeuverType = when(this) {
+fun String?.mapToManeuverType(): ManeuverType = when (this) {
     "turn" -> ManeuverType.Turn
     "depart" -> ManeuverType.Depart
     "arrive" -> ManeuverType.Arrive
