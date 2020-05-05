@@ -17,6 +17,9 @@ class RecorderFragment : Fragment(), OnBackPressedListener {
 
     companion object {
 
+        private val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ssZ", Locale.US)
+        private fun buildFileName() = dateFormat.format(Date(System.currentTimeMillis()))
+
         private const val ARG_PARAM_SESSIONS_PATH = "ARG_PARAM_SESSIONS_PATH"
         val TAG: String = RecorderFragment::class.java.simpleName
 
@@ -25,9 +28,6 @@ class RecorderFragment : Fragment(), OnBackPressedListener {
                 putString(ARG_PARAM_SESSIONS_PATH, sessionsPath)
             }
         }
-
-        private val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ssZ", Locale.US)
-        private fun buildFileName() = dateFormat.format(Date(System.currentTimeMillis()))
     }
 
     private var baseSessionsPath: String? = ""

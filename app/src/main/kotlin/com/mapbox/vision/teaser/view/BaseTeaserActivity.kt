@@ -55,7 +55,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         Classification,
         Detection,
         Safety,
-        Lanes,
+        Lanes
     }
 
     private val signResources: SignResources = SignResources.Impl(this)

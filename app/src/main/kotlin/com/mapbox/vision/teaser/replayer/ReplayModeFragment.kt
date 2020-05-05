@@ -126,7 +126,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         record_session.setOnClickListener {
             val listener = requireActivity()
             if (listener is OnSelectModeItemListener) {
-                listener.onSelectRecording()
+                listener.onRecordingSelected()
             }
         }
     }
@@ -138,7 +138,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
             val listener = requireActivity()
             if (listener is OnSelectModeItemListener) {
                 requireActivity().onBackPressed()
-                listener.onSelectSessionItem(fileName)
+                listener.onSessionSelected(fileName)
             }
         }
     }
@@ -147,7 +147,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         val listener = requireActivity()
         if (listener is OnSelectModeItemListener) {
             requireActivity().onBackPressed()
-            listener.onSelectCamera()
+            listener.onCameraSelected()
         }
     }
 
@@ -190,10 +190,10 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
     interface OnSelectModeItemListener {
 
-        fun onSelectSessionItem(sessionName: String)
+        fun onSessionSelected(sessionName: String)
 
-        fun onSelectCamera()
+        fun onCameraSelected()
 
-        fun onSelectRecording()
+        fun onRecordingSelected()
     }
 }
