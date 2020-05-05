@@ -63,8 +63,4 @@ class RecorderFragment : Fragment(), OnBackPressedListener {
             requireActivity().onBackPressed()
         }
     }
-
-    override fun onBackPressed(): Boolean {
-        return true
-    }
 }
