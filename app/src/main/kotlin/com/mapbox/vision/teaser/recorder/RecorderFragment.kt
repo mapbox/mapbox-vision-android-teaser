@@ -30,7 +30,7 @@ class RecorderFragment : Fragment(), OnBackPressedListener {
         private fun buildFileName() = dateFormat.format(Date(System.currentTimeMillis()))
     }
 
-    private var baseSessionsPath:String? = ""
+    private var baseSessionsPath: String? = ""
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         baseSessionsPath = arguments?.getString(ARG_PARAM_SESSIONS_PATH)
