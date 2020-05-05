@@ -10,7 +10,8 @@ import com.mapbox.vision.mobile.core.models.FrameStatistics
 import com.mapbox.vision.teaser.view.BaseTeaserActivity
 import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.safety.VisionSafetyManager
-import com.mapbox.vision.teaser.MainActivity.VisionManagerMode.*
+import com.mapbox.vision.teaser.MainActivity.VisionManagerMode.Camera
+import com.mapbox.vision.teaser.MainActivity.VisionManagerMode.Replay
 import com.mapbox.vision.teaser.ar.ArMapActivity
 import com.mapbox.vision.teaser.recorder.RecorderFragment
 import com.mapbox.vision.teaser.replayer.ArReplayNavigationActivity
@@ -149,21 +150,21 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnSelectModeItemLi
         }
     }
 
-    override fun onSelectSessionItem(sessionName: String) {
+    override fun onSessionSelected(sessionName: String) {
         stopVisionManager()
         mode = Replay
         sessionPath = "$BASE_SESSION_PATH/$sessionName"
         tryToInitVisionManager()
     }
 
-    override fun onSelectCamera() {
+    override fun onCameraSelected() {
         stopVisionManager()
         mode = Camera
         sessionPath = ""
         tryToInitVisionManager()
     }
 
-    override fun onSelectRecording() {
+    override fun onRecordingSelected() {
         stopVisionManager()
         mode = Camera
         tryToInitVisionManager()
