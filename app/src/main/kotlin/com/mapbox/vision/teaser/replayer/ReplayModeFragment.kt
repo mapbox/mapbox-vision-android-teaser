@@ -11,12 +11,12 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mapbox.vision.teaser.OnBackPressedListener
 import com.mapbox.vision.teaser.R
-import kotlinx.android.synthetic.main.fragment_replay_mode.*
 import java.io.File
+import kotlinx.android.synthetic.main.fragment_replay_mode.*
 
 class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
-    companion object{
+    companion object {
 
         val TAG: String = ReplayModeFragment::class.java.simpleName
         private const val ARG_PARAM_SESSIONS_PATH = "ARG_PARAM_SESSIONS_PATH"
@@ -43,6 +43,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         initSwipeRefreshLayout()
         initDeleteSessionsButton()
         initDoneEditButton()
+        initRecordingButton()
     }
 
     private fun initBackButton() {
@@ -60,7 +61,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
                 basePath = sessionsPath,
                 clickSessionListener = { onSessionClick(it) },
                 clickCameraListener = { onCameraClick() },
-                onActivateMultiSelectionListener =  { onActivateMultiSelection() }
+                onActivateMultiSelectionListener = { onActivateMultiSelection() }
             )
             recycler_sessions.adapter = sessionsAdapter
         } else {
@@ -102,7 +103,6 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         setMultiSelectionTitle()
     }
 
-
     private fun initDeleteSessionsButton() {
         delete_sessions.setOnClickListener {
             sessionsAdapter.let {
@@ -121,23 +121,32 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         }
     }
 
+    private fun initRecordingButton() {
+        record_session.setOnClickListener {
+            val listener = requireActivity()
+            if (listener is OnSelectModeItemListener) {
+                listener.onRecordingSelected()
+            }
+        }
+    }
+
     private fun onSessionClick(fileName: String) {
         if (sessionsAdapter.isMultiSelection) {
             setMultiSelectionTitle()
         } else {
             val listener = requireActivity()
-            if (listener is OnClickModeItemListener) {
-                listener.onClickSessionItem(fileName)
+            if (listener is OnSelectModeItemListener) {
                 requireActivity().onBackPressed()
+                listener.onSessionSelected(fileName)
             }
         }
     }
 
     private fun onCameraClick() {
         val listener = requireActivity()
-        if (listener is OnClickModeItemListener) {
-            listener.onClickCamera()
-            listener.onBackPressed()
+        if (listener is OnSelectModeItemListener) {
+            requireActivity().onBackPressed()
+            listener.onCameraSelected()
         }
     }
 
@@ -153,6 +162,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
             sessionsAdapter.resetMultiSelection()
             replay_fragment_title.setText(R.string.select_session_source)
         }
+        swipe_refresh_sessions.isEnabled = !activate
         activateMultiSelectionVisibilityState(visible = activate)
     }
 
@@ -177,10 +187,12 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
     private fun getSessionPathFromArguments() = arguments?.getString(ARG_PARAM_SESSIONS_PATH)
 
-    interface OnClickModeItemListener {
+    interface OnSelectModeItemListener {
 
-        fun onClickSessionItem(sessionName: String)
+        fun onSessionSelected(sessionName: String)
 
-        fun onClickCamera()
+        fun onCameraSelected()
+
+        fun onRecordingSelected()
     }
 }

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.INVISIBLE
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -12,17 +11,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mapbox.vision.teaser.R
 import com.mapbox.vision.teaser.replayer.SessionsAdapter.AdapterItem.CameraItem
 import com.mapbox.vision.teaser.replayer.SessionsAdapter.AdapterItem.SessionItem
+import com.mapbox.vision.teaser.view.invisible
 import com.mapbox.vision.teaser.view.show
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
+import kotlin.collections.HashSet
 
 class SessionsAdapter(
-        private val context: Context,
-        private val basePath: String,
-        private val clickSessionListener: (String) -> Unit,
-        private val clickCameraListener: () -> Unit,
-        private val onActivateMultiSelectionListener: () -> Unit
+    private val context: Context,
+    private val basePath: String,
+    private val clickSessionListener: (String) -> Unit,
+    private val clickCameraListener: () -> Unit,
+    private val onActivateMultiSelectionListener: () -> Unit
 ) : RecyclerView.Adapter<SessionsAdapter.SessionViewHolder>() {
 
     companion object {
@@ -74,6 +75,8 @@ class SessionsAdapter(
             when {
                 item is CameraItem -> {
                     holder.itemView.isEnabled = false
+                    holder.itemView.background = context.getDrawable(R.drawable.session_info_custom_ripple)
+                    holder.iconChecked.invisible()
                 }
                 selectedItems.contains(item.name) -> {
                     holder.itemView.setBackgroundColor(backgroundSelectionColor)
@@ -89,10 +92,9 @@ class SessionsAdapter(
         } else {
             if (item is CameraItem) {
                 holder.itemView.isEnabled = true
-            } else {
-                holder.itemView.background = context.getDrawable(R.drawable.session_info_custom_ripple)
             }
-            holder.iconChecked.visibility = INVISIBLE
+            holder.itemView.background = context.getDrawable(R.drawable.session_info_custom_ripple)
+            holder.iconChecked.invisible()
         }
     }
 
@@ -127,7 +129,7 @@ class SessionsAdapter(
         if (item !is CameraItem) {
             holder.itemView.setOnLongClickListener {
                 if (isMultiSelection) {
-                   handleMultiSelectionClick(holder, item)
+                    handleMultiSelectionClick(holder, item)
                 } else {
                     selectedItems.add(item.name)
                     onActivateMultiSelectionListener.invoke()
@@ -178,7 +180,7 @@ class SessionsAdapter(
     }
 
     sealed class AdapterItem(val name: String) {
-        class CameraItem(name: String): AdapterItem(name)
-        class SessionItem(name: String, val fileDate: String): AdapterItem(name)
+        class CameraItem(name: String) : AdapterItem(name)
+        class SessionItem(name: String, val fileDate: String) : AdapterItem(name)
     }
 }

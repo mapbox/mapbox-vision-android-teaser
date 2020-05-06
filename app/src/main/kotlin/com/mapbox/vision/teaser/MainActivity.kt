@@ -7,35 +7,36 @@ import android.widget.Toast
 import com.mapbox.vision.VisionManager
 import com.mapbox.vision.VisionReplayManager
 import com.mapbox.vision.mobile.core.models.FrameStatistics
-import com.mapbox.vision.teaser.view.BaseTeaserActivity
-import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.safety.VisionSafetyManager
-import com.mapbox.vision.teaser.MainActivity.VisionManagerMode.*
+import com.mapbox.vision.teaser.MainActivity.VisionManagerMode.Camera
+import com.mapbox.vision.teaser.MainActivity.VisionManagerMode.Replay
 import com.mapbox.vision.teaser.ar.ArMapActivity
+import com.mapbox.vision.teaser.recorder.RecorderFragment
 import com.mapbox.vision.teaser.replayer.ArReplayNavigationActivity
 import com.mapbox.vision.teaser.replayer.ReplayModeFragment
+import com.mapbox.vision.teaser.view.BaseTeaserActivity
 import com.mapbox.vision.teaser.view.hide
+import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.view.VisionView
+import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnClickModeItemListener {
+class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnSelectModeItemListener {
 
     enum class VisionManagerMode {
-        Realtime,
+        Camera,
         Replay,
-        Recorder
     }
 
-    private var mode = Realtime
+    private var mode = Camera
     private var sessionPath = ""
 
     override fun initViews(root: View) {
         root.findViewById<LinearLayout>(R.id.ar_navigation_button_container).apply {
             setOnClickListener {
                 when (mode) {
-                    Realtime -> startActivity(Intent(this@MainActivity, ArMapActivity::class.java))
+                    Camera -> startActivity(Intent(this@MainActivity, ArMapActivity::class.java))
                     Replay -> startArSession()
-                    Recorder -> return@setOnClickListener
                 }
             }
         }
@@ -47,13 +48,12 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnClickModeItemLis
 
     override fun initVisionManager(visionView: VisionView): Boolean {
         return when (mode) {
-            Realtime -> initVisionManagerRealtime(visionView)
+            Camera -> initVisionManagerCamera(visionView)
             Replay -> initVisionManagerReplay(visionView, sessionPath)
-            Recorder -> false
         }
     }
 
-    private fun initVisionManagerRealtime(visionView: VisionView): Boolean {
+    private fun initVisionManagerCamera(visionView: VisionView): Boolean {
         VisionManager.create()
         visionView.setVisionManager(VisionManager)
         VisionManager.visionEventsListener = visionEventsListener
@@ -82,7 +82,6 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnClickModeItemLis
         return true
     }
 
-
     private fun showReplayModeFragment() {
         supportFragmentManager
                 .beginTransaction()
@@ -90,7 +89,15 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnClickModeItemLis
                 .addToBackStack(ReplayModeFragment.TAG)
                 .commit()
         hideDashboardView()
+    }
 
+    private fun showRecordingFragment() {
+        supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, RecorderFragment.newInstance(BASE_SESSION_PATH), RecorderFragment.TAG)
+                .addToBackStack(RecorderFragment.TAG)
+                .commit()
+        hideDashboardView()
     }
 
     private fun hideDashboardView() {
@@ -105,21 +112,19 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnClickModeItemLis
 
     override fun destroyVisionManager() {
         return when (mode) {
-            Realtime -> destroyVisionManagerRealtime()
+            Camera -> destroyVisionManagerCamera()
             Replay -> destroyVisionManagerReplay()
-            Recorder -> return
         }
     }
 
     override fun getFrameStatistics(): FrameStatistics? {
         return when (mode) {
-            Realtime -> VisionManager.getFrameStatistics()
+            Camera -> VisionManager.getFrameStatistics()
             Replay -> VisionReplayManager.getFrameStatistics()
-            Recorder -> null
         }
     }
 
-    private fun destroyVisionManagerRealtime() {
+    private fun destroyVisionManagerCamera() {
         VisionSafetyManager.destroy()
         VisionManager.stop()
         VisionManager.destroy()
@@ -133,30 +138,38 @@ class MainActivity : BaseTeaserActivity(), ReplayModeFragment.OnClickModeItemLis
 
     override fun onBackPressed() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        if (fragment is OnBackPressedListener) {
-            if (fragment.onBackPressed().not()) {
-                supportFragmentManager.popBackStack()
-                showDashboardView()
+        if (fragment != null) {
+            if ((fragment is OnBackPressedListener && fragment.onBackPressed()).not()) {
+                if (supportFragmentManager.popBackStackImmediate() && supportFragmentManager.backStackEntryCount == 0) {
+                    showDashboardView()
+                    title_teaser.show()
+                }
             }
         } else {
             super.onBackPressed()
         }
     }
 
-    override fun onClickSessionItem(sessionName: String) {
+    override fun onSessionSelected(sessionName: String) {
         stopVisionManager()
         mode = Replay
         sessionPath = "$BASE_SESSION_PATH/$sessionName"
-        title_teaser.setText(R.string.app_title_replayer)
         tryToInitVisionManager()
     }
 
-    override fun onClickCamera() {
+    override fun onCameraSelected() {
         stopVisionManager()
-        mode = Realtime
+        mode = Camera
         sessionPath = ""
-        title_teaser.setText(R.string.app_title_teaser)
         tryToInitVisionManager()
+    }
+
+    override fun onRecordingSelected() {
+        stopVisionManager()
+        mode = Camera
+        tryToInitVisionManager()
+        vision_view.visualizationMode = VisualizationMode.Clear
+        showRecordingFragment()
     }
 
     private fun startArSession() {

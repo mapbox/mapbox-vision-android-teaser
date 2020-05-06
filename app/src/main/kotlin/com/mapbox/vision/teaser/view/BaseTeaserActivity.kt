@@ -4,16 +4,13 @@ import android.animation.Animator
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
+import android.view.View.GONE
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
-import com.mapbox.vision.teaser.models.UiSign
-import com.mapbox.vision.teaser.utils.SoundsPlayer
-import com.mapbox.vision.teaser.utils.classification.SignResources
-import com.mapbox.vision.teaser.utils.classification.Tracker
 import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.Camera
 import com.mapbox.vision.mobile.core.models.Country
@@ -33,6 +30,10 @@ import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
 import com.mapbox.vision.teaser.BaseVisionActivity
 import com.mapbox.vision.teaser.R
+import com.mapbox.vision.teaser.models.UiSign
+import com.mapbox.vision.teaser.utils.SoundsPlayer
+import com.mapbox.vision.teaser.utils.classification.SignResources
+import com.mapbox.vision.teaser.utils.classification.Tracker
 import com.mapbox.vision.teaser.utils.dpToPx
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
@@ -419,7 +420,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         lines_detections_container.hide()
     }
 
-    private fun setAppMode(mode: AppMode) {
+    protected fun setAppMode(mode: AppMode) {
         fps_performance_view.resetAverageFps()
         soundsPlayer.stop()
 
