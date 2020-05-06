@@ -15,9 +15,16 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
+import androidx.core.view.setPadding
+import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
+import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
+import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
 import com.mapbox.vision.VisionManager
 import com.mapbox.vision.VisionReplayManager
-import com.mapbox.vision.mobile.core.models.FrameStatistics
 import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.Country
 import com.mapbox.vision.mobile.core.models.classification.FrameSignClassifications
@@ -48,7 +55,6 @@ import com.mapbox.vision.teaser.utils.classification.SignResources
 import com.mapbox.vision.teaser.utils.classification.Tracker
 import com.mapbox.vision.teaser.utils.dpToPx
 import com.mapbox.vision.teaser.view.hide
-import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.utils.VisionLogger
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
@@ -316,9 +322,9 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private fun onPermissionsGranted() {
         isPermissionsGranted = true
 
-        signSize = resources.getDimension(R.dimen.dp64).toInt()
-        lineHeight = resources.getDimension(R.dimen.dp40).toInt()
-        margin = resources.getDimension(R.dimen.dp8).toInt()
+        signSize = dpToPx(64f).toInt()
+        lineHeight = dpToPx(40f).toInt()
+        margin = dpToPx(8f).toInt()
 
         back.setOnClickListener { onBackClick() }
         segm_container.setOnClickListener { setVisionMode(VisionMode.Segmentation) }
@@ -334,7 +340,6 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         initArNavigationButton()
         initReplayModeButton()
         tryToInitVisionManager()
-
     }
 
     private fun initRootLongTap() {
@@ -622,7 +627,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     }
 
     override fun onRecordingSelected() {
-        onSelectCamera()
+        onCameraSelected()
         vision_view.visualizationMode = VisualizationMode.Clear
         showRecordingFragment()
     }
