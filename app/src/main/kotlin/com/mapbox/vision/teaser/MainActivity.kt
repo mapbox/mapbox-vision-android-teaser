@@ -39,8 +39,8 @@ import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.safety.VisionSafetyManager
-import com.mapbox.vision.teaser.MainActivity.VisionManagerMode.Camera
-import com.mapbox.vision.teaser.MainActivity.VisionManagerMode.Replay
+import com.mapbox.vision.teaser.MainActivity.VisionMode.Camera
+import com.mapbox.vision.teaser.MainActivity.VisionMode.Replay
 import com.mapbox.vision.safety.core.VisionSafetyListener
 import com.mapbox.vision.safety.core.models.CollisionDangerLevel
 import com.mapbox.vision.safety.core.models.CollisionObject
@@ -62,23 +62,25 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemListener {
 
-    enum class VisionManagerMode {
+    enum class VisionMode {
         Camera,
         Replay,
     }
 
-    enum class VisionMode {
+    enum class VisionFeature {
         Segmentation,
         Classification,
         Detection,
         Safety,
-        Lanes,
+        Lanes
     }
 
     companion object {
         private val BASE_SESSION_PATH = "${Environment.getExternalStorageDirectory().absolutePath}/MapboxVisionTelemetry"
         private const val PERMISSION_FOREGROUND_SERVICE = "android.permission.FOREGROUND_SERVICE"
         private const val PERMISSIONS_REQUEST_CODE = 123
+        private const val TRACKER_DEFAULT_COUNT = 5
+        private const val CALIBRATION_READY_VALUE = 1f
     }
 
     private var visionManagerMode = Camera
@@ -90,15 +92,14 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private var margin = 0
 
     private var lineHeight = 0
-
-    private var tracker: Tracker<UiSign> = Tracker(5)
-    private var visionMode: VisionMode = VisionMode.Detection
+    private var tracker: Tracker<UiSign> = Tracker(TRACKER_DEFAULT_COUNT)
+    private var visionMode: VisionFeature = VisionFeature.Detection
     private var isPermissionsGranted = false
     private var visionManagerWasInit = false
     private lateinit var soundsPlayer: SoundsPlayer
     private var country = Country.Unknown
     private var modelPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-    private var lastSpeed: Float = 0f
+    private var lastSpeed = 0f
     private var calibrationProgress = 0f
 
     private val visionEventsListener = object : VisionEventsListener {
@@ -108,7 +109,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         }
 
         override fun onFrameSignClassificationsUpdated(frameSignClassifications: FrameSignClassifications) {
-            if (visionMode == VisionMode.Classification) {
+            if (visionMode == VisionFeature.Classification) {
                 runOnUiThread {
                     tracker.update(UiSign.getUiSigns(frameSignClassifications))
                     drawSigns(tracker.getCurrent())
@@ -117,7 +118,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         }
 
         override fun onRoadDescriptionUpdated(roadDescription: RoadDescription) {
-            if (visionMode == VisionMode.Lanes) {
+            if (visionMode == VisionFeature.Lanes) {
                 runOnUiThread {
                     drawLanesDetection(roadDescription)
                 }
@@ -163,10 +164,10 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         }
 
         override fun onCollisionsUpdated(collisions: Array<CollisionObject>) {
-            if (visionMode == VisionMode.Safety) {
+            if (visionMode == VisionFeature.Safety) {
                 runOnUiThread {
 
-                    if (calibrationProgress == 1f) {
+                    if (calibrationProgress == CALIBRATION_READY_VALUE) {
                         distance_to_car_label.show()
                         safety_mode.show()
                         calibration_progress.hide()
@@ -285,7 +286,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onCreate(savedInstanceState)
 
-        if (!SystemInfoUtils.isVisionSupported()) {
+        if (SystemInfoUtils.isVisionSupported().not()) {
             AlertDialog.Builder(this)
                     .setTitle(R.string.vision_not_supported_title)
                     .setView(
@@ -325,14 +326,13 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         signSize = dpToPx(64f).toInt()
         lineHeight = dpToPx(40f).toInt()
         margin = dpToPx(8f).toInt()
-
         back.setOnClickListener { onBackClick() }
-        segm_container.setOnClickListener { setVisionMode(VisionMode.Segmentation) }
-        sign_detection_container.setOnClickListener { setVisionMode(VisionMode.Classification) }
-        det_container.setOnClickListener { setVisionMode(VisionMode.Detection) }
-        distance_container.setOnClickListener { setVisionMode(VisionMode.Safety) }
+        segm_container.setOnClickListener { setVisionMode(VisionFeature.Segmentation) }
+        sign_detection_container.setOnClickListener { setVisionMode(VisionFeature.Classification) }
+        det_container.setOnClickListener { setVisionMode(VisionFeature.Detection) }
+        distance_container.setOnClickListener { setVisionMode(VisionFeature.Safety) }
         safety_mode_container.hide()
-        line_detection_container.setOnClickListener { setVisionMode(VisionMode.Lanes) }
+        line_detection_container.setOnClickListener { setVisionMode(VisionFeature.Lanes) }
 
         initRootLongTap()
         fps_performance_view.hide()
@@ -409,9 +409,9 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         back.hide()
     }
 
-    private fun drawSigns(signsValueUis: List<UiSign>) {
+    private fun drawSigns(uiSigns: List<UiSign>) {
         sign_info_container.removeAllViews()
-        for (signValue in signsValueUis) {
+        for (uiSign in uiSigns) {
             sign_info_container.addView(
                     ImageView(this).apply {
                         layoutParams =
@@ -419,7 +419,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
                                         .apply {
                                             leftMargin = margin
                                         }
-                        setImageResource(signResources.getSignResource(signValue, country))
+                        setImageResource(signResources.getSignResource(uiSign, country))
                     }
             )
         }
@@ -492,7 +492,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         lines_detections_container.hide()
     }
 
-    private fun setVisionMode(mode: VisionMode) {
+    private fun setVisionMode(mode: VisionFeature) {
         fps_performance_view.resetAverageFps()
         soundsPlayer.stop()
 
@@ -504,25 +504,25 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         visionMode = mode
         when (visionMode) {
-            VisionMode.Classification -> {
+            VisionFeature.Classification -> {
                 vision_view.visualizationMode = VisualizationMode.Clear
-                tracker = Tracker(5)
+                tracker = Tracker(TRACKER_DEFAULT_COUNT)
                 sign_info_container.show()
             }
-            VisionMode.Detection -> {
+            VisionFeature.Detection -> {
                 vision_view.visualizationMode = VisualizationMode.Detection
             }
-            VisionMode.Segmentation -> {
+            VisionFeature.Segmentation -> {
                 vision_view.visualizationMode = VisualizationMode.Segmentation
             }
-            VisionMode.Safety -> {
+            VisionFeature.Safety -> {
                 vision_view.visualizationMode = VisualizationMode.Clear
                 safety_mode_container.show()
                 safety_mode.hide()
                 calibration_progress.hide()
                 distance_to_car_label.hide()
             }
-            VisionMode.Lanes -> {
+            VisionFeature.Lanes -> {
                 vision_view.visualizationMode = VisualizationMode.Clear
                 lines_detections_container.show()
             }
@@ -669,9 +669,9 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private fun getRequiredPermissions(): Array<String> {
         return try {
             val info = packageManager?.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
-            val ps = info!!.requestedPermissions
-            if (ps != null && ps.isNotEmpty()) {
-                ps
+            val permissions = info!!.requestedPermissions
+            if (permissions != null && permissions.isNotEmpty()) {
+                permissions
             } else {
                 emptyArray()
             }
