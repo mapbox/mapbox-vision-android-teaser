@@ -33,7 +33,7 @@ class RecorderFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         baseSessionsPath = arguments?.getString(ARG_PARAM_SESSIONS_PATH)
-        return if (!baseSessionsPath.isNullOrEmpty()) {
+        return if (baseSessionsPath.isNullOrEmpty().not()) {
             inflater.inflate(R.layout.fragment_recorder, container, false)
         } else {
             requireActivity().onBackPressed()
