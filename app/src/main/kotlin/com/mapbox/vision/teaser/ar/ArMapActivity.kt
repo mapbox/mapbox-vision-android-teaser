@@ -86,8 +86,9 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
             val route = currentRoute
             if (route != null) {
                 val jsonRoute = route.toJson()
-                val data = Intent()
-                data.putExtra(ARG_RESULT_JSON_ROUTE, jsonRoute)
+                val data = Intent().apply {
+                    putExtra(ARG_RESULT_JSON_ROUTE, jsonRoute)
+                }
                 setResult(RESULT_OK, data)
                 finish()
             } else {

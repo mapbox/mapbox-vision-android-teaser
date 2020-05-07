@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.setPadding
+import androidx.fragment.app.Fragment
 import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
@@ -575,23 +576,19 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     }
 
     private fun showReplayModeFragment(stateLoss: Boolean = false) {
-        val fragmentTransaction = supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, ReplayModeFragment.newInstance(BASE_SESSION_PATH), ReplayModeFragment.TAG)
-                .addToBackStack(ReplayModeFragment.TAG)
-
-        if (stateLoss) {
-            fragmentTransaction.commitAllowingStateLoss()
-        } else {
-            fragmentTransaction.commit()
-        }
-        hideDashboardView()
+        val fragment = ReplayModeFragment.newInstance(BASE_SESSION_PATH)
+        showFragment(fragment, ReplayModeFragment.TAG, stateLoss)
     }
 
     private fun showRecorderFragment(jsonRoute: String?, stateLoss: Boolean = false) {
+        val fragment = RecorderFragment.newInstance(BASE_SESSION_PATH, jsonRoute)
+        showFragment(fragment, RecorderFragment.TAG, stateLoss)
+    }
+
+    private fun showFragment(fragment: Fragment, tag: String, stateLoss: Boolean = false) {
         val fragmentTransaction = supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_container, RecorderFragment.newInstance(BASE_SESSION_PATH, jsonRoute), RecorderFragment.TAG)
+                .replace(R.id.fragment_container, fragment, RecorderFragment.TAG)
                 .addToBackStack(RecorderFragment.TAG)
         if (stateLoss) {
             fragmentTransaction.commitAllowingStateLoss()
@@ -644,13 +641,16 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     }
 
     private fun startArMapActivityForNavigation() {
-        val intent = Intent(this@MainActivity, ArMapActivity::class.java)
-        startActivityForResult(intent, START_AR_MAP_ACTIVITY_FOR_NAVIGATION_RESULT_CODE)
+        startArMapActivity(START_AR_MAP_ACTIVITY_FOR_NAVIGATION_RESULT_CODE)
     }
 
     private fun startArMapActivityForRecording() {
+        startArMapActivity(START_AR_MAP_ACTIVITY_FOR_RECORDING_RESULT_CODE)
+    }
+
+    private fun startArMapActivity(resultCode: Int) {
         val intent = Intent(this@MainActivity, ArMapActivity::class.java)
-        startActivityForResult(intent, START_AR_MAP_ACTIVITY_FOR_RECORDING_RESULT_CODE)
+        startActivityForResult(intent, resultCode)
     }
 
     private fun startArSession() {
