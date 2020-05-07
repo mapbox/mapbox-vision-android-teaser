@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.util.Xml
 import android.view.WindowManager
+import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.android.core.location.LocationEngine
 import com.mapbox.android.core.location.LocationEngineCallback
@@ -46,15 +47,13 @@ import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.teaser.R
-import com.mapbox.vision.teaser.models.ArFeature
-import com.mapbox.vision.teaser.utils.buildStepPointsFromGeometry
-import com.mapbox.vision.teaser.utils.mapToManeuverType
-import java.util.concurrent.TimeUnit
-import kotlinx.android.synthetic.main.activity_ar_navigation.*
+import com.mapbox.vision.teaser.view.hide
+import com.mapbox.vision.teaser.view.show
 import kotlinx.android.synthetic.main.activity_ar_navigation.ar_mode_view
 import kotlinx.android.synthetic.main.activity_ar_navigation.ar_view
 import kotlinx.android.synthetic.main.activity_ar_navigation.back
 import kotlinx.android.synthetic.main.activity_ar_navigation_replayer.*
+import kotlinx.android.synthetic.main.activity_ar_navigation_replayer.playback_seek_bar_view
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -82,22 +81,31 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickList
     private var navigationMap: NavigationMapboxMap? = null
     private var navigation: MapboxNavigation? = null
     private var lastLocation: Location? = null
-    private var mapVisible = false
+    private var toolsVisible = false
 
     private lateinit var sessionPath: String
     private lateinit var mapView: MapView
     private lateinit var destination: Point
 
     private var activeArFeature: ArFeature = ArFeature.LaneAndFence
+    private var playbackTracked = false
 
     private val visionListener = object : VisionEventsListener {
         override fun onVehicleStateUpdated(vehicleState: VehicleState) {
             runOnUiThread {
+                if (playbackTracked) {
+                    return@runOnUiThread
+                }
                 val lat = vehicleState.geoLocation.geoCoordinate.latitude
                 val lon = vehicleState.geoLocation.geoCoordinate.longitude
                 val azimuth = vehicleState.geoLocation.azimuth
-
                 visionLocationEngine.setLocation(lat, lon, azimuth)
+            }
+        }
+
+        override fun onUpdateCompleted() {
+            runOnUiThread {
+                playback_seek_bar_view.setTimePosition(VisionReplayManager.getProgress())
             }
         }
     }
@@ -186,10 +194,10 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickList
         back.setOnClickListener { onBackPressed() }
 
         ar_view.setOnClickListener {
-            if (mapVisible) {
-                hideMapView()
+            if (toolsVisible) {
+                hideTools()
             } else {
-                showMapView()
+                showTools()
             }
         }
         applyArFeature()
@@ -277,6 +285,24 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickList
                 ModelPerformanceRate.LOW
             )
         )
+
+        playback_seek_bar_view.setDuration(VisionReplayManager.getDuration())
+        playback_seek_bar_view.onSeekBarChangeListener = object : SeekBar.OnSeekBarChangeListener {
+
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    VisionReplayManager.setProgress(progress.toFloat())
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                playbackTracked = true
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                playbackTracked = false
+            }
+        }
 
         VisionArManager.create(VisionReplayManager)
         ar_view.setArManager(VisionArManager)
@@ -407,14 +433,16 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickList
         return routePoints.toTypedArray()
     }
 
-    private fun hideMapView() {
+    private fun hideTools() {
+        playback_seek_bar_view.hide()
         map_container.removeView(mapView)
-        mapVisible = false
+        toolsVisible = false
     }
 
-    private fun showMapView() {
+    private fun showTools() {
+        playback_seek_bar_view.show()
         map_container.addView(mapView)
-        mapVisible = true
+        toolsVisible = true
     }
 
     private fun moveCameraTo(location: Location) {
