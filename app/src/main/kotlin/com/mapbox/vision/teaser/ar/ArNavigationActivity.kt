@@ -203,6 +203,4 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
     override fun userOffRoute(location: Location?) {
         routeFetcher.findRouteFromRouteProgress(location, lastRouteProgress)
     }
-
-
 }

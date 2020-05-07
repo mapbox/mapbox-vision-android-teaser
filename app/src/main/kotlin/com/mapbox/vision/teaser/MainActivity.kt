@@ -39,12 +39,12 @@ import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.safety.VisionSafetyManager
-import com.mapbox.vision.teaser.MainActivity.VisionMode.Camera
-import com.mapbox.vision.teaser.MainActivity.VisionMode.Replay
 import com.mapbox.vision.safety.core.VisionSafetyListener
 import com.mapbox.vision.safety.core.models.CollisionDangerLevel
 import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
+import com.mapbox.vision.teaser.MainActivity.VisionMode.Camera
+import com.mapbox.vision.teaser.MainActivity.VisionMode.Replay
 import com.mapbox.vision.teaser.ar.ArMapActivity
 import com.mapbox.vision.teaser.ar.ArNavigationActivity
 import com.mapbox.vision.teaser.models.UiSign
@@ -662,9 +662,9 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     }
 
     override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (allPermissionsGranted() && requestCode == PERMISSIONS_REQUEST_CODE) {

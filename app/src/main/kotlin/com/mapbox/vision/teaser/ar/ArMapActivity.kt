@@ -86,9 +86,9 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
             val route = currentRoute
             if (route != null) {
                 val jsonRoute = route.toJson()
-                val data = Intent();
+                val data = Intent()
                 data.putExtra(ARG_RESULT_JSON_ROUTE, jsonRoute)
-                setResult(RESULT_OK, data);
+                setResult(RESULT_OK, data)
                 finish()
             } else {
                 Toast.makeText(this, "Route is not ready yet!", Toast.LENGTH_LONG).show()
