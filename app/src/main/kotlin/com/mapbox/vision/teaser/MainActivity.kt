@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
     enum class VisionMode {
         Camera,
-        Replay,
+        Replay
     }
 
     enum class VisionFeature {
