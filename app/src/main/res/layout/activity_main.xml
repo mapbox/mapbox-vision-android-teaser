@@ -18,6 +18,28 @@
         app:layout_constraintTop_toTopOf="parent"
         app:visualization_mode="clear"/>
 
+    <com.mapbox.vision.teaser.view.PlaybackSeekBarView
+        android:id="@+id/playback_seek_bar_view"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/black_70_opacity"
+        android:gravity="center_vertical"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <ImageView
+        android:id="@+id/back"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="18dp"
+        android:src="@drawable/ic_back"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/playback_seek_bar_view"/>
+
     <LinearLayout
         android:id="@+id/sign_info_container"
         android:layout_width="wrap_content"
@@ -27,7 +49,7 @@
         android:paddingTop="18dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/playback_seek_bar_view"/>
 
     <LinearLayout
         android:id="@+id/lines_detections_container"
@@ -39,7 +61,7 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/playback_seek_bar_view"/>
 
     <ImageView
         android:id="@+id/line_departure"
@@ -50,17 +72,18 @@
         android:src="@drawable/ic_departure_notification"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/playback_seek_bar_view"/>
 
     <FrameLayout
         android:id="@+id/safety_mode_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:visibility="gone"
         tools:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent">
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/playback_seek_bar_view">
 
         <TextView
             android:id="@+id/calibration_progress"
@@ -425,17 +448,6 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageView
-        android:id="@+id/back"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="18dp"
-        android:src="@drawable/ic_back"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
-
-    <ImageView
         android:id="@+id/watermark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -452,18 +464,5 @@
         android:background="@color/fully_transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
-    <com.mapbox.vision.teaser.view.PlaybackSeekBarView
-        android:id="@+id/playback_seek_bar_view"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="@color/black_70_opacity"
-        android:gravity="center_vertical"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-    </com.mapbox.vision.teaser.view.PlaybackSeekBarView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
