@@ -5,6 +5,7 @@ import android.text.format.DateUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
+import android.widget.SeekBar
 import com.mapbox.vision.teaser.R
 import kotlinx.android.synthetic.main.view_playback_seek_bar.view.*
 
@@ -19,11 +20,20 @@ class PlaybackSeekBarView @JvmOverloads constructor(
         LayoutInflater.from(context).inflate(R.layout.view_playback_seek_bar, this, true)
     }
 
+    var onSeekBarChangeListener: SeekBar.OnSeekBarChangeListener? = null
+        get() = field
+        set(value) {
+            seek_bar.setOnSeekBarChangeListener(value)
+        }
+
+
     fun setTimePosition(seconds: Float) {
         video_position_time_text.text = DateUtils.formatElapsedTime(seconds.toLong())
+        seek_bar.progress = seconds.toInt()
     }
 
     fun setDuration(seconds: Float) {
         video_duration_time_text.text = DateUtils.formatElapsedTime(seconds.toLong())
+        seek_bar.max = seconds.toInt()
     }
 }

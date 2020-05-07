@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
+import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -150,6 +151,9 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
                         Replay -> VisionReplayManager.getFrameStatistics()
                     }
                     fps_performance_view.showInfo(frameStatistics)
+                    if (visionManagerMode == Replay) {
+                        playback_seek_bar_view.setTimePosition(VisionReplayManager.getProgress())
+                    }
                 }
             }
         }
@@ -340,6 +344,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         line_detection_container.setOnClickListener { setVisionMode(VisionFeature.Lanes) }
 
         initRootLongTap()
+        initRootTap()
         fps_performance_view.hide()
 
         initArNavigationButton()
@@ -357,6 +362,19 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
             return@setOnLongClickListener true
         }
     }
+
+    private fun initRootTap() {
+        root.setOnClickListener {
+            if (visionManagerMode == Replay) {
+                if (playback_seek_bar_view.visibility == View.GONE) {
+                    playback_seek_bar_view.show()
+                } else {
+                    playback_seek_bar_view.hide()
+                }
+            }
+        }
+    }
+
 
     private fun initArNavigationButton() {
         ar_navigation_button_container.setOnClickListener {
@@ -412,6 +430,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         hideSignsContainer()
         safety_mode_container.hide()
         back.hide()
+        playback_seek_bar_view.hide()
     }
 
     private fun drawSigns(uiSigns: List<UiSign>) {
@@ -506,6 +525,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         safety_mode_container.hide()
         hideLineDetectionContainer()
         hideSignsContainer()
+        playback_seek_bar_view.hide()
 
         visionMode = mode
         when (visionMode) {
@@ -566,6 +586,21 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         VisionSafetyManager.create(VisionReplayManager)
         VisionSafetyManager.visionSafetyListener = visionSafetyListener
+
+        playback_seek_bar_view.setDuration(VisionReplayManager.getDuration())
+        playback_seek_bar_view.onSeekBarChangeListener = object : SeekBar.OnSeekBarChangeListener {
+
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    VisionReplayManager.setProgress(progress.toFloat())
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        }
+
         return true
     }
 
@@ -573,6 +608,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         VisionSafetyManager.destroy()
         VisionReplayManager.stop()
         VisionReplayManager.destroy()
+        playback_seek_bar_view.onSeekBarChangeListener = null
     }
 
     private fun showReplayModeFragment(stateLoss: Boolean = false) {
