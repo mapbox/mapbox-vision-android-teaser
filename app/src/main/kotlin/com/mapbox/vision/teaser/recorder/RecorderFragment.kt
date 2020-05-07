@@ -10,12 +10,11 @@ import com.mapbox.vision.VisionManager
 import com.mapbox.vision.ar.VisionArManager
 import com.mapbox.vision.ar.core.models.Route
 import com.mapbox.vision.ar.core.models.RoutePoint
-import com.mapbox.vision.teaser.OnBackPressedListener
 import com.mapbox.vision.teaser.R
+import com.mapbox.vision.teaser.utils.getRoutePoints
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import com.mapbox.vision.teaser.utils.getRoutePoints
 import kotlinx.android.synthetic.main.fragment_recorder.*
 
 class RecorderFragment : Fragment() {
@@ -26,13 +25,13 @@ class RecorderFragment : Fragment() {
         private fun buildFileName() = dateFormat.format(Date(System.currentTimeMillis()))
 
         private const val ARG_PARAM_SESSIONS_PATH = "ARG_PARAM_SESSIONS_PATH"
-		private const val ARG_PARAM_JSON_ROUTE = "ARG_PARAM_JSON_ROUTE"
+        private const val ARG_PARAM_JSON_ROUTE = "ARG_PARAM_JSON_ROUTE"
         val TAG: String = RecorderFragment::class.java.simpleName
 
         fun newInstance(sessionsPath: String, jsonRoute: String?) = RecorderFragment().apply {
             arguments = Bundle().apply {
                 putString(ARG_PARAM_SESSIONS_PATH, sessionsPath)
-				putString(ARG_PARAM_JSON_ROUTE, jsonRoute)
+                putString(ARG_PARAM_JSON_ROUTE, jsonRoute)
             }
         }
     }
@@ -47,7 +46,7 @@ class RecorderFragment : Fragment() {
         return if (baseSessionsPath.isNotEmpty()) {
             val jsonRoute = arguments?.getString(ARG_PARAM_JSON_ROUTE)
             if (jsonRoute != null) {
-                directionsRoute =  DirectionsRoute.fromJson(jsonRoute)
+                directionsRoute = DirectionsRoute.fromJson(jsonRoute)
                 routePoints = directionsRoute?.getRoutePoints() ?: arrayOf()
             }
             inflater.inflate(R.layout.fragment_recorder, container, false)
