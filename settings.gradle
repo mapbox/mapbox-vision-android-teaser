@@ -10,12 +10,12 @@ if (localPropsFile.exists()) {
 }
 
 if (gradle.ext.has('BUILD_CORE_FROM_SOURCE') && gradle.ext.BUILD_CORE_FROM_SOURCE.toBoolean()) {
-    include ':Vision'
-    project(':Vision').projectDir = new File("./source/mapbox-vision/SDK/Platforms/Android/sdk")
-    include ':VisionSafety'
-    project(':VisionSafety').projectDir = new File("./source/mapbox-vision/SDK/Platforms/Android/safety")
-    include ':VisionAr'
-    project(':VisionAr').projectDir = new File("./source/mapbox-vision/SDK/Platforms/Android/ar")
+    include ':mapbox-android-vision'
+    project(':mapbox-android-vision').projectDir = new File("./source/mapbox-vision/SDK/Platforms/Android/sdk")
+    include ':mapbox-android-vision-safety'
+    project(':mapbox-android-vision-safety').projectDir = new File("./source/mapbox-vision/SDK/Platforms/Android/safety")
+    include ':mapbox-android-vision-ar'
+    project(':mapbox-android-vision-ar').projectDir = new File("./source/mapbox-vision/SDK/Platforms/Android/ar")
 }
 
 include ':app', ':recorder', ':replayer', ':common'
