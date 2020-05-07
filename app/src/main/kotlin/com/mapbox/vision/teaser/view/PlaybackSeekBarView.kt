@@ -28,12 +28,12 @@ class PlaybackSeekBarView @JvmOverloads constructor(
 
 
     fun setTimePosition(seconds: Float) {
-        video_position_time_text.text = DateUtils.formatElapsedTime(seconds.toLong())
+        playback_position_time_text.text = DateUtils.formatElapsedTime(seconds.toLong())
         seek_bar.progress = seconds.toInt()
     }
 
     fun setDuration(seconds: Float) {
-        video_duration_time_text.text = DateUtils.formatElapsedTime(seconds.toLong())
+        playback_duration_time_text.text = DateUtils.formatElapsedTime(seconds.toLong())
         seek_bar.max = seconds.toInt()
     }
 }

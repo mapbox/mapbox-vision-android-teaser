@@ -107,6 +107,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private var modelPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
     private var lastSpeed = 0f
     private var calibrationProgress = 0f
+    private var playbackTracked = false
 
     private val visionEventsListener = object : VisionEventsListener {
 
@@ -117,6 +118,9 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         override fun onFrameSignClassificationsUpdated(frameSignClassifications: FrameSignClassifications) {
             if (visionMode == VisionFeature.Classification) {
                 runOnUiThread {
+                    if (visionManagerMode == Replay && playbackTracked) {
+                        return@runOnUiThread
+                    }
                     tracker.update(UiSign.getUiSigns(frameSignClassifications))
                     drawSigns(tracker.getCurrent())
                 }
@@ -126,6 +130,9 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         override fun onRoadDescriptionUpdated(roadDescription: RoadDescription) {
             if (visionMode == VisionFeature.Lanes) {
                 runOnUiThread {
+                    if (visionManagerMode == Replay && playbackTracked) {
+                        return@runOnUiThread
+                    }
                     drawLanesDetection(roadDescription)
                 }
             }
@@ -138,6 +145,9 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         override fun onCameraUpdated(camera: com.mapbox.vision.mobile.core.models.Camera) {
             calibrationProgress = camera.calibrationProgress
             runOnUiThread {
+                if (visionManagerMode == Replay && playbackTracked) {
+                    return@runOnUiThread
+                }
                 fps_performance_view.setCalibrationProgress(calibrationProgress)
             }
         }
@@ -151,7 +161,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
                         Replay -> VisionReplayManager.getFrameStatistics()
                     }
                     fps_performance_view.showInfo(frameStatistics)
-                    if (visionManagerMode == Replay) {
+                    if (visionManagerMode == Replay && !playbackTracked) {
                         playback_seek_bar_view.setTimePosition(VisionReplayManager.getProgress())
                     }
                 }
@@ -230,6 +240,9 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         override fun onRoadRestrictionsUpdated(roadRestrictions: RoadRestrictions) {
             runOnUiThread {
+                if (visionManagerMode == Replay && playbackTracked) {
+                    return@runOnUiThread
+                }
                 val imageResource = signResources.getSpeedSignResource(
                         UiSign.WithNumber(
                                 signType = UiSign.SignType.SpeedLimit,
@@ -596,9 +609,13 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
                 }
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                playbackTracked = true
+            }
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                playbackTracked = false
+            }
         }
 
         return true

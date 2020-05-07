@@ -21,13 +21,11 @@
     <com.mapbox.vision.teaser.view.PlaybackSeekBarView
         android:id="@+id/playback_seek_bar_view"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="@color/black_70_opacity"
-        android:gravity="center_vertical"
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        style="@style/PlaybackSeekBarViewStyle" />
 
     <ImageView
         android:id="@+id/back"
