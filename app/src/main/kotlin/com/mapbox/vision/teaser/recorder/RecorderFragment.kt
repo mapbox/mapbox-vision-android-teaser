@@ -70,17 +70,17 @@ class RecorderFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        onResumeARManager()
+        onResumeArManager()
         VisionManager.startRecording("$baseSessionsPath/${buildFileName()}")
     }
 
     override fun onPause() {
         super.onPause()
-        onPauseARManager()
+        onPauseArManager()
         VisionManager.stopRecording()
     }
 
-    private fun onResumeARManager() {
+    private fun onResumeArManager() {
         val routeEta = directionsRoute?.duration()?.toFloat() ?: 0f
         isArManagerInitiated = routePoints.isNotEmpty() && routeEta != 0f
         if (isArManagerInitiated) {
@@ -90,7 +90,7 @@ class RecorderFragment : Fragment() {
         }
     }
 
-    private fun onPauseARManager() {
+    private fun onPauseArManager() {
         if (isArManagerInitiated) {
             isArManagerInitiated = false
             VisionArManager.destroy()

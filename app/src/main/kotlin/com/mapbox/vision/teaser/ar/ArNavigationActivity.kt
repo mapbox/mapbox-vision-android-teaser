@@ -45,8 +45,9 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
         private const val ARG_INPUT_JSON_ROUTE = "ARG_INPUT_JSON_ROUTE"
 
         fun start(context: Activity, jsonRoute: String) {
-            val intent = Intent(context, ArNavigationActivity::class.java)
-            intent.putExtra(ARG_INPUT_JSON_ROUTE, jsonRoute)
+            val intent = Intent(context, ArNavigationActivity::class.java).apply {
+                putExtra(ARG_INPUT_JSON_ROUTE, jsonRoute)
+            }
             context.startActivity(intent)
         }
     }

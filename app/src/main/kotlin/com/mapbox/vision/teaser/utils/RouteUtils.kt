@@ -38,8 +38,8 @@ fun DirectionsRoute.getRoutePoints(): Array<RoutePoint> {
         leg.steps()?.forEach { step ->
             val maneuverPoint = RoutePoint(
                     GeoCoordinate(
-                            latitude = step.maneuver().location().latitude(),
-                            longitude = step.maneuver().location().longitude()
+                        latitude = step.maneuver().location().latitude(),
+                        longitude = step.maneuver().location().longitude()
                     ),
                     step.maneuver().type().mapToManeuverType()
             )
@@ -50,8 +50,8 @@ fun DirectionsRoute.getRoutePoints(): Array<RoutePoint> {
                     ?.map { geometryStep ->
                         RoutePoint(
                                 GeoCoordinate(
-                                        latitude = geometryStep.latitude(),
-                                        longitude = geometryStep.longitude()
+                                    latitude = geometryStep.latitude(),
+                                    longitude = geometryStep.longitude()
                                 )
                         )
                     }
