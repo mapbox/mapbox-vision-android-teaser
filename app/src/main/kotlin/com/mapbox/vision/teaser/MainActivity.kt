@@ -45,8 +45,6 @@ import com.mapbox.vision.safety.core.VisionSafetyListener
 import com.mapbox.vision.safety.core.models.CollisionDangerLevel
 import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
-import com.mapbox.vision.teaser.MainActivity.VisionManagerMode.Camera
-import com.mapbox.vision.teaser.MainActivity.VisionManagerMode.Replay
 import com.mapbox.vision.teaser.ar.ArMapActivity
 import com.mapbox.vision.teaser.ar.ArNavigationActivity
 import com.mapbox.vision.teaser.models.UiSign
@@ -715,7 +713,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
             }
             START_AR_MAP_ACTIVITY_FOR_RECORDING_RESULT_CODE -> {
                 val jsonRoute = data?.getStringExtra(ArMapActivity.ARG_RESULT_JSON_ROUTE)
-                onSelectCamera()
+                onCameraSelected()
                 vision_view.visualizationMode = VisualizationMode.Clear
 
                 // Using state loss here to keep code simple, lost of RecorderFragment is not critical for UX
