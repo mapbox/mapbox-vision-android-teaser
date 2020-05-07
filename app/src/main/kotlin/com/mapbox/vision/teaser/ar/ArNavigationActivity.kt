@@ -27,6 +27,8 @@ import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
+import com.mapbox.vision.teaser.R
+import com.mapbox.vision.teaser.models.ArFeature
 import com.mapbox.vision.teaser.utils.getRoutePoints
 import com.mapbox.vision.utils.VisionLogger
 import kotlinx.android.synthetic.main.activity_ar_navigation.*
