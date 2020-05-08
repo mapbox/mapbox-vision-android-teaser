@@ -39,20 +39,17 @@ import com.mapbox.services.android.navigation.v5.routeprogress.ProgressChangeLis
 import com.mapbox.vision.VisionReplayManager
 import com.mapbox.vision.ar.VisionArManager
 import com.mapbox.vision.ar.core.models.Route
-import com.mapbox.vision.ar.core.models.RoutePoint
 import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
-import com.mapbox.vision.mobile.core.models.position.GeoCoordinate
 import com.mapbox.vision.mobile.core.models.position.VehicleState
 import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.teaser.R
 import com.mapbox.vision.teaser.models.ArFeature
-import com.mapbox.vision.teaser.utils.buildStepPointsFromGeometry
 import com.mapbox.vision.teaser.utils.getRoutePoints
-import com.mapbox.vision.teaser.utils.mapToManeuverType
 import com.mapbox.vision.teaser.view.hide
 import com.mapbox.vision.teaser.view.show
+import java.util.concurrent.TimeUnit
 import kotlinx.android.synthetic.main.activity_ar_navigation.ar_mode_view
 import kotlinx.android.synthetic.main.activity_ar_navigation.ar_view
 import kotlinx.android.synthetic.main.activity_ar_navigation.back
@@ -61,7 +58,6 @@ import kotlinx.android.synthetic.main.activity_ar_navigation_replayer.playback_s
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.concurrent.TimeUnit
 
 class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
     OnMapReadyCallback {

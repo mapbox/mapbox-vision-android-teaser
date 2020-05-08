@@ -388,7 +388,6 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         }
     }
 
-
     private fun initArNavigationButton() {
         ar_navigation_button_container.setOnClickListener {
             when (visionManagerMode) {
