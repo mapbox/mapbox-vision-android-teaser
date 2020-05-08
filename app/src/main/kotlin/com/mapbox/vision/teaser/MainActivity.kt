@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private var modelPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
     private var lastSpeed = 0f
     private var calibrationProgress = 0f
-    private var isProgressChangingByUser = false
+    private var isProgressChanging = false
 
     private val visionEventsListener = object : VisionEventsListener {
 
@@ -117,10 +117,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         override fun onFrameSignClassificationsUpdated(frameSignClassifications: FrameSignClassifications) {
             if (visionMode == VisionFeature.Classification) {
-                runOnUiThread {
-                    if (visionManagerMode == Replay && isProgressChangingByUser) {
-                        return@runOnUiThread
-                    }
+                runOnUiThreadIfPossible{
                     tracker.update(UiSign.getUiSigns(frameSignClassifications))
                     drawSigns(tracker.getCurrent())
                 }
@@ -129,10 +126,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         override fun onRoadDescriptionUpdated(roadDescription: RoadDescription) {
             if (visionMode == VisionFeature.Lanes) {
-                runOnUiThread {
-                    if (visionManagerMode == Replay && isProgressChangingByUser) {
-                        return@runOnUiThread
-                    }
+                runOnUiThreadIfPossible {
                     drawLanesDetection(roadDescription)
                 }
             }
@@ -144,10 +138,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         override fun onCameraUpdated(camera: com.mapbox.vision.mobile.core.models.Camera) {
             calibrationProgress = camera.calibrationProgress
-            runOnUiThread {
-                if (visionManagerMode == Replay && isProgressChangingByUser) {
-                    return@runOnUiThread
-                }
+            runOnUiThreadIfPossible {
                 fps_performance_view.setCalibrationProgress(calibrationProgress)
             }
         }
@@ -161,11 +152,20 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
                         Replay -> VisionReplayManager.getFrameStatistics()
                     }
                     fps_performance_view.showInfo(frameStatistics)
-                    if (visionManagerMode == Replay && !isProgressChangingByUser) {
+                    if (visionManagerMode == Replay && !isProgressChanging) {
                         playback_seek_bar_view.setProgress(VisionReplayManager.getProgress())
                     }
                 }
             }
+        }
+    }
+
+    private fun runOnUiThreadIfPossible(action: () -> Unit) {
+        runOnUiThread {
+            if (visionManagerMode == Replay && isProgressChanging) {
+                return@runOnUiThread
+            }
+            action.invoke()
         }
     }
 
@@ -184,8 +184,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         override fun onCollisionsUpdated(collisions: Array<CollisionObject>) {
             if (visionMode == VisionFeature.Safety) {
-                runOnUiThread {
-
+                runOnUiThreadIfPossible {
                     if (calibrationProgress == CALIBRATION_READY_VALUE) {
                         distance_to_car_label.show()
                         safety_mode.show()
@@ -239,10 +238,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         }
 
         override fun onRoadRestrictionsUpdated(roadRestrictions: RoadRestrictions) {
-            runOnUiThread {
-                if (visionManagerMode == Replay && isProgressChangingByUser) {
-                    return@runOnUiThread
-                }
+            runOnUiThreadIfPossible {
                 val imageResource = signResources.getSpeedSignResource(
                         UiSign.WithNumber(
                                 signType = UiSign.SignType.SpeedLimit,
@@ -612,11 +608,11 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                isProgressChangingByUser = true
+                isProgressChanging = true
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                isProgressChangingByUser = false
+                isProgressChanging = false
             }
         }
 
