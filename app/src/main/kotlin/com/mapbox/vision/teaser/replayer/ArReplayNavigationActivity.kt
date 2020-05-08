@@ -89,12 +89,12 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickList
     private lateinit var destination: Point
 
     private var activeArFeature: ArFeature = ArFeature.LaneAndFence
-    private var playbackTracked = false
+    private var isProgressChangingByUser = false
 
     private val visionListener = object : VisionEventsListener {
         override fun onVehicleStateUpdated(vehicleState: VehicleState) {
             runOnUiThread {
-                if (playbackTracked) {
+                if (isProgressChangingByUser) {
                     return@runOnUiThread
                 }
                 val lat = vehicleState.geoLocation.geoCoordinate.latitude
@@ -106,7 +106,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickList
 
         override fun onUpdateCompleted() {
             runOnUiThread {
-                playback_seek_bar_view.setTimePosition(VisionReplayManager.getProgress())
+                playback_seek_bar_view.setProgress(VisionReplayManager.getProgress())
             }
         }
     }
@@ -200,6 +200,7 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickList
             } else {
                 showTools()
             }
+            toolsVisible = !toolsVisible
         }
         applyArFeature()
         ar_mode_view.setOnClickListener {
@@ -297,11 +298,11 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickList
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                playbackTracked = true
+                isProgressChangingByUser = true
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                playbackTracked = false
+                isProgressChangingByUser = false
             }
         }
 
@@ -406,13 +407,11 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickList
     private fun hideTools() {
         playback_seek_bar_view.hide()
         map_container.removeView(mapView)
-        toolsVisible = false
     }
 
     private fun showTools() {
         playback_seek_bar_view.show()
         map_container.addView(mapView)
-        toolsVisible = true
     }
 
     private fun moveCameraTo(location: Location) {

@@ -26,7 +26,7 @@ class PlaybackSeekBarView @JvmOverloads constructor(
             seek_bar.setOnSeekBarChangeListener(value)
         }
 
-    fun setTimePosition(seconds: Float) {
+    fun setProgress(seconds: Float) {
         playback_position_time_text.text = DateUtils.formatElapsedTime(seconds.toLong())
         seek_bar.progress = seconds.toInt()
     }
