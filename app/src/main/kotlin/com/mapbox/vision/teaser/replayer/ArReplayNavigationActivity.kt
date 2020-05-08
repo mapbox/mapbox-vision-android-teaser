@@ -47,6 +47,10 @@ import com.mapbox.vision.performance.ModelPerformance
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.teaser.R
+import com.mapbox.vision.teaser.models.ArFeature
+import com.mapbox.vision.teaser.utils.buildStepPointsFromGeometry
+import com.mapbox.vision.teaser.utils.getRoutePoints
+import com.mapbox.vision.teaser.utils.mapToManeuverType
 import com.mapbox.vision.teaser.view.hide
 import com.mapbox.vision.teaser.view.show
 import kotlinx.android.synthetic.main.activity_ar_navigation.ar_mode_view
@@ -57,6 +61,7 @@ import kotlinx.android.synthetic.main.activity_ar_navigation_replayer.playback_s
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.concurrent.TimeUnit
 
 class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickListener,
     OnMapReadyCallback {
@@ -400,37 +405,6 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickList
                 eta = route.duration()?.toFloat() ?: 0f
             )
         )
-    }
-
-    private fun DirectionsRoute.getRoutePoints(): Array<RoutePoint> {
-        val routePoints = arrayListOf<RoutePoint>()
-        legs()?.forEach { leg ->
-            leg.steps()?.forEach { step ->
-                val maneuverPoint = RoutePoint(
-                    GeoCoordinate(
-                        latitude = step.maneuver().location().latitude(),
-                        longitude = step.maneuver().location().longitude()
-                    ),
-                    step.maneuver().type().mapToManeuverType()
-                )
-                routePoints.add(maneuverPoint)
-
-                step.geometry()
-                    ?.buildStepPointsFromGeometry()
-                    ?.map { geometryStep ->
-                        RoutePoint(
-                            GeoCoordinate(
-                                latitude = geometryStep.latitude(),
-                                longitude = geometryStep.longitude()
-                            )
-                        )
-                    }
-                    ?.let { stepPoints ->
-                        routePoints.addAll(stepPoints)
-                    }
-            }
-        }
-        return routePoints.toTypedArray()
     }
 
     private fun hideTools() {
