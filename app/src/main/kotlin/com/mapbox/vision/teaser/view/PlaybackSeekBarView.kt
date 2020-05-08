@@ -10,10 +10,10 @@ import com.mapbox.vision.teaser.R
 import kotlinx.android.synthetic.main.view_playback_seek_bar.view.*
 
 class PlaybackSeekBarView @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyle: Int = 0,
-        defStyleRes: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyle: Int = 0,
+    defStyleRes: Int = 0
 ) : LinearLayout(context, attrs, defStyle, defStyleRes) {
 
     init {
@@ -25,7 +25,6 @@ class PlaybackSeekBarView @JvmOverloads constructor(
         set(value) {
             seek_bar.setOnSeekBarChangeListener(value)
         }
-
 
     fun setTimePosition(seconds: Float) {
         playback_position_time_text.text = DateUtils.formatElapsedTime(seconds.toLong())
