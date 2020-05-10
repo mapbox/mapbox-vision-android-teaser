@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
+import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -106,6 +107,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private var modelPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
     private var lastSpeed = 0f
     private var calibrationProgress = 0f
+    private var isProgressChanging = false
 
     private val visionEventsListener = object : VisionEventsListener {
 
@@ -115,7 +117,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         override fun onFrameSignClassificationsUpdated(frameSignClassifications: FrameSignClassifications) {
             if (visionMode == VisionFeature.Classification) {
-                runOnUiThread {
+                runOnUiThreadIfPossible{
                     tracker.update(UiSign.getUiSigns(frameSignClassifications))
                     drawSigns(tracker.getCurrent())
                 }
@@ -124,7 +126,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         override fun onRoadDescriptionUpdated(roadDescription: RoadDescription) {
             if (visionMode == VisionFeature.Lanes) {
-                runOnUiThread {
+                runOnUiThreadIfPossible {
                     drawLanesDetection(roadDescription)
                 }
             }
@@ -136,7 +138,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         override fun onCameraUpdated(camera: com.mapbox.vision.mobile.core.models.Camera) {
             calibrationProgress = camera.calibrationProgress
-            runOnUiThread {
+            runOnUiThreadIfPossible {
                 fps_performance_view.setCalibrationProgress(calibrationProgress)
             }
         }
@@ -150,8 +152,20 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
                         Replay -> VisionReplayManager.getFrameStatistics()
                     }
                     fps_performance_view.showInfo(frameStatistics)
+                    if (visionManagerMode == Replay && !isProgressChanging) {
+                        playback_seek_bar_view.setProgress(VisionReplayManager.getProgress())
+                    }
                 }
             }
+        }
+    }
+
+    private fun runOnUiThreadIfPossible(action: () -> Unit) {
+        runOnUiThread {
+            if (visionManagerMode == Replay && isProgressChanging) {
+                return@runOnUiThread
+            }
+            action.invoke()
         }
     }
 
@@ -170,8 +184,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         override fun onCollisionsUpdated(collisions: Array<CollisionObject>) {
             if (visionMode == VisionFeature.Safety) {
-                runOnUiThread {
-
+                runOnUiThreadIfPossible {
                     if (calibrationProgress == CALIBRATION_READY_VALUE) {
                         distance_to_car_label.show()
                         safety_mode.show()
@@ -225,7 +238,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         }
 
         override fun onRoadRestrictionsUpdated(roadRestrictions: RoadRestrictions) {
-            runOnUiThread {
+            runOnUiThreadIfPossible {
                 val imageResource = signResources.getSpeedSignResource(
                         UiSign.WithNumber(
                                 signType = UiSign.SignType.SpeedLimit,
@@ -340,6 +353,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         line_detection_container.setOnClickListener { setVisionMode(VisionFeature.Lanes) }
 
         initRootLongTap()
+        initRootTap()
         fps_performance_view.hide()
 
         initArNavigationButton()
@@ -355,6 +369,18 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
                 fps_performance_view.hide()
             }
             return@setOnLongClickListener true
+        }
+    }
+
+    private fun initRootTap() {
+        root.setOnClickListener {
+            if (visionManagerMode == Replay) {
+                if (playback_seek_bar_view.visibility == View.GONE) {
+                    playback_seek_bar_view.show()
+                } else {
+                    playback_seek_bar_view.hide()
+                }
+            }
         }
     }
 
@@ -386,7 +412,10 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         if (isPermissionsGranted && visionManagerWasInit) {
             when (visionManagerMode) {
                 Camera -> destroyVisionManagerCamera()
-                Replay -> destroyVisionManagerReplay()
+                Replay -> {
+                    destroyVisionManagerReplay()
+                    playback_seek_bar_view.onSeekBarChangeListener = null
+                }
             }
             visionManagerWasInit = false
         }
@@ -412,6 +441,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         hideSignsContainer()
         safety_mode_container.hide()
         back.hide()
+        playback_seek_bar_view.hide()
     }
 
     private fun drawSigns(uiSigns: List<UiSign>) {
@@ -506,6 +536,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         safety_mode_container.hide()
         hideLineDetectionContainer()
         hideSignsContainer()
+        playback_seek_bar_view.hide()
 
         visionMode = mode
         when (visionMode) {
@@ -566,6 +597,25 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         VisionSafetyManager.create(VisionReplayManager)
         VisionSafetyManager.visionSafetyListener = visionSafetyListener
+
+        playback_seek_bar_view.setDuration(VisionReplayManager.getDuration())
+        playback_seek_bar_view.onSeekBarChangeListener = object : SeekBar.OnSeekBarChangeListener {
+
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    VisionReplayManager.setProgress(progress.toFloat())
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                isProgressChanging = true
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                isProgressChanging = false
+            }
+        }
+
         return true
     }
 

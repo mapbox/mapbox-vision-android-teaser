@@ -29,6 +29,15 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <com.mapbox.vision.teaser.view.PlaybackSeekBarView
+        android:id="@+id/playback_seek_bar_view"
+        android:layout_width="0dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/map_container"
+        app:layout_constraintStart_toStartOf="parent"
+        style="@style/PlaybackSeekBarViewStyle" />
+
     <ImageView
         android:id="@+id/back"
         android:layout_width="44dp"
@@ -38,6 +47,6 @@
         android:src="@drawable/ic_back"
         android:translationZ="1dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/playback_seek_bar_view" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

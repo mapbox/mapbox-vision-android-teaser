@@ -104,9 +104,9 @@ dependencies {
     api "androidx.multidex:multidex:$android_x_multidex"
 
     if (gradle.ext.has('BUILD_CORE_FROM_SOURCE') && gradle.ext.BUILD_CORE_FROM_SOURCE.toBoolean()) {
-        api project(path: ':Vision')
-        api project(path: ':VisionAr')
-        api project(path: ':VisionSafety')
+        api project(path: ':mapbox-android-vision')
+        api project(path: ':mapbox-android-vision-ar')
+        api project(path: ':mapbox-android-vision-safety')
     } else {
         api "com.mapbox.vision:mapbox-android-vision:$vision"
         api "com.mapbox.vision:mapbox-android-vision-ar:$vision"
