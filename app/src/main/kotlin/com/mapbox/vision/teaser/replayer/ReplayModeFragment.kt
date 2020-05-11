@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mapbox.vision.teaser.OnBackPressedListener
 import com.mapbox.vision.teaser.R
+import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import kotlinx.android.synthetic.main.fragment_replay_mode.*
 
@@ -29,6 +30,9 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
     }
 
     private lateinit var sessionsAdapter: SessionsAdapter
+    private lateinit var sessionsPath: String
+
+    private fun containsFiles(path: String) = File(path).listFiles().isNotEmpty()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_replay_mode, container, false)
@@ -36,14 +40,22 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initBackButton()
-        initRecyclerViewSessions()
-        initSelectAllButton()
-        initEditButton()
-        initSwipeRefreshLayout()
-        initDeleteSessionsButton()
-        initDoneEditButton()
-        initRecordingButton()
+
+        val path = getSessionPathFromArguments()
+        if (path != null) {
+            sessionsPath = path
+            initBackButton()
+            initRecyclerViewSessions()
+            initSelectAllButton()
+            initEditButton()
+            initSwipeRefreshLayout()
+            initDeleteSessionsButton()
+            initDoneEditButton()
+            initRecordingButton()
+            activateEmptyStateIfRequired()
+        } else {
+            requireActivity().onBackPressed()
+        }
     }
 
     private fun initBackButton() {
@@ -54,19 +66,14 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
     private fun initRecyclerViewSessions() {
         recycler_sessions.layoutManager = LinearLayoutManager(requireContext())
-        val sessionsPath = getSessionPathFromArguments()
-        if (sessionsPath != null) {
-            sessionsAdapter = SessionsAdapter(
+        sessionsAdapter = SessionsAdapter(
                 context = requireContext(),
                 basePath = sessionsPath,
                 clickSessionListener = { onSessionClick(it) },
                 clickCameraListener = { onCameraClick() },
                 onActivateMultiSelectionListener = { onActivateMultiSelection() }
-            )
-            recycler_sessions.adapter = sessionsAdapter
-        } else {
-            requireActivity().onBackPressed()
-        }
+        )
+        recycler_sessions.adapter = sessionsAdapter
     }
 
     private fun initSelectAllButton() {
@@ -89,6 +96,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         swipe_refresh_sessions.setOnRefreshListener {
             sessionsAdapter.updateSessionsList(true)
             swipe_refresh_sessions.isRefreshing = false
+            activateEmptyStateIfRequired()
         }
     }
 
@@ -106,8 +114,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
     private fun initDeleteSessionsButton() {
         delete_sessions.setOnClickListener {
             sessionsAdapter.let {
-                val sessionsPath = getSessionPathFromArguments()
-                if (it.isMultiSelection && sessionsPath != null) {
+                if (it.isMultiSelection) {
                     for (session in it.selectedItems) {
                         val sessionsFolder = File("$sessionsPath/$session")
                         if (sessionsFolder.deleteRecursively().not()) {
@@ -116,6 +123,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
                     }
                     it.updateSessionsList(false)
                     changeMultiSelection(false)
+                    activateEmptyStateIfRequired()
                 }
             }
         }
@@ -175,6 +183,21 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
         record_session.visibility = multiSelectionGone
         back_button.visibility = multiSelectionGone
         done_edit.visibility = multiSelectionVisible
+    }
+
+    private fun setEmptyState(empty: Boolean) {
+        val emptyStateVisible = if (empty) VISIBLE else GONE
+        val emptyStateGone = if (empty) GONE else VISIBLE
+        no_sessions_title_text.visibility = emptyStateVisible
+        no_sessions_description_text.visibility = emptyStateVisible
+        recycler_sessions.visibility = emptyStateGone
+        replay_fragment_title.visibility = emptyStateGone
+        edit_sessions_list.visibility = emptyStateGone
+    }
+
+    private fun activateEmptyStateIfRequired() {
+        val emptyState = !containsFiles(sessionsPath)
+        setEmptyState(emptyState)
     }
 
     override fun onBackPressed(): Boolean {
