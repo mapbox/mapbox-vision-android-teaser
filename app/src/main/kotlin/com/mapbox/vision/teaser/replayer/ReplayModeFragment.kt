@@ -11,8 +11,8 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mapbox.vision.teaser.OnBackPressedListener
 import com.mapbox.vision.teaser.R
-import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_replay_mode.*
 
 class ReplayModeFragment : Fragment(), OnBackPressedListener {
