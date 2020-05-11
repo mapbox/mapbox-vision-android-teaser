@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mapbox.vision.teaser.OnBackPressedListener
 import com.mapbox.vision.teaser.R
+import com.mapbox.vision.teaser.utils.FileUtils
 import java.io.File
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_replay_mode.*
@@ -31,8 +32,6 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
 
     private lateinit var sessionsAdapter: SessionsAdapter
     private lateinit var sessionsPath: String
-
-    private fun containsFiles(path: String) = File(path).listFiles().isNotEmpty()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_replay_mode, container, false)
@@ -196,7 +195,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
     }
 
     private fun activateEmptyStateIfRequired() {
-        val emptyState = !containsFiles(sessionsPath)
+        val emptyState = !FileUtils.isDirectoryContainsFiles(sessionsPath)
         setEmptyState(emptyState)
     }
 
