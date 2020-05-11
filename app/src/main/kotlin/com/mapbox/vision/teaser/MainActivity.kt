@@ -117,7 +117,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         override fun onFrameSignClassificationsUpdated(frameSignClassifications: FrameSignClassifications) {
             if (visionMode == VisionFeature.Classification) {
-                runOnUiThreadIfPossible{
+                runOnUiThreadIfPossible {
                     tracker.update(UiSign.getUiSigns(frameSignClassifications))
                     drawSigns(tracker.getCurrent())
                 }
