@@ -19,7 +19,9 @@
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
-    <!-- TODO `requestLegacyExternalStorage` is temp solution for Android 10, will be removed in Android 11 -->
+    <!-- TODO `requestLegacyExternalStorage` is temp solution for Android 10 support
+    if telemetry saved sessions are located not in external app directory but somewhere on SD card.
+    It will be removed in Android 11 completely -->
     <application
         android:name=".ReplayerApplication"
         android:allowBackup="true"
