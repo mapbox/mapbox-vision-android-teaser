@@ -18,6 +18,7 @@
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
+    <!-- TODO `requestLegacyExternalStorage` is temp solution for Android 10, will be removed in Android 11 -->
     <application
         android:name=".DemoApplication"
         android:allowBackup="true"
@@ -26,7 +27,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+        android:requestLegacyExternalStorage="true"
+        tools:ignore="GoogleAppIndexingWarning,UnusedAttribute">
 
         <activity
             android:name="com.mapbox.vision.examples.activity.main.MainActivity"
