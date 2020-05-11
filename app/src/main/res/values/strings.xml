@@ -22,6 +22,8 @@
     <string name="camera_text">Camera</string>
     <string name="done_text">Done</string>
     <string name="stop_record">STOP REC</string>
+    <string name="replay_mode_no_sessions_title">There are no any videos to replay</string>
+    <string name="replay_mode_no_sessions_description">You can record them using buid-in recorder or upload it via Mac OS</string>
 
     <plurals name="selected_items">
         <item quantity="one">%d item</item>
