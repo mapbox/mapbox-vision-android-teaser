@@ -63,6 +63,8 @@ import com.mapbox.vision.utils.VisionLogger
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
+import java.lang.IllegalStateException
 
 class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemListener {
 
@@ -304,6 +306,8 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onCreate(savedInstanceState)
 
+        createSessionFolderIfNotExist()
+
         if (SystemInfoUtils.isVisionSupported().not()) {
             AlertDialog.Builder(this)
                     .setTitle(R.string.vision_not_supported_title)
@@ -336,6 +340,15 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         }
 
         soundsPlayer = SoundsPlayer(this)
+    }
+
+    private fun createSessionFolderIfNotExist() {
+        val folder = File(BASE_SESSION_PATH)
+        if (!folder.exists()) {
+            if (!folder.mkdir()) {
+                throw IllegalStateException("Can't create image folder = $folder")
+            }
+        }
     }
 
     private fun onPermissionsGranted() {
