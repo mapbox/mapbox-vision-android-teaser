@@ -90,23 +90,28 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickList
 
     private var activeArFeature: ArFeature = ArFeature.LaneAndFence
     private var isProgressChangingByUser = false
+    private var visionReplyManagerWasInit = false
 
     private val visionListener = object : VisionEventsListener {
         override fun onVehicleStateUpdated(vehicleState: VehicleState) {
             runOnUiThread {
-                if (isProgressChangingByUser) {
-                    return@runOnUiThread
+                if (visionReplyManagerWasInit) {
+                    if (isProgressChangingByUser) {
+                        return@runOnUiThread
+                    }
+                    val lat = vehicleState.geoLocation.geoCoordinate.latitude
+                    val lon = vehicleState.geoLocation.geoCoordinate.longitude
+                    val azimuth = vehicleState.geoLocation.azimuth
+                    visionLocationEngine.setLocation(lat, lon, azimuth)
                 }
-                val lat = vehicleState.geoLocation.geoCoordinate.latitude
-                val lon = vehicleState.geoLocation.geoCoordinate.longitude
-                val azimuth = vehicleState.geoLocation.azimuth
-                visionLocationEngine.setLocation(lat, lon, azimuth)
             }
         }
 
         override fun onUpdateCompleted() {
             runOnUiThread {
-                playback_seek_bar_view.setProgress(VisionReplayManager.getProgress())
+                if (visionReplyManagerWasInit) {
+                    playback_seek_bar_view.setProgress(VisionReplayManager.getProgress())
+                }
             }
         }
     }
@@ -276,10 +281,10 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickList
     override fun onResume() {
         super.onResume()
         mapView.onResume()
-
         VisionReplayManager.create(sessionPath)
         VisionReplayManager.visionEventsListener = visionListener
         VisionReplayManager.start()
+        visionReplyManagerWasInit = true
 
         VisionReplayManager.setModelPerformance(
             modelPerformance = ModelPerformance.On(
@@ -318,9 +323,9 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickList
 
         VisionArManager.destroy()
 
+        visionReplyManagerWasInit = false
         VisionReplayManager.stop()
         VisionReplayManager.destroy()
-
         navigation?.stopNavigation()
     }
 
