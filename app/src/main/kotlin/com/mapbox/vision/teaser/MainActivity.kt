@@ -638,8 +638,8 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private fun showFragment(fragment: Fragment, tag: String, stateLoss: Boolean = false) {
         val fragmentTransaction = supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_container, fragment, RecorderFragment.TAG)
-                .addToBackStack(RecorderFragment.TAG)
+                .replace(R.id.fragment_container, fragment, tag)
+                .addToBackStack(tag)
         if (stateLoss) {
             fragmentTransaction.commitAllowingStateLoss()
         } else {
