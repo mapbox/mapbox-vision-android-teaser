@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        android:id="@+id/playback_position_time_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="14dp"
+        tools:text="05:00"
+        style="@style/PlaybackSeekBarTimeTextStyle" />
+
+    <SeekBar
+        android:id="@+id/seek_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:progress="50"
+        android:max="100"
+        android:layout_weight="1"
+        android:thumb="@drawable/seek_bar_thumb"
+        android:progressDrawable="@drawable/seek_bar"/>
+
+    <TextView
+        android:id="@+id/playback_duration_time_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="25dp"
+        android:layout_weight="0"
+        tools:text="10:00"
+        style="@style/PlaybackSeekBarTimeTextStyle"/>
+
+</merge>

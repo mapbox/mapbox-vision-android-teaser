@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.mapbox.vision.examples">
+    package="com.mapbox.vision.teaser">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -18,37 +18,45 @@
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
+    <!-- TODO `requestLegacyExternalStorage` is temp solution for Android 10 support
+        if telemetry saved sessions are located not in external app directory but somewhere on SD card.
+        It will be removed in Android 11 completely -->
+
     <application
-        android:name=".DemoApplication"
+        android:name=".TeaserApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="${appName}"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+        android:requestLegacyExternalStorage="true"
+        tools:ignore="UnusedAttribute">
 
         <activity
-            android:name="com.mapbox.vision.examples.activity.main.MainActivity"
-            android:screenOrientation="landscape">
+            android:name="com.mapbox.vision.teaser.MainActivity"
+            android:screenOrientation="landscape"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name="com.mapbox.vision.examples.activity.map.MapActivity"
-            android:screenOrientation="landscape" />
+            android:name=".ar.ArMapActivity"
+            android:screenOrientation="landscape"
+            tools:ignore="LockedOrientationActivity" />
 
         <activity
-            android:name="com.mapbox.vision.examples.activity.ar.ArMapActivity"
-            android:screenOrientation="landscape" />
+            android:name=".ar.ArNavigationActivity"
+            android:screenOrientation="landscape"
+            tools:ignore="LockedOrientationActivity" />
 
         <activity
-            android:name="com.mapbox.vision.examples.activity.ar.ArNavigationActivity"
-            android:screenOrientation="landscape" />
+            android:name=".replayer.ArReplayNavigationActivity"
+            android:screenOrientation="landscape"
+            tools:ignore="LockedOrientationActivity"/>
 
     </application>
 

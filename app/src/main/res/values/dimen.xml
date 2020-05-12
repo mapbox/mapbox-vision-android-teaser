@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="menu_small_margin">60dp</dimen>
+    <dimen name="menu_medium_margin">120dp</dimen>
+    <dimen name="menu_big_margin">160dp</dimen>
+
+    <!-- safety mode -->
+    <dimen name="alert_width">65dp</dimen>
+    <dimen name="alert_height">54dp</dimen>
+
+    <dimen name="critical_alert_width">270dp</dimen>
+    <dimen name="critical_alert_height">100dp</dimen>
+    <dimen name="critical_alert_margin">18dp</dimen>
+    <dimen name="critical_margin_horizontal">80dp</dimen>
+    <dimen name="critical_margin_vertical">100dp</dimen>
+    <dimen name="distance_rect_height">25dp</dimen>
+    <dimen name="distance_rect_base">17dp</dimen>
+    <dimen name="distance_rect_base_width_min">7dp</dimen>
+    <dimen name="distance_rect_base_width_max">25dp</dimen>
+    <dimen name="speed_limit_translation">118dp</dimen>
+
+    <!-- AR mode -->
+    <dimen name="ar_switch_height">44dp</dimen>
+    <dimen name="ar_switch_width">44dp</dimen>
+    <dimen name="ar_switch_margin_start">29dp</dimen>
+    <dimen name="ar_switch_margin_bottom">18dp</dimen>
+
+</resources>
