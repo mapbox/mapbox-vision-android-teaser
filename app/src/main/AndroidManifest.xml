@@ -18,6 +18,10 @@
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
+    <!-- TODO `requestLegacyExternalStorage` is temp solution for Android 10 support
+        if telemetry saved sessions are located not in external app directory but somewhere on SD card.
+        It will be removed in Android 11 completely -->
+
     <application
         android:name=".TeaserApplication"
         android:allowBackup="true"
@@ -26,7 +30,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+        android:requestLegacyExternalStorage="true"
+        tools:ignore="UnusedAttribute">
 
         <activity
             android:name="com.mapbox.vision.teaser.MainActivity"
