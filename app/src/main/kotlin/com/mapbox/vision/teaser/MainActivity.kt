@@ -23,6 +23,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
+import com.mapbox.android.core.permissions.PermissionsListener
+import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
@@ -59,14 +61,14 @@ import com.mapbox.vision.teaser.utils.classification.Tracker
 import com.mapbox.vision.teaser.utils.dpToPx
 import com.mapbox.vision.teaser.view.hide
 import com.mapbox.vision.teaser.view.show
+import com.mapbox.vision.teaser.view.toggleVisibleGone
 import com.mapbox.vision.utils.VisionLogger
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
-import java.lang.IllegalStateException
 
-class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemListener {
+class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemListener, PermissionsListener {
 
     enum class VisionMode {
         Camera,
@@ -331,6 +333,8 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         setContentView(R.layout.activity_main)
 
+        val permissionsManager = PermissionsManager(this)
+
         if (!allPermissionsGranted() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(getRequiredPermissions(), PERMISSIONS_REQUEST_CODE)
         } else {
@@ -376,11 +380,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
     private fun initRootLongTap() {
         root.setOnLongClickListener {
-            if (fps_performance_view.visibility == View.GONE) {
-                fps_performance_view.show()
-            } else {
-                fps_performance_view.hide()
-            }
+            fps_performance_view.toggleVisibleGone()
             return@setOnLongClickListener true
         }
     }
@@ -388,11 +388,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private fun initRootTap() {
         root.setOnClickListener {
             if (visionManagerMode == Replay) {
-                if (playback_seek_bar_view.visibility == View.GONE) {
-                    playback_seek_bar_view.show()
-                } else {
-                    playback_seek_bar_view.hide()
-                }
+                playback_seek_bar_view.toggleVisibleGone()
             }
         }
     }
@@ -762,6 +758,14 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         } catch (e: Exception) {
             emptyArray()
         }
+    }
+
+    override fun onExplanationNeeded(permissionsToExplain: List<String?>?) {
+
+    }
+
+    override fun onPermissionResult(granted: Boolean) {
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
