@@ -9,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.text.method.LinkMovementMethod
-import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -187,51 +186,67 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         }
 
         override fun onCollisionsUpdated(collisions: Array<CollisionObject>) {
+
+            fun updateCollisionDangerLevelIfChanged(collision: CollisionObject) {
+                if (currentDangerLevel != collision.dangerLevel) {
+                    soundsPlayer.stop()
+                    when (collision.dangerLevel) {
+                        CollisionDangerLevel.None -> Unit
+                        CollisionDangerLevel.Warning -> soundsPlayer.playWarning()
+                        CollisionDangerLevel.Critical -> soundsPlayer.playCritical()
+                    }
+                    currentDangerLevel = collision.dangerLevel
+                }
+            }
+
+            fun showCollision(collision: CollisionObject) {
+                distance_to_car_label.show()
+                safety_mode.show()
+                distance_to_car_label.text =
+                        distanceFormatter.formatDistance(collision.`object`.position.y)
+
+                when (currentDangerLevel) {
+                    CollisionDangerLevel.None -> safety_mode.clean()
+                    CollisionDangerLevel.Warning -> safety_mode.drawWarnings(collisions)
+                    CollisionDangerLevel.Critical -> safety_mode.drawCritical()
+                }
+            }
+
+            fun hideCollision() {
+                soundsPlayer.stop()
+                currentDangerLevel = CollisionDangerLevel.None
+                distance_to_car_label.hide()
+                safety_mode.hide()
+            }
+
+            fun calibrationReady() {
+                distance_to_car_label.show()
+                safety_mode.show()
+                calibration_progress.hide()
+
+                val collision = collisions.firstOrNull { it.`object`.objectClass == DetectionClass.Car }
+                if (collision == null) {
+                    hideCollision()
+                } else {
+                    updateCollisionDangerLevelIfChanged(collision)
+                    showCollision(collision)
+                }
+            }
+
+            fun calibrationInProgress() {
+                distance_to_car_label.hide()
+                safety_mode.hide()
+                calibration_progress.show()
+                val progress = (calibrationProgress * 100).toInt()
+                calibration_progress.text = getString(R.string.calibration_progress, progress)
+            }
+
             if (visionMode == VisionFeature.Safety) {
                 runOnUiThreadIfPossible {
                     if (calibrationProgress == CALIBRATION_READY_VALUE) {
-                        distance_to_car_label.show()
-                        safety_mode.show()
-                        calibration_progress.hide()
-
-                        val collision =
-                                collisions.firstOrNull { it.`object`.objectClass == DetectionClass.Car }
-                        if (collision == null) {
-                            soundsPlayer.stop()
-                            currentDangerLevel = CollisionDangerLevel.None
-                            distance_to_car_label.hide()
-                            safety_mode.hide()
-                        } else {
-
-                            if (currentDangerLevel != collision.dangerLevel) {
-                                soundsPlayer.stop()
-                                when (collision.dangerLevel) {
-                                    CollisionDangerLevel.None -> Unit
-                                    CollisionDangerLevel.Warning -> soundsPlayer.playWarning()
-                                    CollisionDangerLevel.Critical -> soundsPlayer.playCritical()
-                                }
-                                currentDangerLevel = collision.dangerLevel
-                            }
-
-                            distance_to_car_label.show()
-                            safety_mode.show()
-                            distance_to_car_label.text =
-                                    distanceFormatter.formatDistance(collision.`object`.position.y)
-
-                            when (currentDangerLevel) {
-                                CollisionDangerLevel.None -> safety_mode.clean()
-                                CollisionDangerLevel.Warning -> safety_mode.drawWarnings(collisions)
-                                CollisionDangerLevel.Critical -> safety_mode.drawCritical()
-                            }
-                        }
+                        calibrationReady()
                     } else {
-                        distance_to_car_label.hide()
-                        safety_mode.hide()
-                        calibration_progress.show()
-                        calibration_progress.text = getString(
-                                R.string.calibration_progress,
-                                (calibrationProgress * 100).toInt()
-                        )
+                        calibrationInProgress()
                     }
                 }
             }
