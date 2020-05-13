@@ -306,8 +306,6 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onCreate(savedInstanceState)
 
-        createSessionFolderIfNotExist()
-
         if (SystemInfoUtils.isVisionSupported().not()) {
             AlertDialog.Builder(this)
                     .setTitle(R.string.vision_not_supported_title)
@@ -353,6 +351,8 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
     private fun onPermissionsGranted() {
         isPermissionsGranted = true
+
+        createSessionFolderIfNotExist()
 
         signSize = dpToPx(64f).toInt()
         lineHeight = dpToPx(40f).toInt()
