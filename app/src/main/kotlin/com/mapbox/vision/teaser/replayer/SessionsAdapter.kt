@@ -162,7 +162,9 @@ class SessionsAdapter(
     fun updateSessionsList(notifyDataSetChanged: Boolean) {
         items.clear()
         items.add(CameraItem(cameraString))
-        File(basePath).listFiles().forEach {
+        val files = File(basePath).listFiles() ?: emptyArray()
+        files.sortBy { it.lastModified() }
+        files.forEach {
             val dateString = dateFormatter.format(it.lastModified())
             items.add(SessionItem(it.name, dateString))
         }
