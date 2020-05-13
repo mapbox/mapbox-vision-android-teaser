@@ -24,7 +24,6 @@ import com.mapbox.vision.VisionManager
 import com.mapbox.vision.ar.VisionArManager
 import com.mapbox.vision.ar.core.models.Route
 import com.mapbox.vision.performance.ModelPerformance
-import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.performance.ModelPerformanceMode
 import com.mapbox.vision.performance.ModelPerformanceRate
 import com.mapbox.vision.teaser.R
@@ -137,13 +136,8 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
 
         VisionManager.create()
         VisionManager.start()
-        VisionManager.setModelPerformanceConfig(
-            ModelPerformanceConfig.Merged(
-                performance = ModelPerformance.On(
-                    ModelPerformanceMode.FIXED,
-                    ModelPerformanceRate.LOW
-                )
-            )
+        VisionManager.setModelPerformance(
+            ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW)
         )
 
         VisionArManager.create(VisionManager)

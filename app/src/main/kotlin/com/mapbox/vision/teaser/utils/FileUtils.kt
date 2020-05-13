@@ -4,5 +4,5 @@ import java.io.File
 
 object FileUtils {
 
-    fun isDirectoryContainsFiles(path: String) = File(path).listFiles().isNotEmpty()
+    fun isDirectoryContainsFiles(path: String) = File(path).listFiles()?.isNotEmpty() ?: false
 }

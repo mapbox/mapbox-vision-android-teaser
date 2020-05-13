@@ -23,7 +23,6 @@ import androidx.core.text.HtmlCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import com.mapbox.android.core.permissions.PermissionsListener
-import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
@@ -64,8 +63,8 @@ import com.mapbox.vision.teaser.view.toggleVisibleGone
 import com.mapbox.vision.utils.VisionLogger
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
-import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemListener, PermissionsListener {
 
@@ -347,8 +346,6 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         }
 
         setContentView(R.layout.activity_main)
-
-        val permissionsManager = PermissionsManager(this)
 
         if (!allPermissionsGranted() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(getRequiredPermissions(), PERMISSIONS_REQUEST_CODE)
@@ -776,11 +773,9 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     }
 
     override fun onExplanationNeeded(permissionsToExplain: List<String?>?) {
-
     }
 
     override fun onPermissionResult(granted: Boolean) {
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

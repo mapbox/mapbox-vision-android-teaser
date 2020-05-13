@@ -1,7 +1,9 @@
 package com.mapbox.vision.teaser.view
 
 import android.view.View
-import android.view.View.*
+import android.view.View.GONE
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 
 fun View.hide() {
     visibility = GONE
