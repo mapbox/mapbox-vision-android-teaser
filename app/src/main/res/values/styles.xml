@@ -25,7 +25,7 @@
     </style>
 
     <style name="PlaybackSeekBarViewStyle">
-        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_height">70dp</item>
         <item name="android:background">@color/black_70_opacity</item>
         <item name="android:gravity">center_vertical</item>
     </style>

@@ -4,7 +4,7 @@
             android:shape="line">
             <stroke
                 android:color="@color/white_30_opacity"
-                android:width="4dp"/>
+                android:width="8dp"/>
         </shape>
     </item>
 
@@ -14,7 +14,7 @@
                 android:shape="line">
                 <stroke
                     android:color="@color/blue"
-                    android:width="4dp"/>
+                    android:width="8dp"/>
             </shape>
         </clip>
     </item>
@@ -25,7 +25,7 @@
                 android:shape="line">
                 <stroke
                     android:color="@color/blue"
-                    android:width="4dp"/>
+                    android:width="8dp"/>
             </shape>
         </clip>
     </item>
