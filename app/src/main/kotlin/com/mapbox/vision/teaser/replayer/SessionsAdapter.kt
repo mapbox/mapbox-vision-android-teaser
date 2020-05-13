@@ -99,7 +99,7 @@ class SessionsAdapter(
     }
 
     private fun bindViewHolderClickListener(holder: SessionViewHolder, item: AdapterItem) {
-        if ((item is CameraItem).not() or !isMultiSelection) {
+        if (!(item is CameraItem) or !isMultiSelection) {
             holder.itemView.setOnClickListener {
                 if (isMultiSelection) {
                     handleMultiSelectionClick(holder, item)

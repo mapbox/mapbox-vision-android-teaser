@@ -322,7 +322,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onCreate(savedInstanceState)
 
-        if (SystemInfoUtils.isVisionSupported().not()) {
+        if (!SystemInfoUtils.isVisionSupported()) {
             AlertDialog.Builder(this)
                     .setTitle(R.string.vision_not_supported_title)
                     .setView(
@@ -682,7 +682,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     override fun onBackPressed() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         if (fragment != null) {
-            if ((fragment is OnBackPressedListener && fragment.onBackPressed()).not()) {
+            if (!(fragment is OnBackPressedListener && fragment.onBackPressed())) {
                 if (supportFragmentManager.popBackStackImmediate() && supportFragmentManager.backStackEntryCount == 0) {
                     showDashboardView()
                     title_teaser.show()
