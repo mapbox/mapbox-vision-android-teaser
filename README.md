@@ -11,7 +11,4 @@ Setup:
 1. Set your Mapbox token as environmental variable `MAPBOX_ACCESS_TOKEN`
 1. Set your [Maven credentials](https://vision.mapbox.com/install/)
 
- Build:
-1. `Teaser`: Build && run the `app` module
-1. `Session Recorder`: Build && run the `recorder` module
 
