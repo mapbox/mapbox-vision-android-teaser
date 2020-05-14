@@ -22,7 +22,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
-import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
@@ -66,7 +65,7 @@ import com.mapbox.vision.view.VisualizationMode
 import java.io.File
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemListener, PermissionsListener {
+class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemListener {
 
     enum class VisionMode {
         Camera,
@@ -770,12 +769,6 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         } catch (e: Exception) {
             emptyArray()
         }
-    }
-
-    override fun onExplanationNeeded(permissionsToExplain: List<String?>?) {
-    }
-
-    override fun onPermissionResult(granted: Boolean) {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
