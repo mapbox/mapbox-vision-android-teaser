@@ -18,9 +18,9 @@ fun View.invisible() {
 }
 
 fun View.toggleVisibleGone() {
-    if (visibility == GONE) show() else hide()
+    if (visibility == GONE) show() else if (visibility == VISIBLE) hide()
 }
 
 fun View.toggleVisibleInvisible() {
-    if (visibility == INVISIBLE) show() else invisible()
+    if (visibility == INVISIBLE) show() else if (visibility == VISIBLE) invisible()
 }
