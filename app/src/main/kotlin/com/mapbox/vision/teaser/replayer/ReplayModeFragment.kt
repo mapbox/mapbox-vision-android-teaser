@@ -116,7 +116,7 @@ class ReplayModeFragment : Fragment(), OnBackPressedListener {
                 if (it.isMultiSelection) {
                     for (session in it.selectedItems) {
                         val sessionsFolder = File("$sessionsPath/$session")
-                        if (sessionsFolder.deleteRecursively().not()) {
+                        if (!sessionsFolder.deleteRecursively()) {
                             Toast.makeText(requireContext(), "Error: Can't delete ${sessionsFolder.absoluteFile}", Toast.LENGTH_LONG).show()
                         }
                     }

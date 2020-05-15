@@ -195,7 +195,11 @@ class ArReplayNavigationActivity : AppCompatActivity(), MapboxMap.OnMapClickList
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ar_navigation_replayer)
 
-        sessionPath = intent.getStringExtra(KEY_SESSION_PATH)
+        sessionPath = intent.getStringExtra(KEY_SESSION_PATH) ?: ""
+        if (sessionPath.isEmpty()) {
+            finish()
+            return
+        }
 
         back.setOnClickListener { onBackPressed() }
 

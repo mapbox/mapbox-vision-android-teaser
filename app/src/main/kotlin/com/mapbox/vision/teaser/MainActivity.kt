@@ -9,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.text.method.LinkMovementMethod
-import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -59,12 +58,12 @@ import com.mapbox.vision.teaser.utils.classification.Tracker
 import com.mapbox.vision.teaser.utils.dpToPx
 import com.mapbox.vision.teaser.view.hide
 import com.mapbox.vision.teaser.view.show
+import com.mapbox.vision.teaser.view.toggleVisibleGone
 import com.mapbox.vision.utils.VisionLogger
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
-import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
-import java.lang.IllegalStateException
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemListener {
 
@@ -185,51 +184,67 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         }
 
         override fun onCollisionsUpdated(collisions: Array<CollisionObject>) {
+
+            fun updateCollisionDangerLevelIfChanged(collision: CollisionObject) {
+                if (currentDangerLevel != collision.dangerLevel) {
+                    soundsPlayer.stop()
+                    when (collision.dangerLevel) {
+                        CollisionDangerLevel.None -> Unit
+                        CollisionDangerLevel.Warning -> soundsPlayer.playWarning()
+                        CollisionDangerLevel.Critical -> soundsPlayer.playCritical()
+                    }
+                    currentDangerLevel = collision.dangerLevel
+                }
+            }
+
+            fun showCollision(collision: CollisionObject) {
+                distance_to_car_label.show()
+                safety_mode.show()
+                distance_to_car_label.text =
+                        distanceFormatter.formatDistance(collision.`object`.position.y)
+
+                when (currentDangerLevel) {
+                    CollisionDangerLevel.None -> safety_mode.clean()
+                    CollisionDangerLevel.Warning -> safety_mode.drawWarnings(collisions)
+                    CollisionDangerLevel.Critical -> safety_mode.drawCritical()
+                }
+            }
+
+            fun hideCollision() {
+                soundsPlayer.stop()
+                currentDangerLevel = CollisionDangerLevel.None
+                distance_to_car_label.hide()
+                safety_mode.hide()
+            }
+
+            fun calibrationReady() {
+                distance_to_car_label.show()
+                safety_mode.show()
+                calibration_progress.hide()
+
+                val collision = collisions.firstOrNull { it.`object`.objectClass == DetectionClass.Car }
+                if (collision == null) {
+                    hideCollision()
+                } else {
+                    updateCollisionDangerLevelIfChanged(collision)
+                    showCollision(collision)
+                }
+            }
+
+            fun calibrationInProgress() {
+                distance_to_car_label.hide()
+                safety_mode.hide()
+                calibration_progress.show()
+                val progress = (calibrationProgress * 100).toInt()
+                calibration_progress.text = getString(R.string.calibration_progress, progress)
+            }
+
             if (visionMode == VisionFeature.Safety) {
                 runOnUiThreadIfPossible {
                     if (calibrationProgress == CALIBRATION_READY_VALUE) {
-                        distance_to_car_label.show()
-                        safety_mode.show()
-                        calibration_progress.hide()
-
-                        val collision =
-                                collisions.firstOrNull { it.`object`.objectClass == DetectionClass.Car }
-                        if (collision == null) {
-                            soundsPlayer.stop()
-                            currentDangerLevel = CollisionDangerLevel.None
-                            distance_to_car_label.hide()
-                            safety_mode.hide()
-                        } else {
-
-                            if (currentDangerLevel != collision.dangerLevel) {
-                                soundsPlayer.stop()
-                                when (collision.dangerLevel) {
-                                    CollisionDangerLevel.None -> Unit
-                                    CollisionDangerLevel.Warning -> soundsPlayer.playWarning()
-                                    CollisionDangerLevel.Critical -> soundsPlayer.playCritical()
-                                }
-                                currentDangerLevel = collision.dangerLevel
-                            }
-
-                            distance_to_car_label.show()
-                            safety_mode.show()
-                            distance_to_car_label.text =
-                                    distanceFormatter.formatDistance(collision.`object`.position.y)
-
-                            when (currentDangerLevel) {
-                                CollisionDangerLevel.None -> safety_mode.clean()
-                                CollisionDangerLevel.Warning -> safety_mode.drawWarnings(collisions)
-                                CollisionDangerLevel.Critical -> safety_mode.drawCritical()
-                            }
-                        }
+                        calibrationReady()
                     } else {
-                        distance_to_car_label.hide()
-                        safety_mode.hide()
-                        calibration_progress.show()
-                        calibration_progress.text = getString(
-                                R.string.calibration_progress,
-                                (calibrationProgress * 100).toInt()
-                        )
+                        calibrationInProgress()
                     }
                 }
             }
@@ -306,9 +321,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onCreate(savedInstanceState)
 
-        createSessionFolderIfNotExist()
-
-        if (SystemInfoUtils.isVisionSupported().not()) {
+        if (!SystemInfoUtils.isVisionSupported()) {
             AlertDialog.Builder(this)
                     .setTitle(R.string.vision_not_supported_title)
                     .setView(
@@ -354,6 +367,8 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private fun onPermissionsGranted() {
         isPermissionsGranted = true
 
+        createSessionFolderIfNotExist()
+
         signSize = dpToPx(64f).toInt()
         lineHeight = dpToPx(40f).toInt()
         margin = dpToPx(8f).toInt()
@@ -376,11 +391,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
     private fun initRootLongTap() {
         root.setOnLongClickListener {
-            if (fps_performance_view.visibility == View.GONE) {
-                fps_performance_view.show()
-            } else {
-                fps_performance_view.hide()
-            }
+            fps_performance_view.toggleVisibleGone()
             return@setOnLongClickListener true
         }
     }
@@ -388,11 +399,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private fun initRootTap() {
         root.setOnClickListener {
             if (visionManagerMode == Replay) {
-                if (playback_seek_bar_view.visibility == View.GONE) {
-                    playback_seek_bar_view.show()
-                } else {
-                    playback_seek_bar_view.hide()
-                }
+                playback_seek_bar_view.toggleVisibleGone()
             }
         }
     }
@@ -674,7 +681,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     override fun onBackPressed() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         if (fragment != null) {
-            if ((fragment is OnBackPressedListener && fragment.onBackPressed()).not()) {
+            if (!(fragment is OnBackPressedListener && fragment.onBackPressed())) {
                 if (supportFragmentManager.popBackStackImmediate() && supportFragmentManager.backStackEntryCount == 0) {
                     showDashboardView()
                     title_teaser.show()
