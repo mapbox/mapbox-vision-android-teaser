@@ -6,7 +6,6 @@ import android.os.Build
 import androidx.core.content.ContextCompat
 import com.mapbox.vision.teaser.MainActivity
 
-
 private const val PERMISSION_FOREGROUND_SERVICE = "android.permission.FOREGROUND_SERVICE"
 private const val PERMISSIONS_REQUEST_CODE = 123
 
