@@ -163,7 +163,7 @@ class SessionsAdapter(
         items.clear()
         items.add(CameraItem(cameraString))
         val files = File(basePath).listFiles() ?: emptyArray()
-        files.sortBy { it.lastModified() }
+        files.sortByDescending { it.lastModified() }
         files.forEach {
             val dateString = dateFormatter.format(it.lastModified())
             items.add(SessionItem(it.name, dateString))
