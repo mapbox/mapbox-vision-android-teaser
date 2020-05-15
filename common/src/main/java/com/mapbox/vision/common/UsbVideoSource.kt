@@ -1,13 +1,23 @@
 package com.mapbox.vision.common
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.graphics.SurfaceTexture
 import android.hardware.usb.UsbDevice
+import android.net.Uri
 import android.opengl.GLES11Ext
 import android.opengl.GLES20
+import android.opengl.GLES30
+import android.opengl.Matrix
 import android.os.Handler
 import android.os.HandlerThread
+import android.view.Surface
+import androidx.annotation.WorkerThread
 import com.mapbox.vision.VisionManager
+import com.mapbox.vision.gl.EglCore
+import com.mapbox.vision.gl.GLDrawFrameOES
+import com.mapbox.vision.gl.OffscreenSurface
+import com.mapbox.vision.gl.RenderBuffer
 import com.mapbox.vision.mobile.core.models.CameraParameters
 import com.mapbox.vision.mobile.core.models.frame.ImageFormat
 import com.mapbox.vision.mobile.core.models.frame.ImageSize
@@ -15,6 +25,8 @@ import com.mapbox.vision.video.videosource.VideoSource
 import com.mapbox.vision.video.videosource.VideoSourceListener
 import com.serenegiant.usb.USBMonitor
 import com.serenegiant.usb.UVCCamera
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 /**
  * VideoSource implementation that connects to USB camera and feeds frames to VisionManager.
@@ -24,10 +36,21 @@ class UsbVideoSource(
 ) : VideoSource {
 
     companion object {
-        private val CAMERA_FRAME_SIZE = ImageSize(
+        private val FULL_HD = ImageSize(
             imageWidth = 1280,
             imageHeight = 720
         )
+        private val DEFAULT = ImageSize(
+            imageWidth = 640,
+            imageHeight = 480
+        )
+        private val CAMERA_FRAME_SIZE = FULL_HD
+
+        private val MIN_FPS = 60
+        private val MAX_FPS = 60
+
+        // MJPEG allows to configure BRIO with 1280*720 / 60FPS
+        private val FRAME_FORMAT = UVCCamera.FRAME_FORMAT_MJPEG
     }
 
     private fun UsbDevice?.isUvcCamera(): Boolean {
@@ -58,7 +81,8 @@ class UsbVideoSource(
                 this@UsbVideoSource.usbVideoSourceListener = videoSourceListener
 
                 usbMonitor = USBMonitor(context, onDeviceConnectListener)
-                usbMonitor?.register()
+                println("Register USB monitor")
+                usbMonitor!!.register()
             }
         }
     }
@@ -72,9 +96,9 @@ class UsbVideoSource(
     override fun detach() {
         backgroundHandler.post {
             synchronized(this@UsbVideoSource) {
-                usbMonitor?.unregister()
+                usbMonitor!!.unregister()
                 uvcCamera?.stopPreview()
-                usbMonitor?.destroy()
+                usbMonitor!!.destroy()
                 releaseCamera()
                 usbVideoSourceListener = null
             }
@@ -89,9 +113,13 @@ class UsbVideoSource(
     private val onDeviceConnectListener: USBMonitor.OnDeviceConnectListener =
         object : USBMonitor.OnDeviceConnectListener {
             override fun onAttach(device: UsbDevice?) {
+                println("OnAttach ${device?.manufacturerName}")
                 synchronized(this@UsbVideoSource) {
                     if (device.isUvcCamera()) {
-                        usbMonitor?.requestPermission(device)
+                        usbMonitor!!.requestPermission(device)
+                        println("Device is UVC camera!")
+                    } else {
+                        println("Device is NOT UVC camera!")
                     }
                 }
             }
@@ -102,6 +130,7 @@ class UsbVideoSource(
                 createNew: Boolean
             ) {
                 backgroundHandler.post {
+                    println("OnConnect $device")
                     synchronized(this@UsbVideoSource) {
                         if (device.isUvcCamera()) {
                             releaseCamera()
@@ -117,12 +146,17 @@ class UsbVideoSource(
                 }
             }
 
-            override fun onDetach(device: UsbDevice?) {}
+            override fun onDetach(device: UsbDevice?) {
+                println("OnDetach ${device?.manufacturerName}")
+            }
 
-            override fun onCancel(device: UsbDevice?) {}
+            override fun onCancel(device: UsbDevice?) {
+                println("OnCancel ${device?.manufacturerName}")
+            }
 
             override fun onDisconnect(device: UsbDevice?, ctrlBlock: USBMonitor.UsbControlBlock?) {
                 backgroundHandler.post {
+                    println("OnDisconnect ${device?.manufacturerName}")
                     synchronized(this@UsbVideoSource) {
                         if (device.isUvcCamera()) {
                             releaseCamera()
@@ -136,39 +170,119 @@ class UsbVideoSource(
         uvcCamera?.close()
         uvcCamera?.destroy()
         uvcCamera = null
+
+        surface?.release()
+        surface = null
+
+        surfaceTexture?.setOnFrameAvailableListener(null)
+        surfaceTexture?.release()
+        surfaceTexture = null
+
+        externalFrameDrawer?.release()
+        externalFrameDrawer = null
+
+        offscreenRenderBuffer?.release()
+        offscreenRenderBuffer = null
+
+        offscreenSurface?.release()
+        offscreenSurface = null
+
+        eglCore?.release()
+        eglCore = null
     }
 
+    var frames = 0
+    var time = 0L
+
+    private var eglCore: EglCore? = null
+    private var offscreenSurface: OffscreenSurface? = null
+    private var surfaceTexture: SurfaceTexture? = null
+    private var surface: Surface? = null
+    private var externalFrameDrawer: GLDrawFrameOES? = null
+    private var offscreenRenderBuffer: RenderBuffer? = null
+
+    private var videoFrameBufferData = ByteBuffer
+        .allocateDirect(CAMERA_FRAME_SIZE.imageWidth * CAMERA_FRAME_SIZE.imageHeight * 4)
+        .order(ByteOrder.nativeOrder())
+
+    private val matrixMVP = FloatArray(16).also {
+        Matrix.setIdentityM(it, 0)
+    }
+
+    @WorkerThread
     private fun initializeCamera(ctrlBlock: USBMonitor.UsbControlBlock) {
         uvcCamera = UVCCamera().also { camera ->
-            camera.open(ctrlBlock)
-            camera.setPreviewSize(
-                CAMERA_FRAME_SIZE.imageWidth,
-                CAMERA_FRAME_SIZE.imageHeight,
-                UVCCamera.FRAME_FORMAT_YUYV
-            )
-
-            val surfaceTexture = SurfaceTexture(createExternalGlTexture())
-            surfaceTexture.setDefaultBufferSize(
+            eglCore = EglCore()
+            offscreenSurface =
+                OffscreenSurface(
+                    eglCore = eglCore!!,
+                    width = CAMERA_FRAME_SIZE.imageWidth,
+                    height = CAMERA_FRAME_SIZE.imageHeight
+                )
+            offscreenSurface!!.makeCurrent()
+            val textureId = createExternalGlTexture()
+            surfaceTexture = SurfaceTexture(textureId)
+            surfaceTexture!!.setDefaultBufferSize(
                 CAMERA_FRAME_SIZE.imageWidth,
                 CAMERA_FRAME_SIZE.imageHeight
             )
+            externalFrameDrawer = GLDrawFrameOES()
+            offscreenRenderBuffer = RenderBuffer(
+                width = CAMERA_FRAME_SIZE.imageWidth,
+                height = CAMERA_FRAME_SIZE.imageHeight
+            )
+
+            time = System.currentTimeMillis()
+
+            surfaceTexture!!.setOnFrameAvailableListener {
+                surfaceTexture!!.updateTexImage()
+                GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, offscreenRenderBuffer!!.frameBufferId)
+                externalFrameDrawer!!.draw(textureId, matrixMVP)
+                videoFrameBufferData.rewind()
+                GLES20.glReadPixels(
+                    0, 0, CAMERA_FRAME_SIZE.imageWidth, CAMERA_FRAME_SIZE.imageHeight,
+                    GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, videoFrameBufferData
+                )
+                GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0)
+
+                frames++
+                val delta = (System.currentTimeMillis() - time) / 1000
+                if (frames % 30 == 0) {
+                    println("Camera FPS ${frames.toFloat() / delta} (frames $frames, time $delta)")
+                }
+
+                usbVideoSourceListener?.onNewFrame(
+                    VideoSourceListener.FrameHolder.ByteBufferHolder(videoFrameBufferData),
+                    ImageFormat.RGBA,
+                    CAMERA_FRAME_SIZE
+                )
+            }
+            surface = Surface(surfaceTexture)
+
+            println("Open camera")
+
+            try {
+                camera.open(ctrlBlock)
+            } catch (e : Exception) {
+                println("Open camera failed! ")
+                e.printStackTrace()
+                return
+            }
+
+            camera.setPreviewSize(
+                CAMERA_FRAME_SIZE.imageWidth,
+                CAMERA_FRAME_SIZE.imageHeight,
+                MIN_FPS,
+                MAX_FPS,
+                FRAME_FORMAT,
+                1f
+            )
+
             // Start preview to external GL texture
             // NOTE : this is necessary for callback passed to [UVCCamera.setFrameCallback]
             // to be triggered afterwards
-            camera.setPreviewTexture(surfaceTexture)
+            camera.setPreviewDisplay(surface)
             camera.startPreview()
-
-            // Set callback that will feed frames from the USB camera to Vision SDK
-            camera.setFrameCallback(
-                { frame ->
-                    usbVideoSourceListener?.onNewFrame(
-                        VideoSourceListener.FrameHolder.ByteBufferHolder(frame),
-                        ImageFormat.RGBA,
-                        CAMERA_FRAME_SIZE
-                    )
-                },
-                UVCCamera.PIXEL_FORMAT_RGBX
-            )
         }
     }
 
