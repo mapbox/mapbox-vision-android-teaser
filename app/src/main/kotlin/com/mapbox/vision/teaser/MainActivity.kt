@@ -38,7 +38,7 @@ import com.mapbox.vision.teaser.models.UiSign
 import com.mapbox.vision.teaser.recorder.RecorderFragment
 import com.mapbox.vision.teaser.replayer.ArReplayNavigationActivity
 import com.mapbox.vision.teaser.replayer.ReplayModeFragment
-import com.mapbox.vision.teaser.utils.allPermissionsGrantedByRequest
+import com.mapbox.vision.teaser.utils.PermissionsUtils
 import com.mapbox.vision.teaser.utils.classification.SignResources
 import com.mapbox.vision.teaser.utils.classification.Tracker
 import com.mapbox.vision.teaser.utils.dpToPx
@@ -87,8 +87,6 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private var visionManagerWasInit = false
     private var country = Country.Unknown
     private var modelPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
-    private var calibrationProgress = 0f
-    private var isProgressChanging = false
 
     private val visionEventsListener = object : VisionEventsListener {
 
@@ -99,7 +97,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         override fun onFrameSignClassificationsUpdated(frameSignClassifications: FrameSignClassifications) {
             if (visionFeature == VisionFeature.Classification) {
-                runOnUiThreadIfPossible {
+                runOnUiThread {
                     tracker.update(UiSign.getUiSigns(frameSignClassifications))
                     drawSigns(tracker.getCurrent())
                 }
@@ -108,7 +106,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         override fun onRoadDescriptionUpdated(roadDescription: RoadDescription) {
             if (visionFeature == VisionFeature.Lanes) {
-                runOnUiThreadIfPossible {
+                runOnUiThread {
                     drawLanesDetection(roadDescription)
                 }
             }
@@ -120,8 +118,8 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         override fun onCameraUpdated(camera: com.mapbox.vision.mobile.core.models.Camera) {
             requireSafetyFragment()?.calibrationProgress = camera.calibrationProgress
-            runOnUiThreadIfPossible {
-                fps_performance_view.setCalibrationProgress(calibrationProgress)
+            runOnUiThread {
+                fps_performance_view.setCalibrationProgress(camera.calibrationProgress)
             }
         }
 
@@ -134,20 +132,11 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
                         Replay -> VisionReplayManager.getFrameStatistics()
                     }
                     fps_performance_view.showInfo(frameStatistics)
-                    if (visionMode == Replay && !isProgressChanging) {
+                    if (visionMode == Replay) {
                         playback_seek_bar_view.setProgress(VisionReplayManager.getProgress())
                     }
                 }
             }
-        }
-    }
-
-    fun runOnUiThreadIfPossible(action: () -> Unit) {
-        runOnUiThread {
-            if (visionMode == Replay && isProgressChanging) {
-                return@runOnUiThread
-            }
-            action.invoke()
         }
     }
 
@@ -441,11 +430,9 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                isProgressChanging = true
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                isProgressChanging = false
             }
         }
 

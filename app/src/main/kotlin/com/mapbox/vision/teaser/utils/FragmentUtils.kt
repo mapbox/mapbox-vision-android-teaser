@@ -19,13 +19,8 @@ fun Fragment.requireVisionManager(): BaseVisionManager? {
     return null
 }
 
-fun Fragment.runOnUiThreadIfPossible(action: () -> Unit) {
-    val activity = requireActivity()
-    if (activity is MainActivity) {
-        activity.runOnUiThreadIfPossible(action)
-    } else {
-        throw IllegalStateException("MainActivity should be parent")
-    }
+fun Fragment.runOnUiThread(action: () -> Unit) {
+    requireActivity().runOnUiThread(action)
 }
 
 fun Fragment.requireMainActivity() = requireActivity() as? MainActivity

@@ -7,6 +7,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <ImageView
+        android:id="@+id/back_safety"
+        android:layout_gravity="top|start"
+        android:src="@drawable/ic_back"
+        style="@style/BackButtonStyle" />
+
     <TextView
         android:id="@+id/calibration_progress"
         android:layout_width="wrap_content"
@@ -20,7 +26,7 @@
         android:text="@string/calibration_progress"
         android:textColor="#ffffff"
         android:textSize="20sp"
-        android:visibility="visible"/>
+        tools:visibility="visible"/>
 
     <TextView
         android:id="@+id/distance_to_car_label"
@@ -33,12 +39,14 @@
         android:minWidth="80dp"
         android:textColor="@color/minty_green"
         android:textSize="20sp"
-        tools:text="50 m"/>
+        android:visibility="gone"
+        tools:text="50 m"
+        tools:visibility="visible"/>
 
     <com.mapbox.vision.teaser.view.SafetyModeView
         android:id="@+id/safety_mode"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
     <ImageView
         android:id="@+id/speed_limit_current"
@@ -57,7 +65,8 @@
         android:layout_gravity="end|top"
         android:layout_margin="16dp"
         android:visibility="gone"
-        tools:src="@drawable/speed_limit_us_5"/>
+        tools:src="@drawable/speed_limit_us_5"
+        tools:visibility="visible"/>
 
 </FrameLayout>
 
