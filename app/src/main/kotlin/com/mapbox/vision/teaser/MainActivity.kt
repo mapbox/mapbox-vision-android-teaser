@@ -49,12 +49,11 @@ import com.mapbox.vision.teaser.models.UiSign
 import com.mapbox.vision.teaser.recorder.RecorderFragment
 import com.mapbox.vision.teaser.replayer.ArReplayNavigationActivity
 import com.mapbox.vision.teaser.replayer.ReplayModeFragment
+import com.mapbox.vision.teaser.utils.PermissionsUtils
 import com.mapbox.vision.teaser.utils.SoundsPlayer
-import com.mapbox.vision.teaser.utils.allPermissionsGrantedByRequest
 import com.mapbox.vision.teaser.utils.classification.SignResources
 import com.mapbox.vision.teaser.utils.classification.Tracker
 import com.mapbox.vision.teaser.utils.dpToPx
-import com.mapbox.vision.teaser.utils.requestPermissionsIfNotGranted
 import com.mapbox.vision.teaser.view.hide
 import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.teaser.view.toggleVisibleGone
@@ -343,7 +342,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         setContentView(R.layout.activity_main)
 
-        if (!requestPermissionsIfNotGranted()) {
+        if (!PermissionsUtils.requestPermissionsIfNotGranted(this)) {
             onPermissionsGranted()
         }
 
@@ -732,7 +731,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (allPermissionsGrantedByRequest(requestCode)) {
+        if (PermissionsUtils.allPermissionsGrantedByRequest(this, requestCode)) {
             onPermissionsGranted()
         }
     }
