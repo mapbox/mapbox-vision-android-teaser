@@ -35,4 +35,6 @@ ext {
     firebase_crashlytics_version = '17.0.0-beta01'
     firebase_perf_version = '19.0.5'
     firebase_analytics_version = '17.2.3'
+
+    leak_canary = '2.3'
 }
