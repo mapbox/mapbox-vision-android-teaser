@@ -18,8 +18,11 @@ import com.mapbox.vision.safety.core.models.CollisionDangerLevel
 import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
 import com.mapbox.vision.teaser.models.UiSign
-import com.mapbox.vision.teaser.utils.*
+import com.mapbox.vision.teaser.utils.SoundsPlayer
 import com.mapbox.vision.teaser.utils.classification.SignResources
+import com.mapbox.vision.teaser.utils.requireMainActivity
+import com.mapbox.vision.teaser.utils.requireVisionManager
+import com.mapbox.vision.teaser.utils.runOnUiThread
 import com.mapbox.vision.teaser.view.hide
 import com.mapbox.vision.teaser.view.show
 import kotlinx.android.synthetic.main.fragment_safety.*

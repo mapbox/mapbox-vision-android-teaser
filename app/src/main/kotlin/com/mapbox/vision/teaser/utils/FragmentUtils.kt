@@ -5,7 +5,6 @@ import com.mapbox.vision.VisionManager
 import com.mapbox.vision.VisionReplayManager
 import com.mapbox.vision.manager.BaseVisionManager
 import com.mapbox.vision.teaser.MainActivity
-import java.lang.IllegalStateException
 
 fun Fragment.requireVisionManager(): BaseVisionManager? {
     val activity = requireActivity()
