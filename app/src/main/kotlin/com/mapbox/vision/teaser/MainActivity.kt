@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Rect
+import android.graphics.RectF
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -60,10 +62,11 @@ import com.mapbox.vision.teaser.view.hide
 import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.teaser.view.toggleVisibleGone
 import com.mapbox.vision.utils.VisionLogger
+import com.mapbox.vision.view.DragRectView
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
-import java.io.File
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
 
 class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemListener {
 
@@ -81,7 +84,8 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     }
 
     companion object {
-        private val BASE_SESSION_PATH = "${Environment.getExternalStorageDirectory().absolutePath}/MapboxVisionTelemetry"
+        private val BASE_SESSION_PATH =
+            "${Environment.getExternalStorageDirectory().absolutePath}/MapboxVisionTelemetry"
         private const val PERMISSION_FOREGROUND_SERVICE = "android.permission.FOREGROUND_SERVICE"
         private const val PERMISSIONS_REQUEST_CODE = 123
         private const val TRACKER_DEFAULT_COUNT = 5
@@ -105,10 +109,42 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private var visionManagerWasInit = false
     private lateinit var soundsPlayer: SoundsPlayer
     private var country = Country.Unknown
-    private var modelPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+    private var modelPerformance =
+        ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
     private var lastSpeed = 0f
     private var calibrationProgress = 0f
     private var isProgressChanging = false
+
+    private var selectedArea: RectF? = null
+    private val dragCallback = object : DragRectView.Callback {
+
+        override fun onRectFinished(rect: Rect?) {
+            val revertRect = if (rect != null) {
+                Rect(
+                    rect.left,
+                    vision_view.height - rect.top,
+                    rect.right,
+                    vision_view.height - rect.bottom
+                )
+            } else null
+            revertRect?.let {
+                selectedArea = RectF(
+                    it.left.toFloat() / vision_view.width,
+                    it.top.toFloat() / vision_view.height,
+                    it.right.toFloat() / vision_view.width,
+                    it.bottom.toFloat() / vision_view.height
+                )
+            }
+        }
+
+        override fun onRectOnScreen(onScreen: Boolean) {
+            if (onScreen) {
+                btn_confirm_area.show()
+            } else {
+                btn_confirm_area.hide()
+            }
+        }
+    }
 
     private val visionEventsListener = object : VisionEventsListener {
 
@@ -201,7 +237,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
                 distance_to_car_label.show()
                 safety_mode.show()
                 distance_to_car_label.text =
-                        distanceFormatter.formatDistance(collision.`object`.position.y)
+                    distanceFormatter.formatDistance(collision.`object`.position.y)
 
                 when (currentDangerLevel) {
                     CollisionDangerLevel.None -> safety_mode.clean()
@@ -222,7 +258,8 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
                 safety_mode.show()
                 calibration_progress.hide()
 
-                val collision = collisions.firstOrNull { it.`object`.objectClass == DetectionClass.Car }
+                val collision =
+                    collisions.firstOrNull { it.`object`.objectClass == DetectionClass.Car }
                 if (collision == null) {
                     hideCollision()
                 } else {
@@ -257,12 +294,12 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         override fun onRoadRestrictionsUpdated(roadRestrictions: RoadRestrictions) {
             runOnUiThreadIfPossible {
                 val imageResource = signResources.getSpeedSignResource(
-                        UiSign.WithNumber(
-                                signType = UiSign.SignType.SpeedLimit,
-                                signNumber = UiSign.SignNumber.fromNumber(roadRestrictions.speedLimits.car.max)
-                        ),
-                        speed = lastSpeed,
-                        country = country
+                    UiSign.WithNumber(
+                        signType = UiSign.SignType.SpeedLimit,
+                        signNumber = UiSign.SignNumber.fromNumber(roadRestrictions.speedLimits.car.max)
+                    ),
+                    speed = lastSpeed,
+                    country = country
                 )
 
                 speed_limit_current.animate().cancel()
@@ -273,31 +310,31 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
                     translationY = 0f
                     alpha = 1f
                     animate()
-                            .translationY(speedLimitTranslation / 2)
-                            .alpha(0f)
-                            .scaleX(0.5f)
-                            .scaleY(0.5f)
-                            .setDuration(500L)
-                            .setListener(
-                                    object : Animator.AnimatorListener {
-                                        override fun onAnimationRepeat(animation: Animator?) {}
+                        .translationY(speedLimitTranslation / 2)
+                        .alpha(0f)
+                        .scaleX(0.5f)
+                        .scaleY(0.5f)
+                        .setDuration(500L)
+                        .setListener(
+                            object : Animator.AnimatorListener {
+                                override fun onAnimationRepeat(animation: Animator?) {}
 
-                                        override fun onAnimationEnd(animation: Animator?) {
-                                            setImageResource(imageResource)
-                                            translationY = 0f
-                                            alpha = 1f
-                                            scaleX = 1f
-                                            scaleY = 1f
-                                            speed_limit_next.hide()
-                                        }
+                                override fun onAnimationEnd(animation: Animator?) {
+                                    setImageResource(imageResource)
+                                    translationY = 0f
+                                    alpha = 1f
+                                    scaleX = 1f
+                                    scaleY = 1f
+                                    speed_limit_next.hide()
+                                }
 
-                                        override fun onAnimationCancel(animation: Animator?) {}
+                                override fun onAnimationCancel(animation: Animator?) {}
 
-                                        override fun onAnimationStart(animation: Animator?) {}
-                                    }
-                            )
-                            .setInterpolator(AccelerateDecelerateInterpolator())
-                            .start()
+                                override fun onAnimationStart(animation: Animator?) {}
+                            }
+                        )
+                        .setInterpolator(AccelerateDecelerateInterpolator())
+                        .start()
                 }
 
                 if (roadRestrictions.speedLimits.car.max != 0f) {
@@ -306,9 +343,9 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
                         setImageResource(imageResource)
                         show()
                         animate().translationY(0f)
-                                .setDuration(500L)
-                                .setInterpolator(AccelerateDecelerateInterpolator())
-                                .start()
+                            .setDuration(500L)
+                            .setInterpolator(AccelerateDecelerateInterpolator())
+                            .start()
                     }
                 } else {
                     speed_limit_next.hide()
@@ -323,28 +360,46 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         if (!SystemInfoUtils.isVisionSupported()) {
             AlertDialog.Builder(this)
-                    .setTitle(R.string.vision_not_supported_title)
-                    .setView(
-                            TextView(this).apply {
-                                setPadding(dpToPx(20f).toInt())
-                                movementMethod = LinkMovementMethod.getInstance()
-                                isClickable = true
-                                text = HtmlCompat.fromHtml(
-                                        getString(R.string.vision_not_supported_message),
-                                        HtmlCompat.FROM_HTML_MODE_LEGACY
-                                )
-                            }
-                    )
-                    .setCancelable(false)
-                    .show()
+                .setTitle(R.string.vision_not_supported_title)
+                .setView(
+                    TextView(this).apply {
+                        setPadding(dpToPx(20f).toInt())
+                        movementMethod = LinkMovementMethod.getInstance()
+                        isClickable = true
+                        text = HtmlCompat.fromHtml(
+                            getString(R.string.vision_not_supported_message),
+                            HtmlCompat.FROM_HTML_MODE_LEGACY
+                        )
+                    }
+                )
+                .setCancelable(false)
+                .show()
 
             VisionLogger.e(
-                    "BoardNotSupported",
-                    "System Info: [${SystemInfoUtils.obtainSystemInfo()}]"
+                "BoardNotSupported",
+                "System Info: [${SystemInfoUtils.obtainSystemInfo()}]"
             )
         }
 
         setContentView(R.layout.activity_main)
+
+        btn_confirm_area.setOnClickListener {
+            btn_confirm_area.hide()
+            drag_view.clear()
+            drag_view.setCallback(null)
+            vision_view.setNewRenderArea(selectedArea)
+            btn_reset_area.show()
+        }
+
+        btn_reset_area.setOnClickListener {
+            selectedArea = null
+            vision_view.setNewRenderArea(selectedArea)
+            drag_view.setCallback(dragCallback)
+            btn_reset_area.hide()
+        }
+
+        btn_confirm_area.hide()
+        btn_reset_area.hide()
 
         if (!allPermissionsGranted() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(getRequiredPermissions(), PERMISSIONS_REQUEST_CODE)
@@ -468,14 +523,14 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         sign_info_container.removeAllViews()
         for (uiSign in uiSigns) {
             sign_info_container.addView(
-                    ImageView(this).apply {
-                        layoutParams =
-                                ViewGroup.MarginLayoutParams(signSize, ViewGroup.LayoutParams.WRAP_CONTENT)
-                                        .apply {
-                                            leftMargin = margin
-                                        }
-                        setImageResource(signResources.getSignResource(uiSign, country))
-                    }
+                ImageView(this).apply {
+                    layoutParams =
+                        ViewGroup.MarginLayoutParams(signSize, ViewGroup.LayoutParams.WRAP_CONTENT)
+                            .apply {
+                                leftMargin = margin
+                            }
+                    setImageResource(signResources.getSignResource(uiSign, country))
+                }
             )
         }
     }
@@ -592,12 +647,15 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         VisionManager.start()
         VisionManager.setModelPerformance(modelPerformance)
 
+        drag_view.setCallback(dragCallback)
+
         VisionSafetyManager.create(VisionManager)
         VisionSafetyManager.visionSafetyListener = visionSafetyListener
         return true
     }
 
     private fun destroyVisionManagerCamera() {
+        drag_view.setCallback(null)
         VisionSafetyManager.destroy()
         VisionManager.stop()
         VisionManager.destroy()
@@ -657,9 +715,9 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
     private fun showFragment(fragment: Fragment, tag: String, stateLoss: Boolean = false) {
         val fragmentTransaction = supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, fragment, tag)
-                .addToBackStack(tag)
+            .beginTransaction()
+            .replace(R.id.fragment_container, fragment, tag)
+            .addToBackStack(tag)
         if (stateLoss) {
             fragmentTransaction.commitAllowingStateLoss()
         } else {
@@ -744,7 +802,11 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
     private fun allPermissionsGranted(): Boolean {
         for (permission in getRequiredPermissions()) {
-            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    permission
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 // PERMISSION_FOREGROUND_SERVICE was added for targetSdkVersion >= 28, it is normal and always granted, but should be added to the Manifest file
                 // on devices with Android < P(9) checkSelfPermission(PERMISSION_FOREGROUND_SERVICE) can return PERMISSION_DENIED, but in fact it is GRANTED, so skip it
                 // https://developer.android.com/guide/components/services#Foreground
