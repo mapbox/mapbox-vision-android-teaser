@@ -4,8 +4,6 @@ import android.animation.Animator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.text.method.LinkMovementMethod
@@ -18,7 +16,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
@@ -52,6 +49,7 @@ import com.mapbox.vision.teaser.models.UiSign
 import com.mapbox.vision.teaser.recorder.RecorderFragment
 import com.mapbox.vision.teaser.replayer.ArReplayNavigationActivity
 import com.mapbox.vision.teaser.replayer.ReplayModeFragment
+import com.mapbox.vision.teaser.utils.PermissionsUtils
 import com.mapbox.vision.teaser.utils.SoundsPlayer
 import com.mapbox.vision.teaser.utils.classification.SignResources
 import com.mapbox.vision.teaser.utils.classification.Tracker
@@ -82,8 +80,6 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
     companion object {
         private val BASE_SESSION_PATH = "${Environment.getExternalStorageDirectory().absolutePath}/MapboxVisionTelemetry"
-        private const val PERMISSION_FOREGROUND_SERVICE = "android.permission.FOREGROUND_SERVICE"
-        private const val PERMISSIONS_REQUEST_CODE = 123
         private const val TRACKER_DEFAULT_COUNT = 5
         private const val CALIBRATION_READY_VALUE = 1f
         private const val START_AR_MAP_ACTIVITY_FOR_NAVIGATION_RESULT_CODE = 100
@@ -346,9 +342,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         setContentView(R.layout.activity_main)
 
-        if (!allPermissionsGranted() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(getRequiredPermissions(), PERMISSIONS_REQUEST_CODE)
-        } else {
+        if (!PermissionsUtils.requestPermissionsIfNotGranted(this)) {
             onPermissionsGranted()
         }
 
@@ -737,37 +731,8 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (allPermissionsGranted() && requestCode == PERMISSIONS_REQUEST_CODE) {
+        if (PermissionsUtils.allPermissionsGrantedByRequest(this, requestCode)) {
             onPermissionsGranted()
-        }
-    }
-
-    private fun allPermissionsGranted(): Boolean {
-        for (permission in getRequiredPermissions()) {
-            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                // PERMISSION_FOREGROUND_SERVICE was added for targetSdkVersion >= 28, it is normal and always granted, but should be added to the Manifest file
-                // on devices with Android < P(9) checkSelfPermission(PERMISSION_FOREGROUND_SERVICE) can return PERMISSION_DENIED, but in fact it is GRANTED, so skip it
-                // https://developer.android.com/guide/components/services#Foreground
-                if (permission == PERMISSION_FOREGROUND_SERVICE) {
-                    continue
-                }
-                return false
-            }
-        }
-        return true
-    }
-
-    private fun getRequiredPermissions(): Array<String> {
-        return try {
-            val info = packageManager?.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
-            val permissions = info!!.requestedPermissions
-            if (permissions != null && permissions.isNotEmpty()) {
-                permissions
-            } else {
-                emptyArray()
-            }
-        } catch (e: Exception) {
-            emptyArray()
         }
     }
 
