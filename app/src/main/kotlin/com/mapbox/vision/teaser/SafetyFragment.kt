@@ -54,7 +54,7 @@ class SafetyFragment : Fragment() {
             return
         }
         signResources = resources
-        calibration_progress.text = getString(R.string.calibration_progress, 0)
+        setProgress(0)
         back_safety.setOnClickListener { requireActivity().onBackPressed() }
     }
 
@@ -73,6 +73,10 @@ class SafetyFragment : Fragment() {
         super.onPause()
         soundsPlayer.stop()
         VisionSafetyManager.destroy()
+    }
+
+    private fun setProgress(value: Int) {
+        calibration_progress.text = getString(R.string.calibration_progress, value)
     }
 
     private val visionSafetyListener = object : VisionSafetyListener {
@@ -142,7 +146,7 @@ class SafetyFragment : Fragment() {
                 safety_mode.hide()
                 calibration_progress.show()
                 val progress = (calibrationProgress * 100).toInt()
-                calibration_progress.text = getString(R.string.calibration_progress, progress)
+                setProgress(progress)
             }
 
             runOnUiThreadIfPossible {
