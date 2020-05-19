@@ -18,8 +18,10 @@ fun Fragment.requireVisionManager(): BaseVisionManager? {
     return null
 }
 
-fun Fragment.runOnUiThread(action: () -> Unit) {
-    requireActivity().runOnUiThread(action)
+fun Fragment.runOnUiThreadIfPossible(action: () -> Unit) {
+    if (isResumed) {
+        requireActivity().runOnUiThread(action)
+    }
 }
 
 fun Fragment.requireMainActivity() = requireActivity() as? MainActivity

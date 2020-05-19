@@ -22,7 +22,7 @@ import com.mapbox.vision.teaser.utils.SoundsPlayer
 import com.mapbox.vision.teaser.utils.classification.SignResources
 import com.mapbox.vision.teaser.utils.requireMainActivity
 import com.mapbox.vision.teaser.utils.requireVisionManager
-import com.mapbox.vision.teaser.utils.runOnUiThread
+import com.mapbox.vision.teaser.utils.runOnUiThreadIfPossible
 import com.mapbox.vision.teaser.view.hide
 import com.mapbox.vision.teaser.view.show
 import kotlinx.android.synthetic.main.fragment_safety.*
@@ -145,13 +145,11 @@ class SafetyFragment : Fragment() {
                 calibration_progress.text = getString(R.string.calibration_progress, progress)
             }
 
-            runOnUiThread {
-                if (this@SafetyFragment.isResumed) {
-                    if (calibrationProgress == CALIBRATION_READY_VALUE) {
-                        calibrationReady()
-                    } else {
-                        calibrationInProgress()
-                    }
+            runOnUiThreadIfPossible {
+                if (calibrationProgress == CALIBRATION_READY_VALUE) {
+                    calibrationReady()
+                } else {
+                    calibrationInProgress()
                 }
             }
         }
@@ -161,77 +159,76 @@ class SafetyFragment : Fragment() {
         }
 
         override fun onRoadRestrictionsUpdated(roadRestrictions: RoadRestrictions) {
-            runOnUiThread {
-                if (this@SafetyFragment.isResumed) {
-                    fun getImageResource() = signResources.getSpeedSignResource(
-                            UiSign.WithNumber(
-                                    signType = UiSign.SignType.SpeedLimit,
-                                    signNumber = UiSign.SignNumber.fromNumber(roadRestrictions.speedLimits.car.max)
-                            ),
-                            speed = lastSpeed,
-                            country = country
-                    )
 
-                    fun cancelAnimations() {
-                        speed_limit_current.animate().cancel()
-                        speed_limit_next.animate().cancel()
-                    }
+            fun getImageResource() = signResources.getSpeedSignResource(
+                    UiSign.WithNumber(
+                            signType = UiSign.SignType.SpeedLimit,
+                            signNumber = UiSign.SignNumber.fromNumber(roadRestrictions.speedLimits.car.max)
+                    ),
+                    speed = lastSpeed,
+                    country = country
+            )
 
-                    fun showCurrentSpeedLimit(imageResource: Int) {
-                        speed_limit_current.apply {
-                            show()
-                            translationY = 0f
-                            alpha = 1f
-                            animate()
-                                    .translationY(speedLimitTranslation / 2)
-                                    .alpha(0f)
-                                    .scaleX(0.5f)
-                                    .scaleY(0.5f)
-                                    .setDuration(500L)
-                                    .setListener(
-                                            object : Animator.AnimatorListener {
-                                                override fun onAnimationRepeat(animation: Animator?) {}
+            fun cancelAnimations() {
+                speed_limit_current.animate().cancel()
+                speed_limit_next.animate().cancel()
+            }
 
-                                                override fun onAnimationEnd(animation: Animator?) {
-                                                    setImageResource(imageResource)
-                                                    translationY = 0f
-                                                    alpha = 1f
-                                                    scaleX = 1f
-                                                    scaleY = 1f
-                                                    speed_limit_next.hide()
-                                                }
+            fun showCurrentSpeedLimit(imageResource: Int) {
+                speed_limit_current.apply {
+                    show()
+                    translationY = 0f
+                    alpha = 1f
+                    animate()
+                            .translationY(speedLimitTranslation / 2)
+                            .alpha(0f)
+                            .scaleX(0.5f)
+                            .scaleY(0.5f)
+                            .setDuration(500L)
+                            .setListener(
+                                    object : Animator.AnimatorListener {
+                                        override fun onAnimationRepeat(animation: Animator?) {}
 
-                                                override fun onAnimationCancel(animation: Animator?) {}
+                                        override fun onAnimationEnd(animation: Animator?) {
+                                            setImageResource(imageResource)
+                                            translationY = 0f
+                                            alpha = 1f
+                                            scaleX = 1f
+                                            scaleY = 1f
+                                            speed_limit_next.hide()
+                                        }
 
-                                                override fun onAnimationStart(animation: Animator?) {}
-                                            }
-                                    )
-                                    .setInterpolator(AccelerateDecelerateInterpolator())
-                                    .start()
-                        }
-                    }
+                                        override fun onAnimationCancel(animation: Animator?) {}
 
-                    fun showSpeedLimitNextIfRequired(imageResource: Int) {
-                        if (roadRestrictions.speedLimits.car.max != 0f) {
-                            speed_limit_next.apply {
-                                translationY = -speedLimitTranslation
-                                setImageResource(imageResource)
-                                show()
-                                animate().translationY(0f)
-                                        .setDuration(500L)
-                                        .setInterpolator(AccelerateDecelerateInterpolator())
-                                        .start()
-                            }
-                        } else {
-                            speed_limit_next.hide()
-                        }
-                    }
-
-                    val imageResource = getImageResource()
-                    cancelAnimations()
-                    showCurrentSpeedLimit(imageResource)
-                    showSpeedLimitNextIfRequired(imageResource)
+                                        override fun onAnimationStart(animation: Animator?) {}
+                                    }
+                            )
+                            .setInterpolator(AccelerateDecelerateInterpolator())
+                            .start()
                 }
+            }
+
+            fun showSpeedLimitNextIfRequired(imageResource: Int) {
+                if (roadRestrictions.speedLimits.car.max != 0f) {
+                    speed_limit_next.apply {
+                        translationY = -speedLimitTranslation
+                        setImageResource(imageResource)
+                        show()
+                        animate().translationY(0f)
+                                .setDuration(500L)
+                                .setInterpolator(AccelerateDecelerateInterpolator())
+                                .start()
+                    }
+                } else {
+                    speed_limit_next.hide()
+                }
+            }
+
+            runOnUiThreadIfPossible {
+                val imageResource = getImageResource()
+                cancelAnimations()
+                showCurrentSpeedLimit(imageResource)
+                showSpeedLimitNextIfRequired(imageResource)
             }
         }
     }
