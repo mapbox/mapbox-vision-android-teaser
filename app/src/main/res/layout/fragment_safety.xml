@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:id="@+id/safety_mode_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <ImageView
+        android:id="@+id/back_safety"
+        android:layout_gravity="top|start"
+        android:src="@drawable/ic_back"
+        style="@style/BackButtonStyle" />
+
+    <TextView
+        android:id="@+id/calibration_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="44dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="18dp"
+        android:background="@drawable/bg_label"
+        android:gravity="center"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/calibration_progress"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        tools:visibility="visible"/>
+
+    <TextView
+        android:id="@+id/distance_to_car_label"
+        android:layout_width="wrap_content"
+        android:layout_height="44dp"
+        android:layout_gravity="center|bottom"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_label"
+        android:gravity="center"
+        android:minWidth="80dp"
+        android:textColor="@color/minty_green"
+        android:textSize="20sp"
+        android:visibility="gone"
+        tools:text="50 m"
+        tools:visibility="visible"/>
+
+    <com.mapbox.vision.teaser.view.SafetyModeView
+        android:id="@+id/safety_mode"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:id="@+id/speed_limit_current"
+        android:layout_width="64dp"
+        android:layout_height="90dp"
+        android:layout_gravity="end|top"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        tools:src="@drawable/over_speed_limit_us_70"
+        tools:visibility="visible"/>
+
+    <ImageView
+        android:id="@+id/speed_limit_next"
+        android:layout_width="64dp"
+        android:layout_height="90dp"
+        android:layout_gravity="end|top"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        tools:src="@drawable/speed_limit_us_5"
+        tools:visibility="visible"/>
+
+</FrameLayout>
+
+

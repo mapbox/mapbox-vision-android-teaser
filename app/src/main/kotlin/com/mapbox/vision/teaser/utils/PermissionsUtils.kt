@@ -1,6 +1,5 @@
 package com.mapbox.vision.teaser.utils
 
-import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
@@ -48,7 +47,6 @@ object PermissionsUtils {
         }
     }
 
-    fun allPermissionsGrantedByRequest(activity: MainActivity, requestCode: Int)
-            = allPermissionsGranted(activity) && requestCode == PERMISSIONS_REQUEST_CODE
-
+    fun allPermissionsGrantedByRequest(activity: MainActivity, requestCode: Int) =
+            allPermissionsGranted(activity) && requestCode == PERMISSIONS_REQUEST_CODE
 }
