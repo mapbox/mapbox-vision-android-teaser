@@ -13,6 +13,7 @@ import androidx.annotation.DimenRes
 import com.mapbox.vision.mobile.core.models.frame.ImageSize
 import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.teaser.R
+import kotlin.math.max
 
 class SafetyModeView
 @JvmOverloads
@@ -34,8 +35,8 @@ constructor(
 
     private var mode = Mode.NONE
 
-    private var scaleFactor = 1f
     private var scaledSize = ImageSize(1, 1)
+    private var frameSize = ImageSize(1280, 720)
 
     private var warningShapes: List<WarningShape> = emptyList()
 
@@ -77,10 +78,11 @@ constructor(
     )
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        // FIXME
-//        val frameSize = VisionManager.getFrameSize()
-        val frameSize = ImageSize(1280, 720)
-        scaleFactor = Math.max(
+        updateScaling()
+    }
+
+    private fun updateScaling() {
+        val scaleFactor = max(
             width.toFloat() / frameSize.imageWidth,
             height.toFloat() / frameSize.imageHeight
         )
@@ -99,6 +101,10 @@ constructor(
         setBackgroundColor(transparent)
 
         warningShapes = collisions.map { collision ->
+            if (collision.lastFrame.image.size != frameSize) {
+                frameSize = collision.lastFrame.image.size
+                updateScaling()
+            }
             WarningShape(
                 center = PointF(
                     ((collision.lastDetection.boundingBox.left + collision.lastDetection.boundingBox.right) / 2).scaleX(),
