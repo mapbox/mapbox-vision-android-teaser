@@ -20,8 +20,10 @@ fun Fragment.requireVisionManager(): BaseVisionManager? {
 }
 
 fun Fragment.runOnUiThreadIfPossible(action: () -> Unit) {
-    if (isResumed) {
-        requireActivity().runOnUiThread(action)
+    requireActivity().runOnUiThread {
+        if (isResumed) {
+            action.invoke()
+        }
     }
 }
 

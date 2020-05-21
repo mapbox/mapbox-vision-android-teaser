@@ -35,40 +35,6 @@
         app:layout_constraintTop_toBottomOf="@id/playback_seek_bar_view"
         style="@style/BackButtonStyle"/>
 
-    <LinearLayout
-        android:id="@+id/sign_info_container"
-        android:layout_width="wrap_content"
-        android:layout_height="90dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingTop="18dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/playback_seek_bar_view"/>
-
-    <LinearLayout
-        android:id="@+id/lines_detections_container"
-        android:layout_width="wrap_content"
-        android:layout_height="56dp"
-        android:layout_marginTop="18dp"
-        android:background="@drawable/line_detections_container_bg"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/playback_seek_bar_view"/>
-
-    <ImageView
-        android:id="@+id/line_departure"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="9dp"
-        android:layout_marginEnd="9dp"
-        android:src="@drawable/ic_departure_notification"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/playback_seek_bar_view"/>
-
     <com.mapbox.vision.teaser.view.FpsPerformanceView
         android:id="@+id/fps_performance_view"
         android:layout_width="wrap_content"

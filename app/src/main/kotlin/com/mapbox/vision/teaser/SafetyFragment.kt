@@ -6,11 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
-import androidx.fragment.app.Fragment
 import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
-import com.mapbox.vision.mobile.core.models.Country
 import com.mapbox.vision.mobile.core.models.detection.DetectionClass
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.safety.core.VisionSafetyListener
@@ -19,15 +17,14 @@ import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
 import com.mapbox.vision.teaser.models.UiSign
 import com.mapbox.vision.teaser.utils.SoundsPlayer
-import com.mapbox.vision.teaser.utils.classification.SignResources
-import com.mapbox.vision.teaser.utils.requireMainActivity
 import com.mapbox.vision.teaser.utils.requireVisionManager
 import com.mapbox.vision.teaser.utils.runOnUiThreadIfPossible
 import com.mapbox.vision.teaser.view.hide
 import com.mapbox.vision.teaser.view.show
+import com.mapbox.vision.utils.VisionLogger
 import kotlinx.android.synthetic.main.fragment_safety.*
 
-class SafetyFragment : Fragment() {
+class SafetyFragment : BaseVisionFragment() {
 
     companion object {
         val TAG: String = SafetyFragment::class.java.simpleName
@@ -36,10 +33,6 @@ class SafetyFragment : Fragment() {
     }
 
     private lateinit var soundsPlayer: SoundsPlayer
-    var calibrationProgress = 0F
-    var lastSpeed = 0f
-    var country = Country.Unknown
-    lateinit var signResources: SignResources
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         soundsPlayer = SoundsPlayer(requireContext())
@@ -48,14 +41,9 @@ class SafetyFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val resources = requireMainActivity()?.signResources
-        if (resources == null) {
-            requireActivity().onBackPressed()
-            return
-        }
-        signResources = resources
         setProgress(0)
         back_safety.setOnClickListener { requireActivity().onBackPressed() }
+        VisionLogger.e(TAG, "OnViewCreated()")
     }
 
     override fun onResume() {
