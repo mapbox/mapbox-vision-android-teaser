@@ -19,7 +19,7 @@ fun Fragment.requireVisionManager(): BaseVisionManager? {
     throw IllegalStateException("Fragment should be created inside MainActivity")
 }
 
-fun Fragment.runOnUiThreadIfPossible(action: () -> Unit) {
+fun Fragment.runOnUiThreadIfResumed(action: () -> Unit) {
     requireActivity().runOnUiThread {
         if (isResumed) {
             action.invoke()

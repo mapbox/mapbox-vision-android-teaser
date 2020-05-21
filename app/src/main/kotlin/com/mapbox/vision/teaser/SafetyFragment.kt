@@ -18,7 +18,7 @@ import com.mapbox.vision.safety.core.models.RoadRestrictions
 import com.mapbox.vision.teaser.models.UiSign
 import com.mapbox.vision.teaser.utils.SoundsPlayer
 import com.mapbox.vision.teaser.utils.requireVisionManager
-import com.mapbox.vision.teaser.utils.runOnUiThreadIfPossible
+import com.mapbox.vision.teaser.utils.runOnUiThreadIfResumed
 import com.mapbox.vision.teaser.view.hide
 import com.mapbox.vision.teaser.view.show
 import com.mapbox.vision.utils.VisionLogger
@@ -137,7 +137,7 @@ class SafetyFragment : BaseVisionFragment() {
                 setProgress(progress)
             }
 
-            runOnUiThreadIfPossible {
+            runOnUiThreadIfResumed {
                 if (calibrationProgress == CALIBRATION_READY_VALUE) {
                     calibrationReady()
                 } else {
@@ -216,7 +216,7 @@ class SafetyFragment : BaseVisionFragment() {
                 }
             }
 
-            runOnUiThreadIfPossible {
+            runOnUiThreadIfResumed {
                 val imageResource = getImageResource()
                 cancelAnimations()
                 showCurrentSpeedLimit(imageResource)

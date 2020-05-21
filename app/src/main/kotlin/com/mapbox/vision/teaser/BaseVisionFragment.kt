@@ -13,15 +13,10 @@ open class BaseVisionFragment : Fragment() {
     protected var calibrationProgress = 0F
     protected var lastSpeed = 0f
 
-    protected var signSize = 0
-    protected var margin = 0
-
     protected lateinit var signResources: SignResources
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        signSize = requireContext().dpToPx(64f).toInt()
-        margin = requireContext().dpToPx(8f).toInt()
         signResources = SignResources.Impl(requireContext())
     }
 

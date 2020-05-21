@@ -8,6 +8,7 @@ import android.widget.ImageView
 import com.mapbox.vision.mobile.core.models.classification.FrameSignClassifications
 import com.mapbox.vision.teaser.models.UiSign
 import com.mapbox.vision.teaser.utils.classification.Tracker
+import com.mapbox.vision.teaser.utils.dpToPx
 import kotlinx.android.synthetic.main.fragment_sign_detection.*
 
 class SignDetectionFragment : BaseVisionFragment() {
@@ -19,6 +20,8 @@ class SignDetectionFragment : BaseVisionFragment() {
     }
 
     private var tracker: Tracker<UiSign> = Tracker(TRACKER_DEFAULT_COUNT)
+    private var signSize = 0
+    private var margin = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_sign_detection, container, false)
@@ -26,6 +29,8 @@ class SignDetectionFragment : BaseVisionFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        signSize = requireContext().dpToPx(64f).toInt()
+        margin = requireContext().dpToPx(8f).toInt()
         back_sign_detection.setOnClickListener { requireActivity().onBackPressed() }
     }
 

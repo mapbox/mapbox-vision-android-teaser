@@ -19,6 +19,8 @@ class LaneFragment : BaseVisionFragment() {
     }
 
     private var lineHeight = 0
+    private var signSize = 0
+    private var margin = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_lane_detection, container, false)
@@ -27,6 +29,8 @@ class LaneFragment : BaseVisionFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         lineHeight = requireContext().dpToPx(40f).toInt()
+        signSize = requireContext().dpToPx(64f).toInt()
+        margin = requireContext().dpToPx(8f).toInt()
         back_lane.setOnClickListener { requireActivity().onBackPressed() }
     }
 
