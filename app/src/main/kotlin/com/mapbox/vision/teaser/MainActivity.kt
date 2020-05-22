@@ -6,9 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import android.text.method.LinkMovementMethod
-import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
@@ -23,8 +21,6 @@ import com.mapbox.vision.mobile.core.interfaces.VisionEventsListener
 import com.mapbox.vision.mobile.core.models.Country
 import com.mapbox.vision.mobile.core.models.classification.FrameSignClassifications
 import com.mapbox.vision.mobile.core.models.position.VehicleState
-import com.mapbox.vision.mobile.core.models.road.LaneDirection
-import com.mapbox.vision.mobile.core.models.road.LaneEdgeType
 import com.mapbox.vision.mobile.core.models.road.RoadDescription
 import com.mapbox.vision.mobile.core.utils.SystemInfoUtils
 import com.mapbox.vision.performance.ModelPerformance
@@ -34,13 +30,10 @@ import com.mapbox.vision.teaser.MainActivity.VisionMode.Camera
 import com.mapbox.vision.teaser.MainActivity.VisionMode.Replay
 import com.mapbox.vision.teaser.ar.ArMapActivity
 import com.mapbox.vision.teaser.ar.ArNavigationActivity
-import com.mapbox.vision.teaser.models.UiSign
 import com.mapbox.vision.teaser.recorder.RecorderFragment
 import com.mapbox.vision.teaser.replayer.ArReplayNavigationActivity
 import com.mapbox.vision.teaser.replayer.ReplayModeFragment
 import com.mapbox.vision.teaser.utils.PermissionsUtils
-import com.mapbox.vision.teaser.utils.classification.SignResources
-import com.mapbox.vision.teaser.utils.classification.Tracker
 import com.mapbox.vision.teaser.utils.dpToPx
 import com.mapbox.vision.teaser.view.hide
 import com.mapbox.vision.teaser.view.show
@@ -58,16 +51,8 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         Replay
     }
 
-    enum class VisionFeature {
-        Segmentation,
-        Classification,
-        Detection,
-        Lanes
-    }
-
     companion object {
         private val BASE_SESSION_PATH = "${Environment.getExternalStorageDirectory().absolutePath}/MapboxVisionTelemetry"
-        private const val TRACKER_DEFAULT_COUNT = 5
         private const val START_AR_MAP_ACTIVITY_FOR_NAVIGATION_RESULT_CODE = 100
         private const val START_AR_MAP_ACTIVITY_FOR_RECORDING_RESULT_CODE = 110
     }
@@ -75,50 +60,39 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     var visionMode = Camera
     private var sessionPath = ""
 
-    val signResources: SignResources = SignResources.Impl(this)
-
-    private var signSize = 0
-    private var margin = 0
-
-    private var lineHeight = 0
-    private var tracker: Tracker<UiSign> = Tracker(TRACKER_DEFAULT_COUNT)
-    private var visionFeature: VisionFeature = VisionFeature.Detection
     private var isPermissionsGranted = false
     private var visionManagerWasInit = false
-    private var country = Country.Unknown
     private var modelPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
 
     private val visionEventsListener = object : VisionEventsListener {
 
         override fun onCountryUpdated(country: Country) {
-            this@MainActivity.country = country
-            requireSafetyFragment()?.country = country
+            runOnUiThread {
+                requireBaseVisionFragment()?.updateCountry(country)
+            }
         }
 
         override fun onFrameSignClassificationsUpdated(frameSignClassifications: FrameSignClassifications) {
-            if (visionFeature == VisionFeature.Classification) {
-                runOnUiThread {
-                    tracker.update(UiSign.getUiSigns(frameSignClassifications))
-                    drawSigns(tracker.getCurrent())
-                }
+            runOnUiThread {
+                requireSignDetectionFragment()?.drawSigns(frameSignClassifications)
             }
         }
 
         override fun onRoadDescriptionUpdated(roadDescription: RoadDescription) {
-            if (visionFeature == VisionFeature.Lanes) {
-                runOnUiThread {
-                    drawLanesDetection(roadDescription)
-                }
+            runOnUiThread {
+                requireLaneDetectionFragment()?.drawLanesDetection(roadDescription)
             }
         }
 
         override fun onVehicleStateUpdated(vehicleState: VehicleState) {
-            requireSafetyFragment()?.lastSpeed = vehicleState.speed
+            runOnUiThread {
+                requireBaseVisionFragment()?.updateLastSpeed(vehicleState.speed)
+            }
         }
 
         override fun onCameraUpdated(camera: com.mapbox.vision.mobile.core.models.Camera) {
-            requireSafetyFragment()?.calibrationProgress = camera.calibrationProgress
             runOnUiThread {
+                requireBaseVisionFragment()?.updateCalibrationProgress(camera.calibrationProgress)
                 fps_performance_view.setCalibrationProgress(camera.calibrationProgress)
             }
         }
@@ -187,19 +161,12 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         isPermissionsGranted = true
 
         createSessionFolderIfNotExist()
-
-        signSize = dpToPx(64f).toInt()
-        lineHeight = dpToPx(40f).toInt()
-        margin = dpToPx(8f).toInt()
         back.setOnClickListener { onBackClick() }
-        segm_container.setOnClickListener { setVisionMode(VisionFeature.Segmentation) }
-        sign_detection_container.setOnClickListener { setVisionMode(VisionFeature.Classification) }
-        det_container.setOnClickListener { setVisionMode(VisionFeature.Detection) }
-        distance_container.setOnClickListener {
-            vision_view.visualizationMode = VisualizationMode.Clear
-            showSafetyFragment()
-        }
-        line_detection_container.setOnClickListener { setVisionMode(VisionFeature.Lanes) }
+        segm_container.setOnClickListener { showSegmentationFragment() }
+        sign_detection_container.setOnClickListener { showSignDetectionFragment() }
+        det_container.setOnClickListener { showObjectDetectionFragment() }
+        distance_container.setOnClickListener { showSafetyFragment() }
+        line_detection_container.setOnClickListener { showLaneFragment() }
 
         initRootLongTap()
         initRootTap()
@@ -276,122 +243,8 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
     private fun onBackClick() {
         dashboard_container.show()
-        hideLineDetectionContainer()
-        hideSignsContainer()
         back.hide()
         playback_seek_bar_view.hide()
-    }
-
-    private fun drawSigns(uiSigns: List<UiSign>) {
-        sign_info_container.removeAllViews()
-        for (uiSign in uiSigns) {
-            sign_info_container.addView(
-                    ImageView(this).apply {
-                        layoutParams =
-                                ViewGroup.MarginLayoutParams(signSize, ViewGroup.LayoutParams.WRAP_CONTENT)
-                                        .apply {
-                                            leftMargin = margin
-                                        }
-                        setImageResource(signResources.getSignResource(uiSign, country))
-                    }
-            )
-        }
-    }
-
-    private fun drawLanesDetection(roadDescription: RoadDescription) {
-        fun getImageView(isFirst: Boolean = false): ImageView {
-            val image = ImageView(this)
-            val lp = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, lineHeight)
-            if (isFirst) {
-                lp.marginStart = margin
-            }
-            lp.marginEnd = margin
-            image.layoutParams = lp
-            return image
-        }
-
-        fun LaneEdgeType.toDrawableId(isForward: Boolean = false): Int = when (this) {
-            LaneEdgeType.Curb -> if (isForward) {
-                R.drawable.ic_right_curb
-            } else {
-                R.drawable.ic_left_curb
-            }
-            LaneEdgeType.Construction -> TODO()
-            LaneEdgeType.MarkupDashed -> R.drawable.ic_half_lane
-            LaneEdgeType.MarkupDoubleSolid -> R.drawable.ic_separator_double_lane
-            LaneEdgeType.MarkupSolid -> R.drawable.ic_separator_lane
-            LaneEdgeType.Unknown -> R.drawable.ic_unknown_lane
-        }
-
-        fun LaneDirection.toDrawableId() = when (this) {
-            LaneDirection.Backward -> R.drawable.ic_arrow
-            LaneDirection.Forward -> R.drawable.ic_arrow_forward
-            LaneDirection.Reverse -> R.drawable.ic_arrow_reversed
-            LaneDirection.Unknown -> TODO()
-        }
-
-        lines_detections_container.removeAllViews()
-
-        for (index in roadDescription.lanes.indices) {
-            val lane = roadDescription.lanes[index]
-            val leftMarkingImageView = getImageView(index == 0)
-            leftMarkingImageView.setImageResource(lane.leftEdge.type.toDrawableId())
-            lines_detections_container.addView(leftMarkingImageView)
-
-            val directionImageView = getImageView()
-            if (index == roadDescription.currentLaneIndex) {
-                directionImageView.setImageResource(R.drawable.ic_blue_arrow)
-            } else {
-                directionImageView.setImageResource(lane.direction.toDrawableId())
-            }
-            lines_detections_container.addView(directionImageView)
-
-            if (index == roadDescription.lanes.lastIndex) {
-                val rightMarkingImageView = getImageView()
-                rightMarkingImageView.setImageResource(lane.rightEdge.type.toDrawableId(true))
-                lines_detections_container.addView(rightMarkingImageView)
-            }
-        }
-    }
-
-    private fun hideSignsContainer() {
-        sign_info_container.removeAllViews()
-        sign_info_container.hide()
-    }
-
-    private fun hideLineDetectionContainer() {
-        line_departure.hide()
-        lines_detections_container.removeAllViews()
-        lines_detections_container.hide()
-    }
-
-    private fun setVisionMode(mode: VisionFeature) {
-        fps_performance_view.resetAverageFps()
-
-        back.show()
-        dashboard_container.hide()
-        hideLineDetectionContainer()
-        hideSignsContainer()
-        playback_seek_bar_view.hide()
-
-        visionFeature = mode
-        when (visionFeature) {
-            VisionFeature.Classification -> {
-                vision_view.visualizationMode = VisualizationMode.Clear
-                tracker = Tracker(TRACKER_DEFAULT_COUNT)
-                sign_info_container.show()
-            }
-            VisionFeature.Detection -> {
-                vision_view.visualizationMode = VisualizationMode.Detection
-            }
-            VisionFeature.Segmentation -> {
-                vision_view.visualizationMode = VisualizationMode.Segmentation
-            }
-            VisionFeature.Lanes -> {
-                vision_view.visualizationMode = VisualizationMode.Clear
-                lines_detections_container.show()
-            }
-        }
     }
 
     private fun initVisionManagerCamera(visionView: VisionView): Boolean {
@@ -455,8 +308,36 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     }
 
     private fun showSafetyFragment(stateLoss: Boolean = false) {
+        vision_view.visualizationMode = VisualizationMode.Clear
         val fragment = SafetyFragment.newInstance()
         showFragment(fragment, SafetyFragment.TAG, stateLoss)
+    }
+
+    private fun showSignDetectionFragment(stateLoss: Boolean = false) {
+        vision_view.visualizationMode = VisualizationMode.Clear
+        val fragment = SignDetectionFragment.newInstance()
+        showFragment(fragment, SignDetectionFragment.TAG, stateLoss)
+    }
+
+    private fun showLaneFragment(stateLoss: Boolean = false) {
+        vision_view.visualizationMode = VisualizationMode.Clear
+        val fragment = LaneFragment.newInstance()
+        showFragment(fragment, LaneFragment.TAG, stateLoss)
+    }
+
+    private fun showSegmentationFragment(stateLoss: Boolean = false) {
+        vision_view.visualizationMode = VisualizationMode.Segmentation
+        showSegmentationDetectionFragment(stateLoss)
+    }
+
+    private fun showObjectDetectionFragment(stateLoss: Boolean = false) {
+        vision_view.visualizationMode = VisualizationMode.Detection
+        showSegmentationDetectionFragment(stateLoss)
+    }
+
+    private fun showSegmentationDetectionFragment(stateLoss: Boolean = false) {
+        val fragment = SegmentationDetectionFragment.newInstance()
+        showFragment(fragment, SegmentationDetectionFragment.TAG, stateLoss)
     }
 
     private fun showFragment(fragment: Fragment, tag: String, stateLoss: Boolean = false) {
@@ -569,7 +450,11 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         }
     }
 
-    private fun requireSafetyFragment() = supportFragmentManager.findFragmentById(R.id.fragment_container) as? SafetyFragment
+    private fun requireSignDetectionFragment() = requireBaseVisionFragment() as? SignDetectionFragment
+
+    private fun requireLaneDetectionFragment() = requireBaseVisionFragment() as? LaneFragment
+
+    private fun requireBaseVisionFragment() = supportFragmentManager.findFragmentById(R.id.fragment_container) as? BaseVisionFragment
 
     fun isCameraMode() = visionMode == Camera
 }
