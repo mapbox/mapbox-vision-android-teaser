@@ -11,12 +11,36 @@
         android:id="@+id/vision_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:visualization_mode="clear"/>
+
+    <Button
+        android:id="@+id/btn_confirm_area"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_margin="13dp"
+        android:gravity="center"
+        android:text="Confirm"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/btn_reset_area"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_margin="13dp"
+        android:gravity="center"
+        android:text="Reset"
+        app:layout_constraintTop_toBottomOf="@id/btn_confirm_area"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.mapbox.vision.view.DragRectView
+        android:id="@+id/drag_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <LinearLayout
         android:id="@+id/sign_info_container"

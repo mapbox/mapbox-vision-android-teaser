@@ -10,7 +10,6 @@ import com.mapbox.vision.common.view.BaseTeaserActivity
 import com.mapbox.vision.common.view.show
 import com.mapbox.vision.examples.R
 import com.mapbox.vision.examples.activity.ar.ArMapActivity
-import com.mapbox.vision.performance.ModelPerformanceConfig
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.view.VisionView
 

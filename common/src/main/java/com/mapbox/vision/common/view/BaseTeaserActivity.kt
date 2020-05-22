@@ -2,6 +2,8 @@ package com.mapbox.vision.common.view
 
 import android.animation.Animator
 import android.annotation.SuppressLint
+import android.graphics.Rect
+import android.graphics.RectF
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +13,7 @@ import com.mabpox.vision.teaser.common.R
 import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
+import com.mapbox.vision.VisionReplayManager
 import com.mapbox.vision.common.BaseVisionActivity
 import com.mapbox.vision.common.models.UiSign
 import com.mapbox.vision.common.utils.SoundsPlayer
@@ -34,28 +37,10 @@ import com.mapbox.vision.safety.core.VisionSafetyListener
 import com.mapbox.vision.safety.core.models.CollisionDangerLevel
 import com.mapbox.vision.safety.core.models.CollisionObject
 import com.mapbox.vision.safety.core.models.RoadRestrictions
+import com.mapbox.vision.view.DragRectView
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
-import kotlinx.android.synthetic.main.activity_main.back
-import kotlinx.android.synthetic.main.activity_main.dashboard_container
-import kotlinx.android.synthetic.main.activity_main.detection_button
-import kotlinx.android.synthetic.main.activity_main.distance_to_car_label
-import kotlinx.android.synthetic.main.activity_main.fps_performance_view
-import kotlinx.android.synthetic.main.activity_main.lane_detection_button
-import kotlinx.android.synthetic.main.activity_main.lane_detections_container
-import kotlinx.android.synthetic.main.activity_main.lane_detections_list
-import kotlinx.android.synthetic.main.activity_main.lane_view
-import kotlinx.android.synthetic.main.activity_main.root
-import kotlinx.android.synthetic.main.activity_main.safety_button
-import kotlinx.android.synthetic.main.activity_main.safety_mode_container
-import kotlinx.android.synthetic.main.activity_main.safety_view
-import kotlinx.android.synthetic.main.activity_main.segmentation_button
-import kotlinx.android.synthetic.main.activity_main.sign_info_container
-import kotlinx.android.synthetic.main.activity_main.signs_button
-import kotlinx.android.synthetic.main.activity_main.speed_limit_current
-import kotlinx.android.synthetic.main.activity_main.speed_limit_next
-import kotlinx.android.synthetic.main.activity_main.vision_view
-import kotlinx.android.synthetic.main.activity_replay.*
+import kotlinx.android.synthetic.main.activity_main.*
 
 abstract class BaseTeaserActivity : BaseVisionActivity() {
 
@@ -95,6 +80,34 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
 
     private var lastSpeed: Float = 0f
     private var calibrationProgress = 0f
+
+    private var selectedRevertedArea: RectF? = null
+    private val dragCallback = object : DragRectView.Callback {
+
+        override fun onRectFinished(rect: Rect?) {
+            val revertRect = Rect(
+                rect!!.left,
+                vision_view.height - rect!!.top,
+                rect!!.right,
+                vision_view.height - rect!!.bottom
+            )
+
+            selectedRevertedArea = RectF(
+                (revertRect.left.toFloat() / vision_view.width).coerceIn(0f, 1f),
+                (revertRect.top.toFloat() / vision_view.height).coerceIn(0f, 1f),
+                (revertRect.right.toFloat() / vision_view.width).coerceIn(0f, 1f),
+                (revertRect.bottom.toFloat() / vision_view.height).coerceIn(0f, 1f)
+            )
+        }
+
+        override fun onRectOnScreen(onScreen: Boolean) {
+            if (onScreen) {
+                btn_confirm_area.show()
+            } else {
+                btn_confirm_area.hide()
+            }
+        }
+    }
 
     protected val visionEventsListener = object : VisionEventsListener {
 
@@ -297,6 +310,30 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
 
     override fun setLayout() {
         setContentView(R.layout.activity_main)
+
+        btn_confirm_area.setOnClickListener {
+            btn_confirm_area.hide()
+            drag_view.clear()
+            drag_view.setCallback(null)
+            vision_view.setNewRenderArea(selectedRevertedArea)
+            lane_view.setSelectedArea(selectedRevertedArea)
+            btn_reset_area.show()
+
+            drag_view.hide()
+        }
+
+        btn_reset_area.setOnClickListener {
+            selectedRevertedArea = null
+            vision_view.setNewRenderArea(selectedRevertedArea)
+            lane_view.setSelectedArea(selectedRevertedArea)
+            drag_view.setCallback(dragCallback)
+            btn_reset_area.hide()
+
+            drag_view.show()
+        }
+
+        btn_confirm_area.hide()
+        btn_reset_area.hide()
     }
 
     override fun onPermissionsGranted() {
@@ -330,12 +367,14 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
 
     private fun tryToInitVisionManager() {
         if (isPermissionsGranted && !visionManagerWasInit) {
+            drag_view.setCallback(this.dragCallback)
             visionManagerWasInit = initVisionManager(vision_view)
         }
     }
 
     private fun stopVisionManager() {
         if (isPermissionsGranted && visionManagerWasInit) {
+            drag_view.setCallback(null)
             destroyVisionManager()
             visionManagerWasInit = false
         }

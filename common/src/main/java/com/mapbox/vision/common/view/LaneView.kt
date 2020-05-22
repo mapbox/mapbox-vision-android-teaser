@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.DimenRes
@@ -47,6 +48,9 @@ constructor(
         }
     }
 
+    private var drawRect = RectF()
+    private var drawRectScaleFactor = 1f
+
     init {
         alertWidth = pixels(R.dimen.alert_width) / 2
     }
@@ -71,13 +75,72 @@ constructor(
 
     private fun Float.scaleY(): Float = this / frameSize.imageHeight * scaledSize.imageHeight - (scaledSize.imageHeight - height) / 2
 
+    private fun Float.rectifyX(): Float {
+        if (drawRect.isEmpty) {
+            return this
+        }
+
+        // X relative to the zero center
+        val relativeX = this - drawRect.centerX()
+
+        // relative X scaled
+        val scaledX = relativeX * drawRectScaleFactor
+
+        // scaled X translated back from the zero center to zero left top corner
+        val translatedX = scaledX + (width / 2)
+
+        return translatedX
+    }
+
+    private fun Float.rectifyY(): Float {
+        if (drawRect.isEmpty) {
+            return this
+        }
+
+        // Y relative to the zero center
+        val relativeY = this - drawRect.centerY()
+
+        // relative Y scaled
+        val scaledY = relativeY * drawRectScaleFactor
+
+        // scaled Y translated back from the zero center to zero left top corner
+        val translatedY = scaledY + (height / 2)
+
+        return translatedY
+    }
+
     private fun PixelCoordinate.scale(): PixelCoordinate = PixelCoordinate(
         this.x.toFloat().scaleX().toInt(),
         this.y.toFloat().scaleY().toInt()
     )
 
+    private fun PixelCoordinate.rectify() = PixelCoordinate(
+        this.x.toFloat().rectifyX().toInt(),
+        this.y.toFloat().rectifyY().toInt()
+    )
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         updateScale()
+    }
+
+    fun setSelectedArea(relativeRect: RectF?) {
+        if (relativeRect == null) {
+            drawRect = RectF()
+            drawRectScaleFactor = 1f
+            return
+        }
+
+        drawRect = RectF(
+            (1 - relativeRect.right) * width,
+            (1 - relativeRect.top) * height,
+            (1 - relativeRect.left) * width,
+            (1 - relativeRect.bottom) * height
+        )
+
+        drawRectScaleFactor = max(
+            width / drawRect.width(),
+            height / drawRect.height()
+        )
     }
 
     fun drawLane(lane: Lane?) {
@@ -86,21 +149,21 @@ constructor(
         setBackgroundColor(transparent)
 
         lane?.let {
-            val leftP1 = VisionManager.worldToPixel(lane.leftEdge.curve.p1)?.scale()
+            val leftP1 = VisionManager.worldToPixel(lane.leftEdge.curve.p1)?.scale()?.rectify()
                 ?: return@let
-            val leftP2 = VisionManager.worldToPixel(lane.leftEdge.curve.p2)?.scale()
+            val leftP2 = VisionManager.worldToPixel(lane.leftEdge.curve.p2)?.scale()?.rectify()
                 ?: return@let
-            val leftP3 = VisionManager.worldToPixel(lane.leftEdge.curve.p3)?.scale()
+            val leftP3 = VisionManager.worldToPixel(lane.leftEdge.curve.p3)?.scale()?.rectify()
                 ?: return@let
-            val leftP4 = VisionManager.worldToPixel(lane.leftEdge.curve.p4)?.scale()
+            val leftP4 = VisionManager.worldToPixel(lane.leftEdge.curve.p4)?.scale()?.rectify()
                 ?: return@let
-            val rightP1 = VisionManager.worldToPixel(lane.rightEdge.curve.p1)?.scale()
+            val rightP1 = VisionManager.worldToPixel(lane.rightEdge.curve.p1)?.scale()?.rectify()
                 ?: return@let
-            val rightP2 = VisionManager.worldToPixel(lane.rightEdge.curve.p2)?.scale()
+            val rightP2 = VisionManager.worldToPixel(lane.rightEdge.curve.p2)?.scale()?.rectify()
                 ?: return@let
-            val rightP3 = VisionManager.worldToPixel(lane.rightEdge.curve.p3)?.scale()
+            val rightP3 = VisionManager.worldToPixel(lane.rightEdge.curve.p3)?.scale()?.rectify()
                 ?: return@let
-            val rightP4 = VisionManager.worldToPixel(lane.rightEdge.curve.p4)?.scale()
+            val rightP4 = VisionManager.worldToPixel(lane.rightEdge.curve.p4)?.scale()?.rectify()
                 ?: return@let
 
             strokePath.apply {
