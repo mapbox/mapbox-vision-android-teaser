@@ -21,7 +21,7 @@
 
         <activity
             android:name="com.mapbox.vision.teaser.MainActivity"
-            android:screenOrientation="landscape"
+            android:screenOrientation="sensorLandscape"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,17 +31,17 @@
 
         <activity
             android:name=".ar.ArMapActivity"
-            android:screenOrientation="landscape"
+            android:screenOrientation="sensorLandscape"
             tools:ignore="LockedOrientationActivity" />
 
         <activity
             android:name=".ar.ArNavigationActivity"
-            android:screenOrientation="landscape"
+            android:screenOrientation="sensorLandscape"
             tools:ignore="LockedOrientationActivity" />
 
         <activity
             android:name=".replayer.ArReplayNavigationActivity"
-            android:screenOrientation="landscape"
+            android:screenOrientation="sensorLandscape"
             tools:ignore="LockedOrientationActivity"/>
 
     </application>
