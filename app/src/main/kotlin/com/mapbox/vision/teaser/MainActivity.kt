@@ -218,6 +218,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
     private fun stopVisionManager() {
         if (isPermissionsGranted && visionManagerWasInit) {
+            visionManagerWasInit = false
             when (visionMode) {
                 Camera -> destroyVisionManagerCamera()
                 Replay -> {
@@ -225,7 +226,6 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
                     playback_seek_bar_view.onSeekBarChangeListener = null
                 }
             }
-            visionManagerWasInit = false
         }
     }
 
