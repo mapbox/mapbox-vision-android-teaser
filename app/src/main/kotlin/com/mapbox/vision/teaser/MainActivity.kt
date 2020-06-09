@@ -2,6 +2,7 @@ package com.mapbox.vision.teaser
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
@@ -143,7 +144,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         setContentView(R.layout.activity_main)
 
-        if (!PermissionsUtils.requestPermissionsIfNotGranted(this)) {
+        if (!PermissionsUtils.requestPermissions(this)) {
             onPermissionsGranted()
         }
     }
@@ -423,12 +424,30 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (PermissionsUtils.allPermissionsGrantedByRequest(this, requestCode)) {
+        if (PermissionsUtils.arePermissionsGranted(this, requestCode)) {
             onPermissionsGranted()
+        } else {
+            val notGranted = PermissionsUtils.getNotGrantedPermissions(this).joinToString(", ")
+
+            AlertDialog.Builder(this)
+                .setTitle(R.string.permissions_missing_title)
+                .setMessage(
+                    getString(R.string.permissions_missing_message, notGranted)
+                )
+                .setCancelable(false)
+                .setPositiveButton(
+                    R.string.request_permissions
+                ) { _, _ -> PermissionsUtils.requestPermissions(this) }
+                .show()
+
+            VisionLogger.e(
+                MainActivity::class.java.simpleName,
+                "Permissions are not granted : $notGranted"
+            )
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    override fun onActivityResult(requestCode:Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             START_AR_MAP_ACTIVITY_FOR_NAVIGATION_RESULT_CODE -> {
                 if (resultCode == Activity.RESULT_OK && data != null) {

@@ -30,4 +30,8 @@
         <item quantity="other">%d items</item>
     </plurals>
 
+    <string name="permissions_missing_title">Missing permissions</string>
+    <string name="permissions_missing_message">The following permissions were not granted, please restart the application : %s</string>
+    <string name="request_permissions">Request permissions</string>
+
 </resources>
