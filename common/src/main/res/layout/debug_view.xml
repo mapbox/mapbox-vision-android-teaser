@@ -12,7 +12,7 @@
         tools:text="session time"/>
 
     <TextView
-        android:id="@+id/calibration_safety"
+        android:id="@+id/calibration_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/black"
@@ -34,6 +34,14 @@
         android:textColor="@color/black"
         android:textSize="18sp"
         tools:text="core update fps"/>
+
+    <TextView
+        android:id="@+id/camera_fps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        tools:text="camera fps"/>
 
     <EditText
         android:id="@+id/custom_fps"

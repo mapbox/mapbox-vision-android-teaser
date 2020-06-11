@@ -32,7 +32,8 @@ import java.nio.ByteOrder
  * VideoSource implementation that connects to USB camera and feeds frames to VisionManager.
  */
 class UsbVideoSource(
-    private val context: Application
+    private val context: Application,
+    private val onCameraFps: (Float) -> Unit
 ) : VideoSource {
 
     companion object {
@@ -246,9 +247,12 @@ class UsbVideoSource(
                 GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0)
 
                 frames++
-                val delta = (System.currentTimeMillis() - time) / 1000
-                if (frames % 30 == 0) {
-                    println("Camera FPS ${frames.toFloat() / delta} (frames $frames, time $delta)")
+                val delta = (System.currentTimeMillis() - time).toFloat() / 1000
+                if (frames % 60 == 0) {
+                    onCameraFps(frames / delta)
+
+                    time = System.currentTimeMillis()
+                    frames = 0
                 }
 
                 usbVideoSourceListener?.onNewFrame(

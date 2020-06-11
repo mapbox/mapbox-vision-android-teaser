@@ -13,7 +13,6 @@ import com.mabpox.vision.teaser.common.R
 import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
 import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
-import com.mapbox.vision.VisionReplayManager
 import com.mapbox.vision.common.BaseVisionActivity
 import com.mapbox.vision.common.models.UiSign
 import com.mapbox.vision.common.utils.SoundsPlayer
@@ -151,7 +150,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         override fun onCameraUpdated(camera: Camera) {
             runOnUiThread {
                 calibrationProgress = camera.calibrationProgress
-                fps_performance_view.setCalibrationProgress(calibrationProgress)
+                debug_view.setCalibrationProgress(calibrationProgress)
                 lane_view.frameSize = ImageSize(
                     imageWidth = camera.frameWidth,
                     imageHeight = camera.frameHeight
@@ -167,7 +166,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         override fun onUpdateCompleted() {
             runOnUiThread {
                 if (visionManagerWasInit) {
-                    fps_performance_view.setFpsStatistics(getFrameStatistics())
+                    debug_view.setFpsStatistics(getFrameStatistics())
                 }
             }
         }
@@ -351,14 +350,14 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         lane_detection_button.setOnClickListener { setAppMode(AppMode.Lanes) }
 
         root.setOnLongClickListener {
-            if (fps_performance_view.visibility == View.GONE) {
-                fps_performance_view.show()
+            if (debug_view.visibility == View.GONE) {
+                debug_view.show()
             } else {
-                fps_performance_view.hide()
+                debug_view.hide()
             }
             return@setOnLongClickListener true
         }
-        fps_performance_view.hide()
+        debug_view.hide()
 
         tryToInitVisionManager()
 
@@ -490,7 +489,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
     }
 
     private fun setAppMode(mode: AppMode) {
-        fps_performance_view.resetAverageFps()
+        debug_view.resetAverageFps()
         soundsPlayer.stop()
 
         back.show()

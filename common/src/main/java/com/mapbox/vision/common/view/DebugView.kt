@@ -36,6 +36,7 @@ class DebugView @JvmOverloads constructor(
 
         apply_custom_fps.setOnClickListener {
             val fps = custom_fps.text.toString().toFloat()
+            println("Set fps $fps")
             VisionManager.setModelPerformance(
                 ModelPerformance.On(
                     mode = ModelPerformanceMode.FIXED,
@@ -63,10 +64,14 @@ class DebugView @JvmOverloads constructor(
     }
 
     fun setCalibrationProgress(calibrationProgress: Float) {
-        calibration_safety.text = context.getString(
+        calibration_progress.text = context.getString(
             R.string.calibration_progress,
             (calibrationProgress * 100).toInt()
         )
+    }
+
+    fun setCameraFps(fps: Float) {
+        camera_fps.text = context.getString(R.string.camera_fps, fps)
     }
 
     fun setTimestamp(timestamp: Long) {

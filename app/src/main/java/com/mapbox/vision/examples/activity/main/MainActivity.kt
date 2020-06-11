@@ -1,12 +1,14 @@
 package com.mapbox.vision.examples.activity.main
 
 import android.content.Intent
+import android.os.Debug
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import com.mapbox.vision.VisionManager
 import com.mapbox.vision.common.UsbVideoSource
 import com.mapbox.vision.common.view.BaseTeaserActivity
+import com.mapbox.vision.common.view.DebugView
 import com.mapbox.vision.common.view.show
 import com.mapbox.vision.examples.R
 import com.mapbox.vision.examples.activity.ar.ArMapActivity
@@ -29,7 +31,14 @@ class MainActivity : BaseTeaserActivity() {
 
     override fun initVisionManager(visionView: VisionView): Boolean {
         VisionManager.create(
-            UsbVideoSource(application)
+            UsbVideoSource(
+                application,
+                onCameraFps = {
+                    runOnUiThread {
+                        findViewById<DebugView>(R.id.debug_view).setCameraFps(it)
+                    }
+                }
+            )
         )
         visionView.setVisionManager(VisionManager)
         VisionManager.visionEventsListener = visionEventsListener

@@ -17,4 +17,6 @@
     <string name="vision_not_supported_message">Vision SDK does not support this device yet, check more details at &lt;a href=\"https://docs.mapbox.com/android/vision/overview/#requirements\">docs.mapbox.com&lt;/a></string>
     <string name="apply_custom_fps">Apply custom fps</string>
     <string name="fps_input">enter custom fps…</string>
+    <string name="camera_fps">Camera FPS: %.0f</string>
+
 </resources>

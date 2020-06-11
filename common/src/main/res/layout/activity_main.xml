@@ -147,7 +147,7 @@
     </FrameLayout>
 
     <com.mapbox.vision.common.view.DebugView
-        android:id="@+id/fps_performance_view"
+        android:id="@+id/debug_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
