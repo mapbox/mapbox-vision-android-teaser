@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import com.mapbox.vision.mobile.core.models.Country
 import com.mapbox.vision.mobile.core.models.classification.FrameSignClassifications
 import com.mapbox.vision.teaser.models.UiSign
 import com.mapbox.vision.teaser.utils.classification.Tracker
@@ -15,7 +16,11 @@ class SignDetectionFragment : BaseVisionFragment() {
 
     companion object {
         val TAG: String = SignDetectionFragment::class.java.simpleName
-        fun newInstance() = SignDetectionFragment()
+        fun newInstance(country: Country): SignDetectionFragment {
+            val fragment = SignDetectionFragment()
+            fragment.arguments = Bundle().apply { putInt("country", country.ordinal) }
+            return fragment
+        }
         private const val TRACKER_DEFAULT_COUNT = 5
     }
 
@@ -24,6 +29,7 @@ class SignDetectionFragment : BaseVisionFragment() {
     private var margin = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        country = Country.values()[arguments?.getInt("country") ?: Country.Unknown.ordinal]
         return inflater.inflate(R.layout.fragment_sign_detection, container, false)
     }
 

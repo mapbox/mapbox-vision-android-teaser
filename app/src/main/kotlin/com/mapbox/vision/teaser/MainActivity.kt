@@ -2,7 +2,6 @@ package com.mapbox.vision.teaser
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
@@ -58,7 +57,8 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         private const val START_AR_MAP_ACTIVITY_FOR_RECORDING_RESULT_CODE = 110
     }
 
-    var visionMode = Camera
+    private var country = Country.Unknown
+    private var visionMode = Camera
     private var sessionPath = ""
 
     private var isPermissionsGranted = false
@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private val visionEventsListener = object : VisionEventsListener {
 
         override fun onCountryUpdated(country: Country) {
+            this@MainActivity.country = country
             runOnUiThread {
                 requireBaseVisionFragment()?.updateCountry(country)
             }
@@ -316,7 +317,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
     private fun showSignDetectionFragment(stateLoss: Boolean = false) {
         vision_view.visualizationMode = VisualizationMode.Clear
-        val fragment = SignDetectionFragment.newInstance()
+        val fragment = SignDetectionFragment.newInstance(country)
         showFragment(fragment, SignDetectionFragment.TAG, stateLoss)
     }
 
@@ -447,7 +448,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         }
     }
 
-    override fun onActivityResult(requestCode:Int, resultCode: Int, data: Intent?) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             START_AR_MAP_ACTIVITY_FOR_NAVIGATION_RESULT_CODE -> {
                 if (resultCode == Activity.RESULT_OK && data != null) {
