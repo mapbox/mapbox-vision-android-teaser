@@ -68,8 +68,8 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private val visionEventsListener = object : VisionEventsListener {
 
         override fun onCountryUpdated(country: Country) {
-            this@MainActivity.country = country
             runOnUiThread {
+                this@MainActivity.country = country
                 requireBaseVisionFragment()?.updateCountry(country)
             }
         }
