@@ -5,7 +5,6 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import com.mapbox.vision.mobile.core.models.Country
 import com.mapbox.vision.teaser.utils.classification.SignResources
-import com.mapbox.vision.teaser.utils.dpToPx
 
 open class BaseVisionFragment : Fragment() {
 
