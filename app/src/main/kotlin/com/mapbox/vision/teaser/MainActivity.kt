@@ -176,7 +176,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
         initArNavigationButton()
         initReplayModeButton()
-        tryToInitVisionManager()
+        startVision()
     }
 
     private fun initRootLongTap() {
@@ -209,7 +209,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         }
     }
 
-    private fun tryToInitVisionManager() {
+    private fun startVision() {
         if (isPermissionsGranted && !visionManagerWasInit) {
             visionManagerWasInit = when (visionMode) {
                 Camera -> initVisionManagerCamera(vision_view)
@@ -218,28 +218,25 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         }
     }
 
-    private fun stopVisionManager() {
+    private fun stopVision() {
         if (isPermissionsGranted && visionManagerWasInit) {
             visionManagerWasInit = false
             when (visionMode) {
                 Camera -> destroyVisionManagerCamera()
-                Replay -> {
-                    destroyVisionManagerReplay()
-                    playback_seek_bar_view.onSeekBarChangeListener = null
-                }
+                Replay -> destroyVisionManagerReplay()
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        tryToInitVisionManager()
+        startVision()
         vision_view.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        stopVisionManager()
+        stopVision()
         vision_view.onPause()
     }
 
@@ -295,6 +292,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     }
 
     private fun destroyVisionManagerReplay() {
+        playback_seek_bar_view.onSeekBarChangeListener = null
         VisionReplayManager.stop()
         VisionReplayManager.destroy()
     }
@@ -363,16 +361,23 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     private fun showDashboardView() {
         dashboard_container.show()
         title_teaser.show()
+        playback_seek_bar_view.hide()
     }
 
     override fun onBackPressed() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         if (fragment != null) {
             if (!(fragment is OnBackPressedListener && fragment.onBackPressed())) {
+
+                if (fragment is RecorderFragment) {
+                    when (visionMode) {
+                        Camera -> VisionManager.setModelPerformance(modelPerformance)
+                        Replay -> VisionReplayManager.setModelPerformance(modelPerformance)
+                    }
+                }
+
                 if (supportFragmentManager.popBackStackImmediate() && supportFragmentManager.backStackEntryCount == 0) {
                     showDashboardView()
-                    title_teaser.show()
-                    playback_seek_bar_view.hide()
                 }
             }
         } else {
@@ -381,17 +386,17 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     }
 
     override fun onSessionSelected(sessionName: String) {
-        stopVisionManager()
+        stopVision()
         visionMode = Replay
         sessionPath = "$BASE_SESSION_PATH/$sessionName"
-        tryToInitVisionManager()
+        startVision()
     }
 
     override fun onCameraSelected() {
-        stopVisionManager()
+        stopVision()
         visionMode = Camera
         sessionPath = ""
-        tryToInitVisionManager()
+        startVision()
     }
 
     override fun onRecordingSelected() {
@@ -462,6 +467,9 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
                 val jsonRoute = data?.getStringExtra(ArMapActivity.ARG_RESULT_JSON_ROUTE)
                 onCameraSelected()
                 vision_view.visualizationMode = VisualizationMode.Clear
+
+                // set lowest model performance to allow fair 30 fps all the time
+                VisionManager.setModelPerformance(ModelPerformance.Off)
 
                 // Using state loss here to keep code simple, lost of RecorderFragment is not critical for UX
                 showRecorderFragment(jsonRoute, stateLoss = true)
