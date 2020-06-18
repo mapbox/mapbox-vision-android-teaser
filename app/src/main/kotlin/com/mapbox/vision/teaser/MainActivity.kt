@@ -80,6 +80,12 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
             }
         }
 
+        override fun onRoadDescriptionUpdated(roadDescription: RoadDescription) {
+            runOnUiThread {
+                requireLaneDetectionFragment()?.drawLanesDetection(roadDescription)
+            }
+        }
+
         override fun onVehicleStateUpdated(vehicleState: VehicleState) {
             runOnUiThread {
                 requireBaseVisionFragment()?.updateLastSpeed(vehicleState.speed)
@@ -162,7 +168,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         sign_detection_container.setOnClickListener { showSignDetectionFragment() }
         det_container.setOnClickListener { showObjectDetectionFragment() }
         distance_container.setOnClickListener { showSafetyFragment() }
-        line_detection_container.setOnClickListener { showLaneDetectionFragment() }
+        line_detection_container.setOnClickListener { showLaneFragment() }
 
         initRootLongTap()
         initRootTap()
@@ -315,6 +321,12 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
         showFragment(fragment, SignDetectionFragment.TAG, stateLoss)
     }
 
+    private fun showLaneFragment(stateLoss: Boolean = false) {
+        vision_view.visualizationMode = VisualizationMode.LaneDetection
+        val fragment = LaneFragment.newInstance()
+        showFragment(fragment, LaneFragment.TAG, stateLoss)
+    }
+
     private fun showSegmentationFragment(stateLoss: Boolean = false) {
         vision_view.visualizationMode = VisualizationMode.Segmentation
         showSegmentationDetectionFragment(stateLoss)
@@ -322,11 +334,6 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
     private fun showObjectDetectionFragment(stateLoss: Boolean = false) {
         vision_view.visualizationMode = VisualizationMode.Detection
-        showSegmentationDetectionFragment(stateLoss)
-    }
-
-    private fun showLaneDetectionFragment(stateLoss: Boolean = false) {
-        vision_view.visualizationMode = VisualizationMode.LaneDetection
         showSegmentationDetectionFragment(stateLoss)
     }
 
@@ -464,6 +471,8 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     }
 
     private fun requireSignDetectionFragment() = requireBaseVisionFragment() as? SignDetectionFragment
+
+    private fun requireLaneDetectionFragment() = requireBaseVisionFragment() as? LaneFragment
 
     private fun requireBaseVisionFragment() = supportFragmentManager.findFragmentById(R.id.fragment_container) as? BaseVisionFragment
 
