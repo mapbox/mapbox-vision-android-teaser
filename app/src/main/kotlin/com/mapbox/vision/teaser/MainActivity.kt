@@ -322,7 +322,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
     }
 
     private fun showLaneFragment(stateLoss: Boolean = false) {
-        vision_view.visualizationMode = VisualizationMode.Clear
+        vision_view.visualizationMode = VisualizationMode.LaneDetection
         val fragment = LaneFragment.newInstance()
         showFragment(fragment, LaneFragment.TAG, stateLoss)
     }
