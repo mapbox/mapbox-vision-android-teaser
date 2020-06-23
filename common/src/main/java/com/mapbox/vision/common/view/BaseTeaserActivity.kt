@@ -40,6 +40,27 @@ import com.mapbox.vision.view.DragRectView
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.back
+import kotlinx.android.synthetic.main.activity_main.btn_confirm_area
+import kotlinx.android.synthetic.main.activity_main.btn_reset_area
+import kotlinx.android.synthetic.main.activity_main.calibration_progress
+import kotlinx.android.synthetic.main.activity_main.dashboard_container
+import kotlinx.android.synthetic.main.activity_main.debug_view
+import kotlinx.android.synthetic.main.activity_main.detection_button
+import kotlinx.android.synthetic.main.activity_main.distance_to_car_label
+import kotlinx.android.synthetic.main.activity_main.drag_view
+import kotlinx.android.synthetic.main.activity_main.lane_detection_button
+import kotlinx.android.synthetic.main.activity_main.lane_detections_container
+import kotlinx.android.synthetic.main.activity_main.lane_detections_list
+import kotlinx.android.synthetic.main.activity_main.lane_view
+import kotlinx.android.synthetic.main.activity_main.root
+import kotlinx.android.synthetic.main.activity_main.safety_button
+import kotlinx.android.synthetic.main.activity_main.safety_mode_container
+import kotlinx.android.synthetic.main.activity_main.safety_view
+import kotlinx.android.synthetic.main.activity_main.segmentation_button
+import kotlinx.android.synthetic.main.activity_main.sign_info_container
+import kotlinx.android.synthetic.main.activity_main.signs_button
+import kotlinx.android.synthetic.main.activity_main.vision_view
 
 abstract class BaseTeaserActivity : BaseVisionActivity() {
 
@@ -55,6 +76,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         Segmentation,
         Classification,
         Detection,
+        BackDetection,
         Safety,
         Lanes
     }
@@ -172,133 +194,25 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         }
     }
 
-    protected val visionSafetyListener = object : VisionSafetyListener {
+    protected val safetyListener = object : VisionSafetyListener {
 
-        private var currentDangerLevel: CollisionDangerLevel = CollisionDangerLevel.None
+        override fun onCollisionsUpdated(collisions: Array<CollisionObject>) {}
 
-        private val distanceFormatter by lazy {
-            LocaleUtils().let { localeUtils ->
-                val language = localeUtils.inferDeviceLanguage(this@BaseTeaserActivity)
-                val unitType = localeUtils.getUnitTypeForDeviceLocale(this@BaseTeaserActivity)
-                val roundingIncrement = NavigationConstants.ROUNDING_INCREMENT_FIVE
-                DistanceFormatter(this@BaseTeaserActivity, language, unitType, roundingIncrement)
-            }
-        }
-
-        override fun onCollisionsUpdated(collisions: Array<CollisionObject>) {
-            if (appMode == AppMode.Safety) {
-                runOnUiThread {
-                    if (calibrationProgress == 1f) {
-                        calibration_progress.hide()
-                        distance_to_car_label.show()
-                        safety_view.show()
-
-                        val collision =
-                            collisions.firstOrNull {
-                                it.`object`.objectClass == DetectionClass.Car
-                            }
-
-                        if (collision == null) {
-                            soundsPlayer.stop()
-                            currentDangerLevel = CollisionDangerLevel.None
-                            distance_to_car_label.hide()
-                            safety_view.hide()
-                        } else {
-                            if (currentDangerLevel != collision.dangerLevel) {
-                                soundsPlayer.stop()
-                                when (collision.dangerLevel) {
-                                    CollisionDangerLevel.None -> Unit
-                                    CollisionDangerLevel.Warning -> soundsPlayer.playWarning()
-                                    CollisionDangerLevel.Critical -> soundsPlayer.playCritical()
-                                }
-                                currentDangerLevel = collision.dangerLevel
-                            }
-
-                            distance_to_car_label.show()
-                            safety_view.show()
-                            distance_to_car_label.text =
-                                distanceFormatter.formatDistance(collision.`object`.position.y)
-
-                            when (currentDangerLevel) {
-                                CollisionDangerLevel.None -> safety_view.clean()
-                                CollisionDangerLevel.Warning -> safety_view.drawWarnings(collisions)
-                                CollisionDangerLevel.Critical -> safety_view.drawCritical()
-                            }
+        override fun onBackCollisionsUpdated(collisions: Array<CollisionObject>) {
+            findViewById<VisionView>(R.id.vision_view).setCustomDetections(
+                collisions.map {
+                    Pair(
+                        it.lastDetection,
+                        when (it.dangerLevel) {
+                            CollisionDangerLevel.None, CollisionDangerLevel.Warning -> false
+                            CollisionDangerLevel.Critical -> true
                         }
-                    } else {
-                        calibration_progress.show()
-                        distance_to_car_label.hide()
-                        safety_view.hide()
-                    }
-                }
-            }
+                    )
+                }.toTypedArray()
+            )
         }
 
-        val speedLimitTranslation by lazy {
-            resources.getDimension(R.dimen.speed_limit_translation)
-        }
-
-        override fun onRoadRestrictionsUpdated(roadRestrictions: RoadRestrictions) {
-            runOnUiThread {
-                val imageResource = signResources.getSpeedSignResource(
-                    UiSign.WithNumber(
-                        signType = UiSign.SignType.SpeedLimit,
-                        signNumber = UiSign.SignNumber.fromNumber(roadRestrictions.speedLimits.car.max)
-                    ),
-                    speed = lastSpeed,
-                    country = country
-                )
-
-                speed_limit_current.animate().cancel()
-                speed_limit_next.animate().cancel()
-
-                speed_limit_current.apply {
-                    show()
-                    translationY = 0f
-                    alpha = 1f
-                    animate()
-                        .translationY(speedLimitTranslation / 2)
-                        .alpha(0f)
-                        .scaleX(0.5f)
-                        .scaleY(0.5f)
-                        .setDuration(500L)
-                        .setListener(
-                            object : Animator.AnimatorListener {
-                                override fun onAnimationRepeat(animation: Animator?) {}
-
-                                override fun onAnimationEnd(animation: Animator?) {
-                                    setImageResource(imageResource)
-                                    translationY = 0f
-                                    alpha = 1f
-                                    scaleX = 1f
-                                    scaleY = 1f
-                                    speed_limit_next.hide()
-                                }
-
-                                override fun onAnimationCancel(animation: Animator?) {}
-
-                                override fun onAnimationStart(animation: Animator?) {}
-                            }
-                        )
-                        .setInterpolator(AccelerateDecelerateInterpolator())
-                        .start()
-                }
-
-                if (roadRestrictions.speedLimits.car.max != 0f) {
-                    speed_limit_next.apply {
-                        translationY = -speedLimitTranslation
-                        setImageResource(imageResource)
-                        show()
-                        animate().translationY(0f)
-                            .setDuration(500L)
-                            .setInterpolator(AccelerateDecelerateInterpolator())
-                            .start()
-                    }
-                } else {
-                    speed_limit_next.hide()
-                }
-            }
-        }
+        override fun onRoadRestrictionsUpdated(roadRestrictions: RoadRestrictions) {}
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -345,7 +259,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         back.setOnClickListener { onBackClick() }
         segmentation_button.setOnClickListener { setAppMode(AppMode.Segmentation) }
         signs_button.setOnClickListener { setAppMode(AppMode.Classification) }
-        detection_button.setOnClickListener { setAppMode(AppMode.Detection) }
+        detection_button.setOnClickListener { setAppMode(AppMode.BackDetection) }
         safety_button.setOnClickListener { setAppMode(AppMode.Safety) }
         lane_detection_button.setOnClickListener { setAppMode(AppMode.Lanes) }
 
@@ -488,7 +402,7 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
         lane_detections_container.hide()
     }
 
-    private fun setAppMode(mode: AppMode) {
+    protected fun setAppMode(mode: AppMode) {
         debug_view.resetAverageFps()
         soundsPlayer.stop()
 
@@ -506,8 +420,9 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
                 tracker = Tracker(5)
                 sign_info_container.show()
             }
-            AppMode.Detection -> {
-                vision_view.visualizationMode = VisualizationMode.Detection
+            AppMode.Detection,
+            AppMode.BackDetection -> {
+                vision_view.visualizationMode = VisualizationMode.BackDetection
             }
             AppMode.Segmentation -> {
                 vision_view.visualizationMode = VisualizationMode.Segmentation

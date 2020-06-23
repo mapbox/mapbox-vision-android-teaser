@@ -1,7 +1,6 @@
 package com.mapbox.vision.examples.activity.main
 
 import android.content.Intent
-import android.os.Debug
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -46,7 +45,7 @@ class MainActivity : BaseTeaserActivity() {
         VisionManager.setModelPerformance(modelPerformance)
 
         VisionSafetyManager.create(VisionManager)
-        VisionSafetyManager.visionSafetyListener = visionSafetyListener
+        VisionSafetyManager.visionSafetyListener = safetyListener
 
         return true
     }

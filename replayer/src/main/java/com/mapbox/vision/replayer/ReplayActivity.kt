@@ -1,18 +1,17 @@
 package com.mapbox.vision.replayer
 
-import android.graphics.Rect
-import android.graphics.RectF
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.mapbox.vision.VisionReplayManager
 import com.mapbox.vision.common.view.BaseTeaserActivity
-import com.mapbox.vision.common.view.LaneView
-import com.mapbox.vision.common.view.hide
 import com.mapbox.vision.common.view.show
+import com.mapbox.vision.mobile.core.models.detection.FrameDetections
 import com.mapbox.vision.safety.VisionSafetyManager
-import com.mapbox.vision.view.DragRectView
+import com.mapbox.vision.safety.core.VisionSafetyListener
+import com.mapbox.vision.safety.core.models.CollisionObject
+import com.mapbox.vision.safety.core.models.RoadRestrictions
 import com.mapbox.vision.view.VisionView
 
 class ReplayActivity : BaseTeaserActivity(), SessionsFragment.SessionChangeListener {
@@ -50,7 +49,7 @@ class ReplayActivity : BaseTeaserActivity(), SessionsFragment.SessionChangeListe
         visionView.setVisionManager(VisionReplayManager)
 
         VisionSafetyManager.create(VisionReplayManager)
-        VisionSafetyManager.visionSafetyListener = visionSafetyListener
+        VisionSafetyManager.visionSafetyListener = safetyListener
 
         return true
     }
