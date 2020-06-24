@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.13.0
+
+### Technical improvements
+
+- Improved rendering engine for Detection, Segmentation, Lane visualizations & AR
+- Recognizing Okinawa as part of Japan
+
+### User experience
+
+- Added Replay & Recording modes 
+- Added support of the reverse landscape orientation 
+- Added Lane Detection mode 
+- Added Camera default resolution: 960x540 
+
 ## 0.12.0
 This version of the Vision Teaser includes improvements in algorithm performance, camera calibration process, 
 and lane detection accuracy. 
