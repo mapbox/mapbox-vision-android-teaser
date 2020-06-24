@@ -4,7 +4,7 @@
 
 ### Technical improvements
 
-- Improved rendering engine for Detection, Segmentation, Lane visualizations & AR
+- Integrated new rendering engine for Detection, Segmentation, Lane visualizations & AR
 - Recognizing Okinawa as part of Japan
 
 ### User experience
