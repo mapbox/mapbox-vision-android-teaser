@@ -31,11 +31,11 @@ object PermissionsUtils {
 
     fun arePermissionsGranted(activity: MainActivity, requestCode: Int) =
         requestCode == PERMISSIONS_REQUEST_CODE &&
-                getNotGrantedPermissions(activity).none { permission ->
-                    // these permissions are optional
-                    permission != PERMISSION_FOREGROUND_SERVICE &&
-                    permission != PERMISSION_C2M &&
-                    permission != PERMISSION_REFERRER
+        getNotGrantedPermissions(activity).none { permission ->
+            // these permissions are optional
+            permission != PERMISSION_FOREGROUND_SERVICE &&
+            permission != PERMISSION_C2M &&
+            permission != PERMISSION_REFERRER
         }
 
     fun getNotGrantedPermissions(activity: MainActivity): Array<String> =
