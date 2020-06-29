@@ -1,18 +1,14 @@
 package com.mapbox.vision.common.view
 
-import android.animation.Animator
 import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.graphics.RectF
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
+import android.widget.Switch
 import com.mabpox.vision.teaser.common.R
-import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
-import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
-import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
 import com.mapbox.vision.common.BaseVisionActivity
 import com.mapbox.vision.common.models.UiSign
 import com.mapbox.vision.common.utils.SoundsPlayer
@@ -23,7 +19,6 @@ import com.mapbox.vision.mobile.core.models.Camera
 import com.mapbox.vision.mobile.core.models.Country
 import com.mapbox.vision.mobile.core.models.FrameStatistics
 import com.mapbox.vision.mobile.core.models.classification.FrameSignClassifications
-import com.mapbox.vision.mobile.core.models.detection.DetectionClass
 import com.mapbox.vision.mobile.core.models.frame.ImageSize
 import com.mapbox.vision.mobile.core.models.position.VehicleState
 import com.mapbox.vision.mobile.core.models.road.LaneDirection
@@ -40,27 +35,6 @@ import com.mapbox.vision.view.DragRectView
 import com.mapbox.vision.view.VisionView
 import com.mapbox.vision.view.VisualizationMode
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.back
-import kotlinx.android.synthetic.main.activity_main.btn_confirm_area
-import kotlinx.android.synthetic.main.activity_main.btn_reset_area
-import kotlinx.android.synthetic.main.activity_main.calibration_progress
-import kotlinx.android.synthetic.main.activity_main.dashboard_container
-import kotlinx.android.synthetic.main.activity_main.debug_view
-import kotlinx.android.synthetic.main.activity_main.detection_button
-import kotlinx.android.synthetic.main.activity_main.distance_to_car_label
-import kotlinx.android.synthetic.main.activity_main.drag_view
-import kotlinx.android.synthetic.main.activity_main.lane_detection_button
-import kotlinx.android.synthetic.main.activity_main.lane_detections_container
-import kotlinx.android.synthetic.main.activity_main.lane_detections_list
-import kotlinx.android.synthetic.main.activity_main.lane_view
-import kotlinx.android.synthetic.main.activity_main.root
-import kotlinx.android.synthetic.main.activity_main.safety_button
-import kotlinx.android.synthetic.main.activity_main.safety_mode_container
-import kotlinx.android.synthetic.main.activity_main.safety_view
-import kotlinx.android.synthetic.main.activity_main.segmentation_button
-import kotlinx.android.synthetic.main.activity_main.sign_info_container
-import kotlinx.android.synthetic.main.activity_main.signs_button
-import kotlinx.android.synthetic.main.activity_main.vision_view
 
 abstract class BaseTeaserActivity : BaseVisionActivity() {
 
@@ -200,15 +174,18 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
 
         override fun onBackCollisionsUpdated(collisions: Array<CollisionObject>) {
             findViewById<VisionView>(R.id.vision_view).setCustomDetections(
-                collisions.map {
-                    Pair(
-                        it.lastDetection,
-                        when (it.dangerLevel) {
-                            CollisionDangerLevel.None, CollisionDangerLevel.Warning -> false
-                            CollisionDangerLevel.Critical -> true
-                        }
-                    )
-                }.toTypedArray()
+                warningDetections = collisions
+                    .filter {
+                        it.dangerLevel == CollisionDangerLevel.Warning
+                    }
+                    .map { it.lastDetection }
+                    .toTypedArray(),
+                dangerDetections = collisions
+                    .filter {
+                        it.dangerLevel == CollisionDangerLevel.Critical
+                    }
+                    .map { it.lastDetection }
+                    .toTypedArray()
             )
         }
 
@@ -271,7 +248,16 @@ abstract class BaseTeaserActivity : BaseVisionActivity() {
             }
             return@setOnLongClickListener true
         }
-        debug_view.hide()
+
+        debug_view.findViewById<Switch>(R.id.detections_switch_bg).setOnCheckedChangeListener { buttonView, isChecked ->
+            vision_view.drawBackgroundDetections = isChecked
+        }
+        debug_view.findViewById<Switch>(R.id.detections_switch_warning).setOnCheckedChangeListener { buttonView, isChecked ->
+            vision_view.drawWarningDetections = isChecked
+        }
+        debug_view.findViewById<Switch>(R.id.detections_switch_critical).setOnCheckedChangeListener { buttonView, isChecked ->
+            vision_view.drawDangerDetections = isChecked
+        }
 
         tryToInitVisionManager()
 

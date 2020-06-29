@@ -18,5 +18,9 @@
     <string name="apply_custom_fps">Apply custom fps</string>
     <string name="fps_input">enter custom fps…</string>
     <string name="camera_fps">Camera FPS: %.0f</string>
+    <string name="detections_filter">Detections filter:</string>
+    <string name="detections_bg">Background</string>
+    <string name="detections_warning">Warning</string>
+    <string name="detections_danger">Danger</string>
 
 </resources>

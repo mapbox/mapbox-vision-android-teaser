@@ -43,6 +43,11 @@
         android:textSize="18sp"
         tools:text="camera fps"/>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black_70_transparent"/>
+
     <EditText
         android:id="@+id/custom_fps"
         android:layout_width="match_parent"
@@ -59,5 +64,44 @@
         android:textColor="@color/black"
         android:textSize="18sp"
         android:text="@string/apply_custom_fps"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black_70_transparent"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:text="Detections filter : "/>
+
+    <Switch
+        android:id="@+id/detections_switch_bg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:checked="true"
+        android:text="@string/detections_bg"/>
+
+    <Switch
+        android:id="@+id/detections_switch_warning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:checked="true"
+        android:text="@string/detections_warning"/>
+
+    <Switch
+        android:id="@+id/detections_switch_critical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:checked="true"
+        android:text="@string/detections_danger"/>
 
 </merge>
