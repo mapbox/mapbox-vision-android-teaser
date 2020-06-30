@@ -13,6 +13,8 @@
 - Added reverse landscape orientation support
 - Added lane visualization to Lane Detection mode
 - Changed camera default resolution to 960x540 if supported
+- Fix bug with speed estimation when a vehicle has stopped
+- Introduce automatic camera recalibration
 
 ## 0.12.0
 This version of the Vision Teaser includes improvements in algorithm performance, camera calibration process, 
