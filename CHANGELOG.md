@@ -4,15 +4,15 @@
 
 ### Technical improvements
 
-- Integrated new rendering engine for Object & Lane Detection, Segmentation & AR
-- Added Okinawa as part of Japan
+- Integrate new rendering engine for Object & Lane Detection, Segmentation & AR
+- Add Okinawa as part of Japan
 
 ### User experience
 
-- Added Replay & Recording modes 
-- Added reverse landscape orientation support
-- Added lane visualization to Lane Detection mode
-- Changed camera default resolution to 960x540 if supported
+- Add Replay & Recording modes 
+- Add reverse landscape orientation support
+- Add lane visualization to Lane Detection mode
+- Chang camera default resolution to 960x540 if supported
 - Fix bug with speed estimation when a vehicle has stopped
 - Introduce automatic camera recalibration
 
