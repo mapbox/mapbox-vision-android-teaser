@@ -7,7 +7,7 @@ The latest version of the Vision Teaser brings automatic camera recalibration an
 - Add Replay & Recording modes 
 - Add reverse landscape orientation support
 - Add lane visualization to Lane Detection mode
-- Chang camera default resolution to 960x540 if supported
+- Change camera default resolution to 960x540 if supported
 - Improve lane detection
 - Introduce automatic camera recalibration
 - Stop sending some inaccurate events until the camera is calibrated
