@@ -18,7 +18,7 @@ ext {
 
     vision = '0.13.0'
     teaser_version_name = '0.13.0'
-    teaser_version_code = 24
+    teaser_version_code = 25
 
     mapbox_navigation = '0.42.5'
     mapbox_sdk = '9.0.0'
