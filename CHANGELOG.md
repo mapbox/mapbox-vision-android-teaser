@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.13.0
+
+The latest version of the Vision Teaser brings automatic camera recalibration and improvements in lane detection. The full list of changes:
+
+- Add Replay & Recording modes 
+- Add reverse landscape orientation support
+- Add lane visualization to Lane Detection mode
+- Change camera default resolution to 960x540 if supported
+- Improve lane detection
+- Introduce automatic camera recalibration
+- Stop sending some inaccurate events until the camera is calibrated
+- Fix bug that prevented new China users authorization
+- Fix bug with speed estimation when a vehicle has stopped
+- Integrate new rendering engine for Object & Lane Detection, Segmentation & AR
+- Expand Japan region to include Okinawa
+
 ## 0.12.0
 This version of the Vision Teaser includes improvements in algorithm performance, camera calibration process, 
 and lane detection accuracy. 

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_width="@dimen/ar_switch_width"
+        android:layout_height="@dimen/ar_switch_height"
+        android:id="@+id/ar_mode_view"
+        android:layout_marginStart="@dimen/ar_switch_margin_start"
+        android:layout_marginBottom="@dimen/ar_switch_margin_bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:translationZ="1dp"
+        tools:src="@drawable/ar_mode_lane"/>
+
+    <com.mapbox.vision.ar.view.gl.VisionArView
+        android:id="@+id/ar_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <FrameLayout
+        android:id="@+id/map_container"
+        android:layout_width="250dp"
+        android:layout_height="match_parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.mapbox.vision.teaser.view.PlaybackSeekBarView
+        android:id="@+id/playback_seek_bar_view"
+        android:layout_width="0dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/map_container"
+        app:layout_constraintStart_toStartOf="parent"
+        style="@style/PlaybackSeekBarViewStyle" />
+
+    <ImageView
+        android:id="@+id/back"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="18dp"
+        android:src="@drawable/ic_back"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/playback_seek_bar_view" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

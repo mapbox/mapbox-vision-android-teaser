@@ -5,7 +5,7 @@ from utils.command_runner import CommandRunner
 from utils.device_executor import DeviceExecutor
 
 PROJECT_FOLDER = '../../'
-BUILD_RELEASE_COMMAND = './gradlew clean :app:assembleRelease'
+BUILD_RELEASE_COMMAND = './gradlew clean :app:assembleRelease -PDISABLE_TELEMETRY=true'
 TEASER_APK_FILE_PATH = PROJECT_FOLDER + 'app/build/outputs/apk/release/app-arm64-v8a-release.apk'
 OUTPUT_FOLDER = PROJECT_FOLDER + 'app/build/outputs/smoke-test'
 PACKAGE_NAME = 'com.mapbox.vision.teaser'
