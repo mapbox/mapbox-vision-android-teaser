@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.mapbox.vision.examples">
@@ -28,8 +29,12 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
+        <service
+            android:name=".ConnectService"
+            android:enabled="true" />
+
         <activity
-            android:name="com.mapbox.vision.examples.activity.main.MainActivity"
+            android:name=".activity.main.MainActivity"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,19 +42,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name="com.mapbox.vision.examples.activity.map.MapActivity"
+            android:name=".activity.ar.ArMapActivity"
             android:screenOrientation="landscape" />
-
         <activity
-            android:name="com.mapbox.vision.examples.activity.ar.ArMapActivity"
+            android:name=".activity.ar.ArNavigationActivity"
             android:screenOrientation="landscape" />
-
-        <activity
-            android:name="com.mapbox.vision.examples.activity.ar.ArNavigationActivity"
-            android:screenOrientation="landscape" />
-
     </application>
 
 </manifest>
