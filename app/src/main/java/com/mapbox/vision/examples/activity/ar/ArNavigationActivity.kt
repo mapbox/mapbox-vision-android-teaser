@@ -1,9 +1,14 @@
 package com.mapbox.vision.examples.activity.ar
 
 import android.app.Activity
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.location.Location
 import android.os.Bundle
+import android.os.IBinder
+import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -27,8 +32,10 @@ import com.mapbox.vision.ar.core.models.RoutePoint
 import com.mapbox.vision.common.models.ArFeature
 import com.mapbox.vision.common.utils.buildStepPointsFromGeometry
 import com.mapbox.vision.common.utils.mapToManeuverType
+import com.mapbox.vision.examples.ConnectService
 import com.mapbox.vision.examples.DemoApplication
 import com.mapbox.vision.examples.R
+import com.mapbox.vision.examples.activity.main.MainActivity
 import com.mapbox.vision.mobile.core.models.CameraParameters
 import com.mapbox.vision.mobile.core.models.position.GeoCoordinate
 import com.mapbox.vision.performance.ModelPerformance
@@ -82,7 +89,33 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
             }
         }
     }
+    val connection = object : ServiceConnection {
+        override fun onServiceDisconnected(name: ComponentName?) {
+            Log.e(MainActivity.TAG, "onServiceDisconnected")
 
+        }
+
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            Log.e(TAG, "onServiceConnected")
+
+            (service as ConnectService.ServiceBinder).register(object : ConnectService.MessageReceiver {
+                override fun onReceive(x: Double, y: Double, z: Double) {
+                    Log.e(TAG, "receive x:$x, y:$y, z: $z")
+                    VisionManager.setDeviceMotion(
+                            accelerationX = x.toFloat(), // acceleration to the front, m/s2
+                            accelerationY = y.toFloat(), // acceleration to the left, m/s2
+                            accelerationZ = z.toFloat(), // acceleration to the top, m/s2
+                            orientationX = 0f,  // angle along X axis, radians, zero if parallel to X, negative rotated clockwise
+                            orientationY = -Math.PI.toFloat() / 2,  // angle along Y axis, radians, -PI/2 if parallel to Z, 0 if camera points to bottom
+                            orientationZ = 0f,  // angle along Z axis, radians
+                            gyroscopeX = 0f,    // acceleration along X axis, rad/s
+                            gyroscopeY = 0f,    // acceleration along Y axis, rad/s
+                            gyroscopeZ = 0f)     // acceleration along Z axis, rad/s)
+                }
+            })
+        }
+
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onCreate(savedInstanceState)
@@ -142,7 +175,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
                         focalInPixelsY = 720f * 6.0f / 3.38f
                 )
         )
-        VisionManager.create(externalVideoSource)
+        VisionManager.create(externalVideoSource, false)
         VisionManager.start()
         VisionManager.setModelPerformanceConfig(
             ModelPerformanceConfig.Merged(
@@ -165,6 +198,9 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
                 setRoute(it)
             }
         }
+
+        val bindService = applicationContext.bindService(Intent(this, ConnectService::class.java), connection, Context.BIND_AUTO_CREATE)
+
     }
 
     override fun onPause() {
@@ -179,6 +215,7 @@ class ArNavigationActivity : AppCompatActivity(), RouteListener, ProgressChangeL
         mapboxNavigation.removeProgressChangeListener(this)
         mapboxNavigation.removeOffRouteListener(this)
         mapboxNavigation.stopNavigation()
+        unbindService(connection)
     }
 
     override fun onErrorReceived(throwable: Throwable?) {

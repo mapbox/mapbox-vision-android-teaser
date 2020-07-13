@@ -108,7 +108,11 @@ class ConnectService : Service() {
 
                         val json = JSONObject(String(resp))
                         val cmdType = json.getString("type")
+                        Log.e(TAG,"receive message type:"+ cmdType)
+
                         if (cmdType == "getgsensordata_res") {
+                            Log.e(TAG,"receive getgsensordata_res")
+
                             var x = 0.0
                             var y = 0.0
                             var z = 0.0
@@ -151,7 +155,7 @@ class ConnectService : Service() {
             }
         } catch (e: Exception) {
             receiveThreadRunning = false
-            Log.e(TAG, e.toString())
+            Log.e(TAG,"==============connect failed:"+ e.toString())
         }
     }
 

@@ -35,10 +35,12 @@ class MainActivity : BaseTeaserActivity() {
             show()
         }
     }
+
+    private var connect: Boolean = false
     val connection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
             Log.e(TAG, "onServiceDisconnected")
-
+            connect = true
         }
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -47,6 +49,7 @@ class MainActivity : BaseTeaserActivity() {
             (service as ConnectService.ServiceBinder).register(object : ConnectService.MessageReceiver {
                 override fun onReceive(x: Double, y: Double, z: Double) {
                     Log.e(TAG, "receive x:$x, y:$y, z: $z")
+                    if(!connect) return
                     VisionManager.setDeviceMotion(
                             accelerationX = x.toFloat(), // acceleration to the front, m/s2
                             accelerationY = y.toFloat(), // acceleration to the left, m/s2
@@ -64,14 +67,14 @@ class MainActivity : BaseTeaserActivity() {
     }
     override fun onResume() {
         super.onResume()
-        val bindService = applicationContext.bindService(Intent(this, ConnectService::class.java), connection, Context.BIND_AUTO_CREATE)
-        Log.e(TAG, "onResume, bind service::$bindService")
-
+//        val bindService = applicationContext.bindService(Intent(this, ConnectService::class.java), connection, Context.BIND_AUTO_CREATE)
     }
 
     override fun onPause() {
         super.onPause()
-        unbindService(connection)
+//        if(connect) {
+//            unbindService(connection)
+//        }
     }
     override fun getFrameStatistics() = VisionManager.getFrameStatistics()
 
