@@ -29,12 +29,10 @@ ext {
     ktlint_version = '0.36.0'
     android_sdk_versions_plugin = '1.0.0'
 
-    gms_google_services_version = '4.3.3'
-    firebase_crashlytics_plugin_version = '2.0.0-beta02'
-    firebase_perf_plugin_version = '1.3.1'
-    firebase_crashlytics_version = '17.0.0-beta01'
-    firebase_perf_version = '19.0.5'
-    firebase_analytics_version = '17.2.3'
+    google_gms_services_version = '4.3.5'
+    google_firebase_crashlytics_plugin_version = '2.5.2'
+    google_firebase_perf_plugin_version = '1.3.5'
+    google_firebase_bom_version = '26.8.0'
 
     leak_canary = '2.3'
 }
