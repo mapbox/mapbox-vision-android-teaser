@@ -15,9 +15,9 @@ buildscript {
         classpath "de.mannodermaus.gradle.plugins:android-junit5:$mannodermaus_junit5_version"
         classpath "pl.droidsonroids.gradle:gradle-pitest-plugin:$gradle_pitest_plugin_version"
         classpath "com.mapbox.mapboxsdk:mapbox-android-sdk-versions:$android_sdk_versions_plugin"
-        classpath "com.google.gms:google-services:$gms_google_services_version"
-        classpath "com.google.firebase:firebase-crashlytics-gradle:$firebase_crashlytics_plugin_version"
-        classpath "com.google.firebase:perf-plugin:$firebase_perf_plugin_version"
+        classpath "com.google.gms:google-services:$google_gms_services_version"
+        classpath "com.google.firebase:firebase-crashlytics-gradle:$google_firebase_crashlytics_plugin_version"
+        classpath "com.google.firebase:perf-plugin:$google_firebase_perf_plugin_version"
     }
 }
 
