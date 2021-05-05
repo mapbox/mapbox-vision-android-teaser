@@ -28,25 +28,16 @@ allprojects {
         maven { url 'https://mapbox.bintray.com/mapbox' }
 
         maven {
-            credentials {
-                username project.properties['mapboxMavenUser'] ?: ""
-                password project.properties['mapboxMavenToken'] ?: ""
-            }
+            url 'https://api.mapbox.com/downloads/v2/releases/maven'
             authentication {
                 basic(BasicAuthentication)
             }
-
-            url 'https://api.mapbox.com/downloads/v1/vision/android/maven'
-        }
-
-        if (gradle.ext.has('BUILD_CORE_FROM_SOURCE')) {
-            maven {
-                credentials {
-                    username project.properties['bintrayUser'] ?: System.getenv("MAPBOX_BINTRAY_PRIVATE_USER") ?: ""
-                    password project.properties['bintrayApiKey'] ?: System.getenv("MAPBOX_BINTRAY_PRIVATE_TOKEN") ?: ""
-                }
-
-                url 'https://mapbox.bintray.com/mapbox_private'
+            credentials {
+                // Do not change the username below.
+                // This should always be `mapbox` (not your username).
+                username = 'mapbox'
+                // Use the secret token you stored in gradle.properties as the password
+                password = project.properties['MAPBOX_DOWNLOADS_TOKEN'] ?: ""
             }
         }
     }
