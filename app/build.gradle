@@ -106,6 +106,7 @@ dependencies {
     api "androidx.constraintlayout:constraintlayout:$android_x_constraint_layout"
     api "androidx.core:core-ktx:$android_x_ktx"
     api "androidx.multidex:multidex:$android_x_multidex"
+    api "androidx.swiperefreshlayout:swiperefreshlayout:$android_x_swipe_refresh"
 
     if (gradle.ext.has('BUILD_CORE_FROM_SOURCE') && gradle.ext.BUILD_CORE_FROM_SOURCE.toBoolean()) {
         api project(path: ':mapbox-android-vision')
@@ -123,9 +124,10 @@ dependencies {
     api "com.google.firebase:firebase-analytics-ktx"
     api "com.google.firebase:firebase-crashlytics-ndk"
 
-    api "com.mapbox.mapboxsdk:mapbox-android-sdk:$mapbox_sdk"
-    api "com.mapbox.mapboxsdk:mapbox-android-navigation:$mapbox_navigation"
-    api "com.mapbox.mapboxsdk:mapbox-android-navigation-ui:$mapbox_navigation"
+    implementation("com.mapbox.mapboxsdk:mapbox-android-sdk:$mapbox_maps") {
+        exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-telemetry-okhttp3'
+    }
+    api "com.mapbox.navigation:ui:$mapbox_navigation"
 
     debugImplementation "com.squareup.leakcanary:leakcanary-android:$leak_canary"
 

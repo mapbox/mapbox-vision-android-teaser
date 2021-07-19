@@ -25,7 +25,6 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven { url 'https://mapbox.bintray.com/mapbox' }
 
         maven {
             url 'https://api.mapbox.com/downloads/v2/releases/maven'
