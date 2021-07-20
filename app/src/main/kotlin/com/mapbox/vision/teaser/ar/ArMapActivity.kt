@@ -2,16 +2,13 @@ package com.mapbox.vision.teaser.ar
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.location.Location
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.mapbox.android.core.location.LocationEngineCallback
-import com.mapbox.android.core.location.LocationEngineProvider
-import com.mapbox.android.core.location.LocationEngineRequest
-import com.mapbox.android.core.location.LocationEngineResult
-import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.api.directions.v5.models.DirectionsRoute
+import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.Marker
@@ -24,26 +21,26 @@ import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute
-import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute
+import com.mapbox.navigation.base.internal.extensions.applyDefaultParams
+import com.mapbox.navigation.core.MapboxNavigation
+import com.mapbox.navigation.core.directions.session.RoutesRequestCallback
+import com.mapbox.navigation.core.trip.session.LocationObserver
+import com.mapbox.navigation.ui.route.NavigationMapRoute
 import com.mapbox.vision.teaser.R
-import com.mapbox.vision.utils.VisionLogger
+import com.mapbox.vision.teaser.utils.buildNavigationOptions
 import kotlinx.android.synthetic.main.activity_ar_map.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapReadyCallback {
 
     companion object {
         private val TAG = ArMapActivity::class.java.simpleName
-        private const val MAP_STYLE = "mapbox://styles/mapbox/dark-v10"
         const val ARG_RESULT_JSON_ROUTE = "ARG_RESULT_JSON_ROUTE"
     }
 
     private var originPoint: Point? = null
 
     private lateinit var mapboxMap: MapboxMap
+    private var mapboxNavigation: MapboxNavigation? = null
 
     private var destinationMarker: Marker? = null
 
@@ -51,27 +48,15 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
     private var navigationMapRoute: NavigationMapRoute? = null
     private var locationComponent: LocationComponent? = null
 
-    private val arLocationEngine by lazy {
-        LocationEngineProvider.getBestLocationEngine(this)
-    }
-
-    private val arLocationEngineRequest by lazy {
-        LocationEngineRequest.Builder(0)
-                .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
-                .build()
-    }
-
-    private val locationCallback by lazy {
-        object : LocationEngineCallback<LocationEngineResult> {
-            override fun onSuccess(result: LocationEngineResult?) {
-                with(result as LocationEngineResult) {
-                    originPoint = Point.fromLngLat(lastLocation?.longitude ?: .0, lastLocation?.latitude ?: .0)
-                }
-            }
-
-            override fun onFailure(exception: Exception) {
-            }
+    private val locationObserver = object : LocationObserver {
+        override fun onEnhancedLocationChanged(enhancedLocation: Location, keyPoints: List<Location>) {
+            originPoint = Point.fromLngLat(
+                enhancedLocation.longitude,
+                enhancedLocation.latitude
+            )
         }
+
+        override fun onRawLocationChanged(rawLocation: Location) {}
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,12 +80,16 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
                 Toast.makeText(this, "Route is not ready yet!", Toast.LENGTH_LONG).show()
             }
         }
+
+        mapboxNavigation = MapboxNavigation(buildNavigationOptions())
     }
 
     override fun onStart() {
         super.onStart()
         mapView.onStart()
         mapView.getMapAsync(this)
+        mapboxNavigation?.startTripSession()
+        mapboxNavigation?.registerLocationObserver(locationObserver)
     }
 
     override fun onResume() {
@@ -116,7 +105,8 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
     override fun onStop() {
         super.onStop()
         mapView.onStop()
-        arLocationEngine.removeLocationUpdates(locationCallback)
+        mapboxNavigation?.unregisterLocationObserver(locationObserver)
+        mapboxNavigation?.stopTripSession()
     }
 
     override fun onDestroy() {
@@ -155,7 +145,7 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
-        mapboxMap.setStyle(Style.Builder().fromUri(MAP_STYLE)) {
+        mapboxMap.setStyle(Style.Builder().fromUri(Style.DARK)) {
             enableLocationComponent()
         }
 
@@ -163,61 +153,57 @@ class ArMapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRe
     }
 
     private fun getRoute(origin: Point, destination: Point) {
-        NavigationRoute.builder(this)
-            .accessToken(Mapbox.getAccessToken()!!)
-            .origin(origin)
-            .destination(destination)
-            .build()
-            .getRoute(object : Callback<DirectionsResponse> {
-                override fun onResponse(call: Call<DirectionsResponse>, response: Response<DirectionsResponse>) {
-                    if (response.body() == null || response.body()!!.routes().size == 0) {
-                        return
-                    }
-
-                    currentRoute = response.body()!!.routes()[0]
+        mapboxNavigation?.requestRoutes(
+            routeOptions = RouteOptions.builder()
+                .applyDefaultParams()
+                .accessToken(Mapbox.getAccessToken()!!)
+                .coordinates(listOf(origin, destination))
+                .build(),
+            routesRequestCallback = object : RoutesRequestCallback {
+                override fun onRoutesReady(routes: List<DirectionsRoute>) {
+                    currentRoute = routes.first()
 
                     // Draw the route on the map
                     if (navigationMapRoute == null) {
-                        navigationMapRoute = NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute)
+                        navigationMapRoute = NavigationMapRoute.Builder(
+                            mapView,
+                            mapboxMap,
+                            this@ArMapActivity,
+                        )
+                            .withStyle(R.style.MapboxStyleNavigationMapRoute)
+                            .build()
                     } else {
                         navigationMapRoute?.updateRouteVisibilityTo(false)
                     }
                     navigationMapRoute?.addRoute(currentRoute)
                 }
 
-                override fun onFailure(call: Call<DirectionsResponse>, throwable: Throwable) {}
-            })
+                override fun onRoutesRequestCanceled(routeOptions: RouteOptions) {
+                    Toast.makeText(this@ArMapActivity, "Route request canceled!", Toast.LENGTH_LONG).show()
+                }
+
+                override fun onRoutesRequestFailure(throwable: Throwable, routeOptions: RouteOptions) {
+                    Toast.makeText(this@ArMapActivity, "Route request failure!", Toast.LENGTH_LONG).show()
+                }
+            }
+        )
     }
 
     @SuppressLint("MissingPermission")
     private fun enableLocationComponent() {
-        initializeLocationEngine()
-
         val locationComponentOptions = LocationComponentOptions.builder(this)
-                .build()
+            .build()
         locationComponent = mapboxMap.locationComponent
 
         val locationComponentActivationOptions = LocationComponentActivationOptions
-                .builder(this, mapboxMap.style!!)
-                .locationEngine(arLocationEngine)
-                .locationComponentOptions(locationComponentOptions)
-                .build()
+            .builder(this, mapboxMap.style!!)
+            .locationComponentOptions(locationComponentOptions)
+            .build()
 
         locationComponent?.let {
             it.activateLocationComponent(locationComponentActivationOptions)
             it.isLocationComponentEnabled = true
             it.cameraMode = CameraMode.TRACKING
         }
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun initializeLocationEngine() {
-        try {
-            arLocationEngine.requestLocationUpdates(arLocationEngineRequest, locationCallback, mainLooper)
-        } catch (se: SecurityException) {
-            VisionLogger.d(TAG, se.toString())
-        }
-
-        arLocationEngine.getLastLocation(locationCallback)
     }
 }

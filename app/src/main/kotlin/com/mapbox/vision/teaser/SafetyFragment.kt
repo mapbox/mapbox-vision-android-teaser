@@ -6,9 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
-import com.mapbox.services.android.navigation.v5.navigation.NavigationConstants
-import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter
-import com.mapbox.services.android.navigation.v5.utils.LocaleUtils
+import com.mapbox.navigation.base.internal.extensions.LocaleEx.getUnitTypeForLocale
+import com.mapbox.navigation.base.internal.extensions.inferDeviceLanguage
+import com.mapbox.navigation.base.internal.extensions.inferDeviceLocale
+import com.mapbox.navigation.core.Rounding
+import com.mapbox.navigation.core.internal.formatter.MapboxDistanceFormatter
 import com.mapbox.vision.mobile.core.models.detection.DetectionClass
 import com.mapbox.vision.safety.VisionSafetyManager
 import com.mapbox.vision.safety.core.VisionSafetyListener
@@ -72,13 +74,19 @@ class SafetyFragment : BaseVisionFragment() {
         private var currentDangerLevel: CollisionDangerLevel = CollisionDangerLevel.None
 
         private val distanceFormatter by lazy {
-            LocaleUtils().let { localeUtils ->
-                val activity = requireActivity()
-                val language = localeUtils.inferDeviceLanguage(activity)
-                val unitType = localeUtils.getUnitTypeForDeviceLocale(activity)
-                val roundingIncrement = NavigationConstants.ROUNDING_INCREMENT_FIVE
-                DistanceFormatter(activity, language, unitType, roundingIncrement)
-            }
+            MapboxDistanceFormatter.Builder(
+                requireContext(),
+            )
+                .locale(
+                    requireActivity().inferDeviceLocale(),
+                )
+                .roundingIncrement(
+                    Rounding.INCREMENT_FIVE
+                )
+                .unitType(
+                    requireActivity().inferDeviceLocale().getUnitTypeForLocale(),
+                )
+                .build()
         }
 
         override fun onCollisionsUpdated(collisions: Array<CollisionObject>) {
