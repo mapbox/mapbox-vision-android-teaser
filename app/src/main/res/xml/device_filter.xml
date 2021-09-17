@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<usb>
+    <usb-device class="239" subclass="2" /> <!--any UVC device-->
+</usb>

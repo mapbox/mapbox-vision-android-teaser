@@ -39,5 +39,7 @@ allprojects {
                 password = project.properties['MAPBOX_DOWNLOADS_TOKEN'] ?: ""
             }
         }
+
+        maven { url 'http://raw.github.com/saki4510t/libcommon/master/repository/' }
     }
 }
