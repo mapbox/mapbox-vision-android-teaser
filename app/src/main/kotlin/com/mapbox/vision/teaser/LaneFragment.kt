@@ -60,13 +60,17 @@ class LaneFragment : BaseVisionFragment() {
         }
 
         fun LaneDirection.toDrawableId() = when (this) {
-            LaneDirection.Backward -> R.drawable.ic_arrow
-            LaneDirection.Forward -> R.drawable.ic_arrow_forward
-            LaneDirection.Reverse -> R.drawable.ic_arrow_reversed
+            LaneDirection.Oncoming -> R.drawable.ic_arrow
+            LaneDirection.Direct -> R.drawable.ic_arrow_forward
+//            LaneDirection.Reverse -> R.drawable.ic_arrow_reversed
             LaneDirection.Unknown -> TODO()
         }
 
         lines_detections_container.removeAllViews()
+
+        val lanes = roadDescription.lanes.sortByDescending {
+            it.instance.ordinal
+        }
 
         for (index in roadDescription.lanes.indices) {
             val lane = roadDescription.lanes[index]
@@ -75,11 +79,12 @@ class LaneFragment : BaseVisionFragment() {
             lines_detections_container.addView(leftMarkingImageView)
 
             val directionImageView = getImageView()
-            if (index == roadDescription.currentLaneIndex) {
-                directionImageView.setImageResource(R.drawable.ic_blue_arrow)
-            } else {
-                directionImageView.setImageResource(lane.direction.toDrawableId())
-            }
+            // FIXME
+//            if (index == roadDescription.currentLaneIndex) {
+//                directionImageView.setImageResource(R.drawable.ic_blue_arrow)
+//            } else {
+//                directionImageView.setImageResource(lane.direction.toDrawableId())
+//            }
             lines_detections_container.addView(directionImageView)
 
             if (index == roadDescription.lanes.lastIndex) {

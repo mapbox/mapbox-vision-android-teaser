@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity(), ReplayModeFragment.OnSelectModeItemLis
 
     private var isPermissionsGranted = false
     private var visionManagerWasInit = false
-    private var modelPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.HIGH)
+    private var modelPerformance = ModelPerformance.On(ModelPerformanceMode.FIXED, ModelPerformanceRate.LOW)
 
     private val visionEventsListener = object : VisionEventsListener {
 

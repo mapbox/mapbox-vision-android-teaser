@@ -23,6 +23,8 @@ android {
         versionCode teaser_version_code
         versionName teaser_version_name
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String","VERSION_NAME","\"${defaultConfig.versionName}\"")
     }
 
     splits {
@@ -96,6 +98,10 @@ android {
 
     sourceSets{
         main.java.srcDirs += 'src/main/kotlin/'
+    }
+
+    packagingOptions {
+        pickFirst '**/libvision-sdk-wrapper.so'
     }
 }
 
